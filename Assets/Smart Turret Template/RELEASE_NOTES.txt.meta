@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 45daac4f591fd704c9d09296c879bf63
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 87087
+  packageName: Smart Turret Template
+  packageVersion: 2.0
+  assetPath: Assets/Smart Turret Template/RELEASE_NOTES.txt
+  uploadId: 884344

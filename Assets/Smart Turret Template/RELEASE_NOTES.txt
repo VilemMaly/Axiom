@@ -1,0 +1,107 @@
+Smart Turret Template
+Release Notes
+
+================================================================================
+v2.0.0
+================================================================================
+
+BUG FIXES
+
+  Invoke Spam
+    Shooting() was queued every FixedUpdate frame, causing it to fire
+    many times per second. Now guarded by isShooting flag — one shot
+    queued at a time, reset on execution or target loss.
+
+  Inverted Damage Condition
+    ReceiveDamage() condition was inverted: lethal hits triggered the
+    survive branch and survivable hits triggered destruction. Fixed to
+    if (toughness - damage > 0).
+
+  ClearTargets Loop Bug
+    targeting.target was reassigned on every loop iteration including
+    iterations that removed nothing. Assignment now happens once after
+    the loop completes.
+
+  ClearTargets / CancelInvoke on Miss
+    ClearTargets() and CancelInvoke() were called even when the raycast
+    hit an untagged object, clearing valid targets on a miss. Both now
+    only execute after a confirmed tag-matching hit.
+
+  Torque Accumulation
+    AddTorque() was called every FixedUpdate with no angular damping,
+    causing the turret to overshoot and spin indefinitely. angularDamping
+    is now applied to the Rigidbody on Awake from the new rotationDamping
+    parameter.
+
+  Destroy() Name Shadowing
+    STT_Actor.Destroy() shadowed UnityEngine.Object.Destroy, creating
+    ambiguity. Renamed to Die() throughout.
+
+  Death Loop
+    Multiple collision events in the same frame could call Die() several
+    times before the collider was disabled. Guarded by isDead flag.
+
+  aimingDelay Unused
+    aimingDelay was exposed in the inspector but never read. Now
+    implemented: delays the start of rotation after a target enters range.
+
+IMPROVEMENTS
+
+  GetComponent Caching
+    Rigidbody, AudioSource, and Animator are now cached in Awake on
+    STT_Turret. Collider, Renderer, AudioSource cached in Awake on
+    STT_Actor. Removed all per-frame and per-shot GetComponent calls.
+
+  No-Allocation Target Iteration
+    ClearTargets() no longer calls .ToList() on every FixedUpdate.
+    Replaced with a backwards for loop. No heap allocation per frame.
+
+  LINQ Removed
+    targets.First() replaced with targets[0]. System.Linq import removed
+    from STT_Turret.cs.
+
+  CompareTag
+    CheckTags() now uses CompareTag() instead of == tag comparison.
+    Allocation-free and avoids potential tag string mismatch.
+
+  CheckTags Early Return
+    CheckTags() now returns true immediately on the first matching tag
+    instead of continuing to iterate the full array.
+
+  BoxCollider Configurable
+    Body collider size and center were hardcoded magic numbers in Awake.
+    Exposed as bodyColliderSize and bodyColliderCenter in TurretParameters.
+
+  Namespace Compliance
+    All types wrapped in STT namespace (Asset Store requirement).
+    Editor scripts use STT.Editor sub-namespace.
+
+NEW FEATURES
+
+  Custom Inspectors
+    STT_TurretEditor with collapsible sections: References, Parameters,
+    Targeting, Effects, Physics. Live Runtime panel in Play mode shows
+    current target, target count, Aiming flag, and Shooting flag.
+    STT_ActorEditor with Parameters and Effects sections. Live Runtime
+    panel shows current toughness and isDead state.
+
+  Comprehensive Documentation
+    Self-contained HTML documentation (Documentation.html).
+    Full API reference for STT_Turret and STT_Actor.
+    Getting started guide, lifecycle flow diagram, and file structure.
+
+FILE STRUCTURE
+
+  Scripts/
+    STT_Turret.cs              AI turret — detection, aiming, shooting
+    STT_Actor.cs               Destructible target — health, damage, death
+    Editor/STT_TurretEditor.cs Custom inspector for STT_Turret
+    Editor/STT_ActorEditor.cs  Custom inspector for STT_Actor
+
+  Documentation.html           Full API reference
+
+================================================================================
+
+Evgenii Nikolskii
+Lead Technical Artist | Glavni tehnički umetnik
+Evgenii Nikolskii PR — Novi Sad, Serbia

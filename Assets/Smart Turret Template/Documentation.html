@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Turret Template Documentation</title>
+<style>
+    :root {
+        --bg: #0e0e0e;
+        --surface: #161616;
+        --surface2: #1c1c1c;
+        --border: #2a2a2a;
+        --text: #d4d4d4;
+        --text-dim: #808080;
+        --accent-red: #d94444;
+        --accent-blue: #4a9edb;
+        --accent-green: #44b84a;
+        --accent-yellow: #e6c020;
+        --accent-gray: #888;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar */
+    nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 32px 0;
+        overflow-y: auto;
+        z-index: 10;
+    }
+
+    nav .logo {
+        padding: 0 24px 24px;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: #fff;
+    }
+
+    nav .logo span {
+        font-weight: 300;
+        color: var(--text-dim);
+        font-size: 11px;
+        display: block;
+        letter-spacing: 0;
+        margin-top: 2px;
+    }
+
+    nav a {
+        display: block;
+        padding: 8px 24px;
+        color: var(--text-dim);
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.15s;
+    }
+
+    nav a:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.04);
+    }
+
+    nav .nav-section {
+        padding: 16px 24px 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+    }
+
+    nav .nav-section.red    { color: var(--accent-red); }
+    nav .nav-section.blue   { color: var(--accent-blue); }
+    nav .nav-section.green  { color: var(--accent-green); }
+    nav .nav-section.orange { color: var(--accent-orange); }
+    nav .nav-section.yellow { color: var(--accent-yellow); }
+
+    /* Main */
+    main {
+        margin-left: 260px;
+        max-width: 820px;
+        padding: 48px 56px 120px;
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #fff;
+    }
+
+    h1 + p {
+        color: var(--text-dim);
+        margin-bottom: 48px;
+        font-size: 15px;
+    }
+
+    h2 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 56px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+        color: #fff;
+    }
+
+    h2 .accent {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        margin-right: 8px;
+        vertical-align: middle;
+        position: relative;
+        top: -1px;
+    }
+
+    h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 32px 0 12px;
+        color: #eee;
+    }
+
+    h4 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 20px 0 8px;
+        color: var(--text-dim);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    p {
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    /* Code */
+    code {
+        font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12.5px;
+        color: #ccc;
+    }
+
+    pre {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin: 12px 0 20px;
+        overflow-x: auto;
+        font-size: 12.5px;
+        line-height: 1.8;
+    }
+
+    pre code {
+        background: none;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    .keyword { color: #c586c0; }
+    .type    { color: #4ec9b0; }
+    .string  { color: #ce9178; }
+    .comment { color: #6a9955; }
+    .method  { color: #dcdcaa; }
+    .number  { color: #b5cea8; }
+    .param   { color: #9cdcfe; }
+
+    /* Tables */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 20px;
+        font-size: 13px;
+    }
+
+    th {
+        text-align: left;
+        padding: 10px 12px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+    }
+
+    td {
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        vertical-align: top;
+    }
+
+    td code { font-size: 12px; }
+
+    tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+
+    /* Callouts */
+    .callout {
+        border-left: 3px solid var(--accent-blue);
+        background: rgba(74, 158, 219, 0.06);
+        padding: 14px 18px;
+        margin: 16px 0;
+        border-radius: 0 6px 6px 0;
+        font-size: 13px;
+    }
+
+    .callout.warn {
+        border-left-color: var(--accent-yellow);
+        background: rgba(230, 192, 32, 0.06);
+    }
+
+    .callout.danger {
+        border-left-color: var(--accent-red);
+        background: rgba(217, 68, 68, 0.06);
+    }
+
+    .callout strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Method signature */
+    .method-sig {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 16px;
+        margin: 8px 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+        color: #ccc;
+    }
+
+    .method-sig .ret  { color: #4ec9b0; }
+    .method-sig .name { color: #dcdcaa; }
+    .method-sig .par  { color: #9cdcfe; }
+
+    /* Steps */
+    .steps {
+        counter-reset: step;
+        list-style: none;
+        margin: 16px 0;
+    }
+
+    .steps li {
+        counter-increment: step;
+        padding: 8px 0 8px 36px;
+        position: relative;
+        font-size: 14px;
+    }
+
+    .steps li::before {
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        text-align: center;
+        font-size: 11px;
+        line-height: 20px;
+        color: var(--text-dim);
+        font-weight: 600;
+    }
+
+    /* File tree */
+    .file-tree {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 4px 0;
+        margin: 12px 0 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+    }
+
+    .file-tree .row {
+        display: flex;
+        align-items: center;
+        padding: 5px 20px;
+        gap: 10px;
+        transition: background 0.1s;
+    }
+
+    .file-tree .row:hover { background: rgba(255,255,255,0.03); }
+
+    .file-tree .indent-1 { padding-left: 40px; }
+    .file-tree .indent-2 { padding-left: 60px; }
+    .file-tree .indent-3 { padding-left: 80px; }
+
+    .file-tree .icon {
+        width: 16px;
+        text-align: center;
+        flex-shrink: 0;
+        font-size: 11px;
+    }
+
+    .file-tree .icon.dir    { color: var(--accent-blue); }
+    .file-tree .icon.cs     { color: var(--accent-green); }
+    .file-tree .icon.editor { color: var(--accent-yellow); }
+    .file-tree .icon.file   { color: var(--text-dim); }
+
+    .file-tree .name {
+        color: var(--text);
+        font-weight: 500;
+        min-width: 200px;
+    }
+
+    .file-tree .name.dir-name {
+        color: var(--accent-blue);
+        font-weight: 600;
+    }
+
+    .file-tree .desc {
+        color: var(--text-dim);
+        font-size: 11.5px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .file-tree .sep {
+        height: 1px;
+        background: var(--border);
+        margin: 4px 20px;
+    }
+
+    /* Flow diagram */
+    .flow {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin: 12px 0 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        line-height: 2;
+        color: var(--text-dim);
+    }
+
+    .flow .highlight { color: var(--text); }
+    .flow .red    { color: var(--accent-red); }
+    .flow .blue   { color: var(--accent-blue); }
+    .flow .green  { color: var(--accent-green); }
+    .flow .orange { color: var(--accent-orange); }
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">STT<span>Smart Turret Template</span></div>
+
+    <a href="#getting-started">Getting Started</a>
+    <a href="#structure">File Structure</a>
+    <a href="#lifecycle">Turret Lifecycle</a>
+
+    <div class="nav-section red">STT_Turret</div>
+    <a href="#turret">Overview</a>
+    <a href="#turret-parameters">Parameters</a>
+    <a href="#turret-targeting">Targeting</a>
+    <a href="#turret-physics">Physics</a>
+    <a href="#turret-api">API Reference</a>
+
+    <div class="nav-section blue">STT_Actor</div>
+    <a href="#actor">Overview</a>
+    <a href="#actor-parameters">Parameters</a>
+    <a href="#actor-effects">Effects</a>
+    <a href="#actor-api">API Reference</a>
+
+    <div class="nav-section green">Integration</div>
+    <a href="#integration-custom">Custom Targets</a>
+
+</nav>
+
+<main>
+
+<!-- ════════════════════════════════════════ -->
+<h1>Smart Turret Template</h1>
+<p>Autonomous AI turret system for Unity. Drop-in detection, aiming, shooting, and destruction &mdash; all configurable from the inspector.</p>
+
+<!-- Summary card -->
+<div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 32px;">
+    <p style="font-size: 15px; color: #eee; margin-bottom: 16px;">STT provides a self-contained turret that detects enemies by tag, rotates toward them via physics torque, fires a raycast-validated shot, and applies explosion-force damage to any <code>STT_Actor</code> target. No wiring required beyond assigning a muzzle transform and enemy tags.</p>
+    <table style="margin: 0; font-size: 13px;">
+        <tr><td style="padding: 4px 16px 4px 0; border: none; color: var(--text-dim);">Detection</td><td style="border: none;">Sphere trigger with configurable radius and tag filtering</td></tr>
+        <tr><td style="padding: 4px 16px 4px 0; border: none; color: var(--text-dim);">Aiming</td><td style="border: none;">Physics torque rotation with damping and optional delay</td></tr>
+        <tr><td style="padding: 4px 16px 4px 0; border: none; color: var(--text-dim);">Shooting</td><td style="border: none;">Raycast line-of-sight validation, configurable fire rate</td></tr>
+        <tr><td style="padding: 4px 16px 4px 0; border: none; color: var(--text-dim);">Damage</td><td style="border: none;">Toughness pool, armor threshold, explosion force knockback</td></tr>
+        <tr><td style="padding: 4px 16px 4px 0; border: none; color: var(--text-dim);">Effects</td><td style="border: none;">Shot FX, damage FX, destruction FX, audio clips</td></tr>
+        <tr><td style="padding: 4px 16px 4px 0; border: none; color: var(--text-dim);">Editor</td><td style="border: none;">Custom inspectors with runtime debug display for both components</td></tr>
+    </table>
+</div>
+
+<!-- Getting Started -->
+<h2 id="getting-started">Getting Started</h2>
+
+<h4>Setting Up a Turret</h4>
+<ol class="steps">
+    <li>Drag the <code>STT_Turret.prefab</code> into your scene.</li>
+    <li>In the <strong>References</strong> panel, assign the <strong>Muzzle</strong> transform (the barrel tip child object).</li>
+    <li>In <strong>Parameters &rsaquo; Status</strong>, enable <strong>Active</strong> and <strong>Can Fire</strong>.</li>
+    <li>In <strong>Parameters &rsaquo; Shooting</strong>, set <strong>Power</strong>, <strong>Delay</strong>, and <strong>Radius</strong>.</li>
+    <li>In <strong>Targeting &rsaquo; Tags</strong>, add the tags of enemy GameObjects (e.g. <code>Player</code>, <code>Enemy</code>).</li>
+    <li>In <strong>Effects</strong>, assign a <strong>Shot FX</strong> particle prefab and a <strong>Shot Clip</strong> audio clip.</li>
+</ol>
+
+<h4>Setting Up a Target</h4>
+<ol class="steps">
+    <li>Add <code>STT_Actor</code> to any GameObject that should be destructible.</li>
+    <li>Ensure the GameObject has a <strong>Rigidbody</strong> and a <strong>Collider</strong>.</li>
+    <li>Set the GameObject's tag to match one of the turret's <strong>Tags to Fire</strong>.</li>
+    <li>Configure <strong>Toughness</strong> (health), <strong>Armor</strong> (collision threshold), and <strong>Damage Factor</strong> (knockback multiplier).</li>
+    <li>Optionally assign <strong>Damage FX</strong>, <strong>Destroy FX</strong>, and a <strong>Destroy Clip</strong>.</li>
+</ol>
+
+<div class="callout">
+    <strong>Prefab</strong>
+    The included <code>STT_Turret.prefab</code> ships with a pre-configured Rigidbody, SphereCollider (trigger), BoxCollider (body), AudioSource, and Animator. Open the demo scene <code>STT_Overview.unity</code> to see a working setup.
+</div>
+
+<!-- File Structure -->
+<h2 id="structure">File Structure</h2>
+
+<div class="file-tree">
+    <div class="row">
+        <span class="icon dir">&#x1F4C1;</span>
+        <span class="name dir-name">Smart Turret Template/</span>
+    </div>
+    <div class="row indent-1">
+        <span class="icon dir">&#x1F4C1;</span>
+        <span class="name dir-name">Scripts/</span>
+    </div>
+    <div class="row indent-2">
+        <span class="icon cs">&#x25C6;</span>
+        <span class="name">STT_Turret.cs</span>
+        <span class="desc">AI turret &mdash; detection, aiming, shooting</span>
+    </div>
+    <div class="row indent-2">
+        <span class="icon cs">&#x25C6;</span>
+        <span class="name">STT_Actor.cs</span>
+        <span class="desc">Destructible target &mdash; health, damage, death</span>
+    </div>
+    <div class="sep"></div>
+    <div class="row indent-1">
+        <span class="icon dir">&#x1F4C1;</span>
+        <span class="name dir-name">Prefabs/</span>
+    </div>
+    <div class="row indent-2">
+        <span class="icon file">&#x25C6;</span>
+        <span class="name">STT_Turret.prefab</span>
+        <span class="desc">Pre-configured turret</span>
+    </div>
+    <div class="row indent-2">
+        <span class="icon file">&#x25C6;</span>
+        <span class="name">STT_Target.prefab</span>
+        <span class="desc">Example destructible crate</span>
+    </div>
+    <div class="sep"></div>
+    <div class="row indent-1">
+        <span class="icon dir">&#x1F4C1;</span>
+        <span class="name dir-name">Scenes/</span>
+    </div>
+    <div class="row indent-2">
+        <span class="icon file">&#x25C6;</span>
+        <span class="name">STT_Overview.unity</span>
+        <span class="desc">Demo scene with turret and targets</span>
+    </div>
+</div>
+
+<!-- Lifecycle -->
+<h2 id="lifecycle">Turret Lifecycle</h2>
+
+<p>The full turret loop runs across two components. <code>STT_Turret</code> handles the AI side; <code>STT_Actor</code> handles the receiving end on any target (including the turret itself).</p>
+
+<div class="flow">
+<span class="blue">OnTriggerEnter</span>  &rarr;  target added to list, aiming delay started<br>
+<span class="highlight">FixedUpdate</span>      &rarr;  <span class="red">ClearTargets()</span> &rarr; <span class="green">Aiming()</span> &rarr; <span class="orange">Invoke(Shooting)</span><br>
+<span class="orange">Shooting()</span>       &rarr;  Raycast &rarr; CheckTags &rarr; <span class="red">Shot()</span> &rarr; <span class="red">ReceiveDamage()</span><br>
+<span class="red">ReceiveDamage()</span>  &rarr;  toughness &gt; 0: damage FX + knockback<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr;  toughness &le; 0: destroy FX + <span class="red">Die()</span><br>
+<span class="blue">OnTriggerExit</span>   &rarr;  target removed, next target selected
+</div>
+
+<div class="callout warn">
+    <strong>Target Switching</strong>
+    When the current target is destroyed, <code>ClearTargets()</code> (called every <code>FixedUpdate</code>) removes it and automatically promotes the next target in the list. The turret never idles while enemies remain in range.
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- STT_TURRET -->
+<!-- ════════════════════════════════════════ -->
+<h2 id="turret"><span class="accent" style="background:var(--accent-red)"></span>STT_Turret</h2>
+
+<p>The main turret MonoBehaviour. Requires <code>Rigidbody</code>, <code>SphereCollider</code>, <code>BoxCollider</code>, <code>AudioSource</code>, <code>Animator</code>, and <code>STT_Actor</code> on the same GameObject (all enforced via <code>[RequireComponent]</code>).</p>
+
+<!-- Parameters -->
+<h3 id="turret-parameters">Parameters</h3>
+
+<h4>Status</h4>
+<table>
+    <tr><th>Property</th><th>Default</th><th>Description</th></tr>
+    <tr><td><code>active</code></td><td>false</td><td>Master switch. When false, all turret logic is skipped.</td></tr>
+    <tr><td><code>canFire</code></td><td>false</td><td>Enable shooting. The turret still aims when false.</td></tr>
+</table>
+
+<h4>Shooting</h4>
+<table>
+    <tr><th>Property</th><th>Default</th><th>Description</th></tr>
+    <tr><td><code>power</code></td><td>&mdash;</td><td>Damage dealt per shot. Also used as the explosion force magnitude applied to the target's Rigidbody.</td></tr>
+    <tr><td><code>ShootingDelay</code></td><td>0.5&ndash;2 s</td><td>Pause between shots. Clamped to the [0.5, 2] range by the inspector slider.</td></tr>
+    <tr><td><code>radius</code></td><td>&mdash;</td><td>Sets both the detection trigger radius and the maximum raycast distance for shooting.</td></tr>
+</table>
+
+<!-- Targeting -->
+<h3 id="turret-targeting">Targeting</h3>
+
+<h4>Aiming</h4>
+<table>
+    <tr><th>Property</th><th>Default</th><th>Description</th></tr>
+    <tr><td><code>aimingSpeed</code></td><td>&mdash;</td><td>Torque multiplier applied to the Rigidbody per frame. Higher values rotate the turret faster toward its target.</td></tr>
+    <tr><td><code>aimingDelay</code></td><td>0</td><td>Seconds before the turret starts rotating after a target enters range. Set to 0 for instant tracking.</td></tr>
+</table>
+
+<h4>Tags</h4>
+<table>
+    <tr><th>Property</th><th>Description</th></tr>
+    <tr><td><code>tagsToFire</code></td><td>String array of Unity tags. Only colliders with a matching tag are added to the target list and shot at.</td></tr>
+    <tr><td><code>targets</code></td><td>Live list of all colliders currently inside the detection radius. Read-only at runtime.</td></tr>
+    <tr><td><code>target</code></td><td>The currently active target (always <code>targets[0]</code>). The turret aims at and shoots this collider.</td></tr>
+</table>
+
+<div class="callout">
+    <strong>Tag Matching</strong>
+    Tags are checked using <code>CompareTag()</code> which is allocation-free and avoids the performance cost of string comparison with <code>==</code>.
+</div>
+
+<!-- Physics -->
+<h3 id="turret-physics">Physics</h3>
+
+<table>
+    <tr><th>Property</th><th>Default</th><th>Description</th></tr>
+    <tr><td><code>rotationDamping</code></td><td>5</td><td>Angular damping applied to the Rigidbody on <code>Awake</code>. Prevents the turret from spinning past its target due to accumulated torque.</td></tr>
+    <tr><td><code>bodyColliderSize</code></td><td>(2, 2, 2)</td><td>Size of the BoxCollider used as the turret's physical body. Adjust to fit your mesh.</td></tr>
+    <tr><td><code>bodyColliderCenter</code></td><td>(0, 1, 0)</td><td>Center offset of the BoxCollider relative to the turret pivot.</td></tr>
+</table>
+
+<div class="callout warn">
+    <strong>Rigidbody Constraints</strong>
+    The turret uses <code>AddTorque</code> for rotation. If the turret tips over, freeze the X and Z rotation axes on the Rigidbody component. The Y axis must remain free for horizontal aiming to work.
+</div>
+
+<!-- Turret API -->
+<h3 id="turret-api">API Reference</h3>
+
+<div class="method-sig"><span class="ret">void</span> <span class="name">Aiming</span>()</div>
+<p>Called each <code>FixedUpdate</code> when <code>isAiming</code> is true and a target exists. Computes the angle between the turret's forward and the target, then applies torque via <code>Rigidbody.AddTorque</code>. Public so it can be called from external scripts to force an aim frame.</p>
+
+<pre><code><span class="comment">// The core aiming math</span>
+<span class="type">Vector3</span> <span class="param">delta</span> = targeting.target.transform.position - transform.position;
+<span class="type">float</span> <span class="param">angle</span> = <span class="type">Vector3</span>.<span class="method">Angle</span>(transform.forward, <span class="param">delta</span>);
+<span class="type">Vector3</span> <span class="param">cross</span> = <span class="type">Vector3</span>.<span class="method">Cross</span>(transform.forward, <span class="param">delta</span>);
+rb.<span class="method">AddTorque</span>(<span class="param">cross</span> * <span class="param">angle</span> * targeting.aimingSpeed);
+</code></pre>
+
+<div class="method-sig"><span class="ret">void</span> <span class="name">Shooting</span>() <span style="color:var(--text-dim); font-size:11px; margin-left:8px;">private</span></div>
+<p>Invoked after <code>ShootingDelay</code> seconds. Casts a ray from the muzzle; if it hits a collider with a matching tag, calls <code>Shot()</code> and <code>ReceiveDamage()</code> on the target's <code>STT_Actor</code>. Resets <code>isShooting</code> so the next shot can be queued.</p>
+
+<div class="method-sig"><span class="ret">void</span> <span class="name">Shot</span>() <span style="color:var(--text-dim); font-size:11px; margin-left:8px;">private</span></div>
+<p>Plays the shot audio clip at a random volume (0.75&ndash;1.0), triggers the <code>Shot</code> animator trigger, and instantiates the shot FX prefab at the muzzle. The FX GameObject is destroyed after 2 seconds.</p>
+
+<div class="method-sig"><span class="ret">void</span> <span class="name">ClearTargets</span>() <span style="color:var(--text-dim); font-size:11px; margin-left:8px;">private</span></div>
+<p>Iterates the target list backwards, removing any <code>null</code> or disabled colliders. Then sets <code>targeting.target</code> to <code>targets[0]</code> or <code>null</code> if the list is empty. Called every <code>FixedUpdate</code>.</p>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- STT_ACTOR -->
+<!-- ════════════════════════════════════════ -->
+<h2 id="actor"><span class="accent" style="background:var(--accent-blue)"></span>STT_Actor</h2>
+
+<p>Add this component to any GameObject that should receive turret damage. Requires <code>Rigidbody</code> and <code>AudioSource</code>. Also responds to physical collisions &mdash; a fast-moving object crashing into an actor deals impact damage.</p>
+
+<!-- Actor Parameters -->
+<h3 id="actor-parameters">Parameters</h3>
+
+<table>
+    <tr><th>Property</th><th>Description</th></tr>
+    <tr><td><code>toughness</code></td><td>The actor's health pool. Each <code>ReceiveDamage</code> call subtracts from this. When it reaches zero, <code>Die()</code> is called.</td></tr>
+    <tr><td><code>armor</code></td><td>Minimum collision velocity (m/s) required for a physics impact to deal damage. Acts as a threshold &mdash; light touches are ignored, hard hits are not.</td></tr>
+    <tr><td><code>damageFactor</code></td><td>Multiplier applied to the explosion force on each hit. Higher values produce more knockback relative to the damage dealt.</td></tr>
+</table>
+
+<!-- Actor Effects -->
+<h3 id="actor-effects">Effects</h3>
+
+<h4>VFX</h4>
+<table>
+    <tr><th>Property</th><th>Description</th></tr>
+    <tr><td><code>damageFX</code></td><td>Particle prefab instantiated at the hit position on each damage event. Destroyed after 3 seconds.</td></tr>
+    <tr><td><code>deactivateFX</code></td><td>Particle prefab instantiated at the actor's position on death. Destroyed after 3 seconds.</td></tr>
+</table>
+
+<h4>SFX</h4>
+<table>
+    <tr><th>Property</th><th>Description</th></tr>
+    <tr><td><code>destroyClip</code></td><td>Audio clip played when the actor is destroyed. The clip plays in full before the GameObject is removed (2-second delay).</td></tr>
+</table>
+
+<!-- Actor API -->
+<h3 id="actor-api">API Reference</h3>
+
+<div class="method-sig"><span class="ret">void</span> <span class="name">ReceiveDamage</span>(<span class="ret">float</span> <span class="par">damage</span>, <span class="ret">Vector3</span> <span class="par">position</span>)</div>
+<p>Main damage entry point. Call from any system to deal damage. If <code>isDead</code> is already true, the call is ignored. If <code>toughness - damage &gt; 0</code>, subtracts damage, applies explosion force at <code>position</code>, and spawns damage FX. Otherwise, calls <code>Die()</code>.</p>
+
+<pre><code><span class="comment">// Call from any script that has a reference to the target</span>
+<span class="type">STT_Actor</span> <span class="param">actor</span> = hit.collider.GetComponent&lt;<span class="type">STT_Actor</span>&gt;();
+<span class="keyword">if</span> (<span class="param">actor</span> != <span class="keyword">null</span>)
+    <span class="param">actor</span>.<span class="method">ReceiveDamage</span>(<span class="number">50f</span>, hit.point);
+</code></pre>
+
+<div class="method-sig"><span class="ret">void</span> <span class="name">Die</span>()</div>
+<p>Sets <code>isDead = true</code>, disables the collider and renderer, plays the destroy audio clip, and schedules <code>Destroy(gameObject, 2)</code>. Safe to call multiple times &mdash; the guard flag prevents double-execution.</p>
+
+<div class="callout danger">
+    <strong>Naming</strong>
+    This method is named <code>Die()</code>, not <code>Destroy()</code>. Using the name <code>Destroy</code> on a MonoBehaviour shadows <code>UnityEngine.Object.Destroy</code>, which can cause unexpected behaviour. Always call <code>Die()</code> to trigger destruction from external code.
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- INTEGRATION -->
+<!-- ════════════════════════════════════════ -->
+<h2 id="integration-custom"><span class="accent" style="background:var(--accent-green)"></span>Integration</h2>
+
+<h3 id="integration-custom">Custom Targets</h3>
+
+<p>Any GameObject can be a turret target as long as it has:</p>
+<ol class="steps">
+    <li>A <strong>Collider</strong> (any shape) with its tag set to match <code>tagsToFire</code>.</li>
+    <li>A <strong>Rigidbody</strong> (required by <code>STT_Actor</code> for explosion force).</li>
+    <li>An <strong>STT_Actor</strong> component with <code>toughness</code> &gt; 0.</li>
+</ol>
+
+<p>Objects without <code>STT_Actor</code> are safe to have in the scene &mdash; the turret's raycast only deals damage when <code>GetComponent&lt;STT_Actor&gt;()</code> succeeds on the hit collider.</p>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- CREDITS -->
+<!-- ════════════════════════════════════════ -->
+<div style="margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--border);">
+    <p style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 4px;">Evgenii Nikolskii</p>
+    <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 2px;">Lead Technical Artist | Glavni tehni&#x10D;ki umetnik</p>
+    <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Evgenii Nikolskii PR &mdash; Novi Sad, Serbia</p>
+    <p style="font-size: 11px; color: var(--text-dim); opacity: 0.6; margin-bottom: 0;">This documentation and parts of the codebase were developed with the assistance of AI (Claude, Anthropic).</p>
+</div>
+
+</main>
+</body>
+</html>

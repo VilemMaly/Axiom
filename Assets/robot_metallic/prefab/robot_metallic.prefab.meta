@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7db4fdf40e93e1f46bfd95dd54089326
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 171295
+  packageName: Robot Metallic humanoid
+  packageVersion: 1.0
+  assetPath: Assets/robot_metallic/prefab/robot_metallic.prefab
+  uploadId: 374307

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 48eaa7863df876942882b67ffbfcf2c3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 87087
+  packageName: Smart Turret Template
+  packageVersion: 2.0
+  assetPath: Assets/Smart Turret Template/Geometry/Materials/Cube.mat
+  uploadId: 884344

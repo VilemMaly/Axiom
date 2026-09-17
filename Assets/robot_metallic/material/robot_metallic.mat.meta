@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5c7407d2adf955d45bf09a96518e5856
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 171295
+  packageName: Robot Metallic humanoid
+  packageVersion: 1.0
+  assetPath: Assets/robot_metallic/material/robot_metallic.mat
+  uploadId: 374307

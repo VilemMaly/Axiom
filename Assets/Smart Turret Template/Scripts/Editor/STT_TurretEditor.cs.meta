@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 91ee879ba866bd847b33e59af9b0e000
+AssetOrigin:
+  serializedVersion: 1
+  productId: 87087
+  packageName: Smart Turret Template
+  packageVersion: 2.0
+  assetPath: Assets/Smart Turret Template/Scripts/Editor/STT_TurretEditor.cs
+  uploadId: 884344
