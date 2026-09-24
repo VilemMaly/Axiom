@@ -10325,7 +10325,7 @@ MonoBehaviour:
   Type: 1
   MaxHealth: 30
   Cost: 40
-  SightRange: 10
+  SightRange: 16.7
   currentVisibility: {fileID: 365583955660702408}
   groundLayerMask:
     serializedVersion: 2
@@ -10335,7 +10335,7 @@ MonoBehaviour:
   buildingLayerMask:
     serializedVersion: 2
     m_Bits: 512
-  buildingDetectionRadius: 5
+  buildingDetectionRadius: 15
   buildingDetectionInterval: 0.5
   hitParticle: {fileID: 3435017008678176454}
   hitSfx: {fileID: 8300000, guid: 9440452d135bedb4a9e5212846f2dd37, type: 3}
