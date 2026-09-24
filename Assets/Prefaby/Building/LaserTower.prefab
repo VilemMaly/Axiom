@@ -248,16 +248,16 @@ MonoBehaviour:
   MaxHealth: 100
   Cost: 60
   RequiredCorium: 0
-  MaxBuildingAmount: 0
+  MaxBuildingAmount: 8
   CoriumConsumption: 0
   EnergyConsumption: 0
   CoriumProduction: 0
   EnergyProduction: 0
-  Damage: 0
-  AttackRange: 0
-  AttackSpeed: 0
-  AttackCooldown: 0
-  SightRange: 0
+  Damage: 10
+  AttackRange: 8.06
+  AttackSpeed: 1.19
+  AttackCooldown: 1.1
+  SightRange: 7.77
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -273,11 +273,24 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  firePoint: {fileID: 0}
-  laserBeam: {fileID: 0}
+  turretPivot: {fileID: 2475389561130164681}
+  firePoint: {fileID: 2475389561130164681}
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
+  enemyScanInterval: 0.25
+  turretRotationSpeed: 180
+  laserBeam: {fileID: 0}
+  laserDisplayDuration: 0.15
+  shotParticle: {fileID: 0}
+  fireSfx: {fileID: 0}
+  towerAnimator: {fileID: 0}
+  fireTriggerName: Fire
+  audioSource: {fileID: 0}
+  CurrentTarget:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
 --- !u!208 &3809187303386165916
 NavMeshObstacle:
   m_ObjectHideFlags: 0

@@ -6,6 +6,7 @@ public class PlayerResources : NetworkBehaviour
 {
     public NetworkVariable<int> Corium = new NetworkVariable<int>(100);
     public NetworkVariable<int> Energy = new NetworkVariable<int>(50);
+    public NetworkVariable<int> MaxCorium = new NetworkVariable<int>(200);
     public NetworkVariable<int> Cores = new NetworkVariable<int>(0);
     public NetworkVariable<int> Atlas = new NetworkVariable<int>(0);
 
@@ -23,14 +24,15 @@ public class PlayerResources : NetworkBehaviour
             return;
         }
 
-        Corium.OnValueChanged += (oldVal, newVal) => UpdateCoriumText(newVal);
+        Corium.OnValueChanged += (_, _) => UpdateCoriumText();
         Energy.OnValueChanged += (oldVal, newVal) => UpdateEnergyText(newVal);
+        MaxCorium.OnValueChanged += (_, _) => UpdateCoriumText();
 
-        UpdateCoriumText(Corium.Value);
+        UpdateCoriumText();
         UpdateEnergyText(Energy.Value);
     }
 
-    void UpdateCoriumText(int value) => coriumText.text = $"Corium: {value}";
+    void UpdateCoriumText() => coriumText.text = $"Corium: {Corium.Value} / {MaxCorium.Value}";
     void UpdateEnergyText(int value) => energyText.text = $"Energy: {value}";
 
     public bool TrySpend(int coriumCost, int energyCost)
@@ -45,7 +47,26 @@ public class PlayerResources : NetworkBehaviour
 
     public void Add(int corium, int energy)
     {
-        Corium.Value += corium;
+        Corium.Value = Mathf.Min(Corium.Value + corium, MaxCorium.Value);
         Energy.Value += energy;
+    }
+
+    /// <summary>
+    /// Zvýší maximální kapacitu coria (volá Storage při dostavění).
+    /// </summary>
+    public void AddMaxCorium(int amount)
+    {
+        MaxCorium.Value += amount;
+    }
+
+    /// <summary>
+    /// Sníží maximální kapacitu coria (volá Storage při zničení).
+    /// Aktuální corium se ořízne, pokud přesáhne nový limit.
+    /// </summary>
+    public void RemoveMaxCorium(int amount)
+    {
+        MaxCorium.Value = Mathf.Max(0, MaxCorium.Value - amount);
+        if (Corium.Value > MaxCorium.Value)
+            Corium.Value = MaxCorium.Value;
     }
 }

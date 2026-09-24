@@ -8991,7 +8991,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2584874171
+  GlobalObjectIdHash: 2901248539
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -9065,6 +9065,11 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 5000
+  MaxCorium:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 200
   Cores:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -9120,8 +9125,6 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: {x: 0, y: 0, z: 0}
-  confirmPlacementAction: {fileID: 3001919216989983466, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  cancelPlacementAction: {fileID: -4090225696740746782, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   mainUI: {fileID: 13316825908767613}
 --- !u!114 &2835819579741962478
 MonoBehaviour:
@@ -9244,6 +9247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 660f686ea731adc4885863dc6722497d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TroopInteractor
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &5590227313221032427
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9277,6 +9281,10 @@ MonoBehaviour:
   - buildingName: Cor
     type: 2
     prefab: {fileID: 1740923664320254884, guid: 3f348489337958a4c84781c2e02c98d0, type: 3}
+    checkRadius: 0
+  - buildingName: Laser
+    type: 1
+    prefab: {fileID: 1740923664320254884, guid: eebb0b4d6487b1f4cac4cd449e2c3100, type: 3}
     checkRadius: 0
 --- !u!114 &13316825908767613
 MonoBehaviour:

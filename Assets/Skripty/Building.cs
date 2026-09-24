@@ -26,7 +26,9 @@ public abstract class Building : NetworkBehaviour
         Factory,
         Wall,
         Radar,
-        EnergyPlant
+        EnergyPlant,
+        Gate,
+        Storage
     }
     public abstract BuildingType Type { get; }
 
