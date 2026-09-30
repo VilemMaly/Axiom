@@ -108,6 +108,7 @@ public class Gate : Building
     /// </summary>
     private void OnGateStateChanged(bool previousValue, bool newValue)
     {
+        Debug.Log($"[Gate] {previousValue} -> {newValue} | Gate={gameObject.name}");
         ApplyGateState(newValue);
     }
 
