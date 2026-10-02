@@ -260,6 +260,7 @@ public class Atlas : Troop
 
     private void BeginBuild()
     {
+        Debug.Log("[Atlas] Atlas dorazil k pozici stavby, začíná stavět.");
         GoingToBuilding = false;
         NearBuilding?.Invoke(this, BuildingIndex, BuildingPosition, BuildingRotation, pendingBuildQueue.Count);
         BuildingPosition = Vector3.zero;

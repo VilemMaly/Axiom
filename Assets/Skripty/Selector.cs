@@ -453,7 +453,6 @@ private void HandleBuildingClicked(Building building)
         {
             case BuildingType.Core: return corePanel;
             case BuildingType.LaserTower: return laserTowerPanel;
-            case BuildingType.CoriumMiner: return coriumMinerPanel;
             case BuildingType.Research: return researchPanel;
             case BuildingType.Factory: return factoryPanel;
             case BuildingType.Wall: return wallPanel;

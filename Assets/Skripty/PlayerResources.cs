@@ -7,6 +7,7 @@ public class PlayerResources : NetworkBehaviour
     public NetworkVariable<int> Corium = new NetworkVariable<int>(100);
     public NetworkVariable<int> Energy = new NetworkVariable<int>(50);
     public NetworkVariable<int> MaxCorium = new NetworkVariable<int>(200);
+    public NetworkVariable<int> MaxEnergy = new NetworkVariable<int>(100);
     public NetworkVariable<int> Cores = new NetworkVariable<int>(0);
     public NetworkVariable<int> Atlas = new NetworkVariable<int>(0);
 
@@ -48,7 +49,7 @@ public class PlayerResources : NetworkBehaviour
     public void Add(int corium, int energy)
     {
         Corium.Value = Mathf.Min(Corium.Value + corium, MaxCorium.Value);
-        Energy.Value += energy;
+        Energy.Value = Mathf.Min(Energy.Value + energy, MaxEnergy.Value);
     }
 
     /// <summary>
@@ -57,6 +58,24 @@ public class PlayerResources : NetworkBehaviour
     public void AddMaxCorium(int amount)
     {
         MaxCorium.Value += amount;
+        Debug.Log($"[PlayerResources] {name} přidal +{amount} max coria hráči {OwnerClientId}. " +
+        $"Nový max: {MaxCorium.Value}");
+    }
+
+    public void AddMaxEnergy(int amount)
+    {
+        MaxEnergy.Value += amount;
+        Debug.Log($"[PlayerResources] {name} přidal +{amount} max energie hráči {OwnerClientId}. " +
+        $"Nový max: {MaxEnergy.Value}");
+    }
+
+    /// <summary>
+    /// Sníží maximální kapacitu coria (volá Storage při zničení).
+    /// Aktuální corium se ořízne, pokud přesáhne nový limit.
+    /// </summary>
+    public void RemoveMaxEnergy(int amount)
+    {
+        MaxEnergy.Value -= amount;
     }
 
     /// <summary>

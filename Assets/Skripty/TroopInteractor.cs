@@ -112,6 +112,7 @@ public class TroopInteractor : NetworkBehaviour
                 BuildPosition = position;
                 BuildRotation = rotation;
                 selectedAtlas = troop as Atlas;
+                Debug.Log($"[TroopInteractor] Posílám příkaz Atlasu {troop.name} (typ {troop.Type}) k postavení budovy {buildingType.ToString()} na pozici {position} s rotací {rotation}.");
                 anyAtlasFound = true;
                 atlas.NearBuilding += BuildSubscribeEvent;
                 atlas.RequestMoveToBuild(position, buildingIndex, rotation);
@@ -126,7 +127,10 @@ public class TroopInteractor : NetworkBehaviour
     {
         build.RequestBuildServerRpc(index, position, rotation, selectedAtlas.NetworkObject);
         if (BuildingLeft <= 0)
+        {
             atlas.NearBuilding -= BuildSubscribeEvent;
+            Debug.Log($"[TroopInteractor] Atlas dostavil všechny budovy.");
+        }
     }
 
     /// <summary>

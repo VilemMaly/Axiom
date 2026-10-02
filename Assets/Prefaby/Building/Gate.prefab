@@ -154,10 +154,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gate
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 0
-  Cost: 0
+  MaxHealth: 100
+  Cost: 10
   RequiredCorium: 0
-  MaxBuildingAmount: 0
+  MaxBuildingAmount: 10
   CoriumConsumption: 0
   EnergyConsumption: 0
   CoriumProduction: 0
@@ -182,13 +182,16 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  detectionRadius: 8
+  detectionRadius: 8.11
   troopLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   scanInterval: 0.3
   gateAnimator: {fileID: 0}
   gateCollider: {fileID: 0}
+  obstacle: {fileID: 8503789327469019592}
+  material1: {fileID: 2100000, guid: 23e4c454fc32dfb4c9da834293f87904, type: 2}
+  material2: {fileID: 2100000, guid: 1b9735f11c2a68743a1c1e4586f366c8, type: 2}
   IsOpen:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

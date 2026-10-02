@@ -21,7 +21,7 @@ public abstract class Building : NetworkBehaviour
     {
         Core,
         LaserTower,
-        CoriumMiner,
+        Battery,
         Research,
         Factory,
         Wall,
@@ -89,6 +89,7 @@ public abstract class Building : NetworkBehaviour
         IsOperational = true;
 
         ReceiveCorium(0); // inicializace IsConstructionComplete podle StoredCorium
+        Debug.Log($"[Building] {Type} spawned for client {OwnerClientId}. IsOperational={IsOperational}, IsConstructionComplete={IsConstructionComplete.Value}");
 
     }
 
@@ -99,6 +100,9 @@ public abstract class Building : NetworkBehaviour
 
     public virtual void OnBuilt() { }
 
+    /// <summary>
+    /// Serverová logika – Update Building se volá pouze na serveru.
+    /// </summary>
     public virtual void UpdateBuilding() { }
 
     private void Update()

@@ -13,10 +13,10 @@ GameObject:
   - component: {fileID: 4355229593959428844}
   - component: {fileID: 1425491476330724532}
   - component: {fileID: 3231191921428354711}
-  - component: {fileID: 8341203209291118352}
-  - component: {fileID: 3144076497953607526}
+  - component: {fileID: 8503789327469019592}
+  - component: {fileID: 860537084609577709}
   m_Layer: 0
-  m_Name: CoriumMiner
+  m_Name: Storage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70,7 +70,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: a9c2b27eb8485c543b9b9f444a5d2d64, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -127,7 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 709400958
+  GlobalObjectIdHash: 3757069463
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -141,7 +141,23 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &8341203209291118352
+--- !u!208 &8503789327469019592
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740923664320254884}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.51, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
+--- !u!114 &860537084609577709
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,17 +166,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1740923664320254884}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e6f0a2e6b5427a459694d4ccef60a57, type: 3}
+  m_Script: {fileID: 11500000, guid: 6985c0927569e23479dba2ba0020883b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CoriumMiner
+  m_EditorClassIdentifier: Assembly-CSharp::Storage
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 100
-  Cost: 20
-  RequiredCorium: 200
-  MaxBuildingAmount: 0
+  Cost: 10
+  RequiredCorium: 0
+  MaxBuildingAmount: 10
   CoriumConsumption: 0
-  EnergyConsumption: 20
-  CoriumProduction: 20
+  EnergyConsumption: 0
+  CoriumProduction: 0
   EnergyProduction: 0
   Damage: 0
   AttackRange: 0
@@ -182,20 +198,4 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  tickInterval: 1
---- !u!208 &3144076497953607526
-NavMeshObstacle:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740923664320254884}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Shape: 1
-  m_Extents: {x: 0.51, y: 0.5, z: 0.5}
-  m_MoveThreshold: 0.1
-  m_Carve: 1
-  m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 0, z: 0}
-  m_TimeToStationary: 0.5
+  coriumCapacityBonus: 1000

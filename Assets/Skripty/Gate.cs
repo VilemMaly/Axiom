@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Gate : Building
 {
@@ -21,6 +22,11 @@ public class Gate : Building
 
     [Tooltip("Collider brány, který se vypne/zapne při otevření/zavření.")]
     [SerializeField] private Collider gateCollider;
+    [SerializeField] private NavMeshObstacle obstacle;
+
+    [Header("Materiály")]
+    [SerializeField] private Material material1;
+    [SerializeField] private Material material2;
 
     /// <summary>
     /// Synchronizovaný stav brány – true = otevřená, false = zavřená.
@@ -40,7 +46,7 @@ public class Gate : Building
         IsOpen.OnValueChanged += OnGateStateChanged;
 
         // Nastavit počáteční stav (zavřená)
-        ApplyGateState(IsOpen.Value);
+        ApplyGateStateClientRpc(IsOpen.Value);
     }
 
     public override void OnNetworkDespawn()
@@ -109,25 +115,29 @@ public class Gate : Building
     private void OnGateStateChanged(bool previousValue, bool newValue)
     {
         Debug.Log($"[Gate] {previousValue} -> {newValue} | Gate={gameObject.name}");
-        ApplyGateState(newValue);
+        ApplyGateStateClientRpc(newValue);
     }
 
     /// <summary>
     /// Aplikuje vizuální a fyzický stav brány.
     /// </summary>
-    private void ApplyGateState(bool open)
+    [ClientRpc]
+    private void ApplyGateStateClientRpc(bool open)
     {
         // Collider – vypnout při otevření, aby jednotky prošly
         if (gateCollider != null)
             gateCollider.enabled = !open;
+        obstacle.enabled = !open;
+        Renderer targetRenderer = GetComponentInChildren<Renderer>();
 
+        if (open)
+            targetRenderer.material = material1;
+        else
+            targetRenderer.material = material2;
         // Animator – přehrát odpovídající stav (pokud existuje)
         if (gateAnimator != null)
         {
-            if (open)
-                gateAnimator.Play("Open");
-            else
-                gateAnimator.Play("Close");
+            
         }
     }
 
