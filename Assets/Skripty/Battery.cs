@@ -8,6 +8,7 @@ public class Battery : Building
     [Header("Storage – kapacita")]
     [Tooltip("O kolik se zvýší maximální kapacita coria hráče, když je sklad dostavěný.")]
     [SerializeField] private int CapacityBonus = 100;
+    [SerializeField] private Boom boom;
 
     private bool bonusApplied = false;
 
@@ -29,6 +30,7 @@ public class Battery : Building
     /// </summary>
     protected override void DestroyBuilding()
     {
+        boom.Explode(gameObject);
         RemoveBonus();
         base.DestroyBuilding();
     }
