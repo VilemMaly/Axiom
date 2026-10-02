@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2879874881474647366}
   - component: {fileID: 9169004895672988379}
   - component: {fileID: 1979943550429212135}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Structure_v2_rotor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4242462518
+  GlobalObjectIdHash: 1518385807
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -360,7 +360,7 @@ GameObject:
   - component: {fileID: 7901014763609211871}
   - component: {fileID: 8377308638288983579}
   - component: {fileID: 731211929720485440}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Structure_v2_door_s2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -448,7 +448,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4921551260465796656}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Structure_v2_doors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -481,7 +481,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1330013516103504919}
   - component: {fileID: 5844670152404717414}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -574,7 +574,7 @@ GameObject:
   - component: {fileID: 7181201810952754754}
   - component: {fileID: 31819184479664034}
   - component: {fileID: 1655466606676081536}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Structure_v2_door_s1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -663,7 +663,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8931394010805339451}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -697,7 +697,7 @@ GameObject:
   - component: {fileID: 703333199015236951}
   - component: {fileID: 8767303343679949386}
   - component: {fileID: 149534039773781266}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Structure_v2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -787,7 +787,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8064042962100495784}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: HPPivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -404,17 +404,18 @@ public abstract class Troop : NetworkBehaviour
         if (!IsServer || !IsOperational)
             return;
 
-        Health.Value -= damage;
-
-        if (Health.Value <= 0)
+        if ((Health.Value - damage) <= 0)
             Die();
+        else
+            Health.Value -= damage;
     }
 
     protected virtual void Die()
     {
         if (!IsServer)
             return;
-
+        IsOperational = false;
+        Health.Value = 0;
         GetComponent<NetworkObject>().Despawn();
     }
 

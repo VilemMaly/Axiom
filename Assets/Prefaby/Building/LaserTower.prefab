@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4864387245304428838}
   - component: {fileID: 3975557265142183865}
   - component: {fileID: 2376483172026150250}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret_v1_guns
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3205767620
+  GlobalObjectIdHash: 3341690746
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -280,6 +280,7 @@ MonoBehaviour:
     m_Bits: 1024
   enemyScanInterval: 0.25
   turretRotationSpeed: 180
+  rotationSyncInterval: 0.05
   laserBeam: {fileID: 0}
   laserDisplayDuration: 0.15
   shotParticle: {fileID: 0}
@@ -287,10 +288,6 @@ MonoBehaviour:
   towerAnimator: {fileID: 0}
   fireTriggerName: Fire
   audioSource: {fileID: 0}
-  CurrentTarget:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
 --- !u!208 &3809187303386165916
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -318,7 +315,7 @@ GameObject:
   - component: {fileID: 4501723937035884582}
   - component: {fileID: 1757768044051378544}
   - component: {fileID: 7172585323364197542}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret_v1_doorR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -408,7 +405,7 @@ GameObject:
   - component: {fileID: 2475389561130164681}
   - component: {fileID: 6992813696647144650}
   - component: {fileID: 91466753978649743}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret_v1_tower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -499,7 +496,7 @@ GameObject:
   - component: {fileID: 4047356685585914049}
   - component: {fileID: 6817100632522097110}
   - component: {fileID: 9192493335002326104}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret_v1_hole
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -588,7 +585,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7089469039940700846}
   - component: {fileID: 8200413642945429538}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret_v1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -641,7 +638,7 @@ GameObject:
   - component: {fileID: 4270266238591834513}
   - component: {fileID: 6343881951618317828}
   - component: {fileID: 3178574106719900876}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret_v1_doorL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -731,7 +728,7 @@ GameObject:
   - component: {fileID: 2161043064980713908}
   - component: {fileID: 4658933419784168819}
   - component: {fileID: 3416863915054224744}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret_v1_stand
   m_TagString: Untagged
   m_Icon: {fileID: 0}

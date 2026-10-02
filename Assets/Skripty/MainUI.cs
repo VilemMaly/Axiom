@@ -43,6 +43,7 @@ public class MainUI : NetworkBehaviour
         isVisible = false;
         uiPanel.GameObject().SetActive(isVisible);
     }
+
     public void uiClose()
     {
         isVisible = false;

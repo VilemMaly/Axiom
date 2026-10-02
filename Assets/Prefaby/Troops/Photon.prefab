@@ -10352,7 +10352,7 @@ MonoBehaviour:
     m_InternalValue: 0
   enemyLayerMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1536
   enemyScanInterval: 0.25
   fireInterval: 1
   shotParticle: {fileID: 1187657888333121176}
