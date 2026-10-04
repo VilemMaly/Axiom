@@ -43,11 +43,5 @@ public class Core : Building
         // 3) OwnerResources != null - pro jistotu, i kdyby se OnBuilt nějak minul
         if (!IsOperational || !IsServer || OwnerResources == null) return;
 
-        timer += Time.deltaTime;
-        if (timer >= tickInterval)
-        {
-            timer -= tickInterval;
-            OwnerResources.TrySpend(CoriumConsumption, EnergyConsumption); // odečti corium (negativní náklad)
-        }
     }
 }

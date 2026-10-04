@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 /// <summary>
@@ -188,9 +189,13 @@ public class BuildingPlacementController : NetworkBehaviour
     {
         // Ghost nikdy nesmí být NetworkObject - není spawnutý přes Netcode, takže by mátl
         // cokoliv, co by na něj případně sáhlo (např. GetComponent<NetworkObject>()).
-        foreach (var netObj in ghost.GetComponentsInChildren<NetworkObject>())
+        foreach (var netObj in ghost.GetComponentsInParent<NetworkObject>())
             Destroy(netObj);
 
+        // Nesmí mít ani žádný NavMesh Obstacle v rodiči, jinak se jednotky bugují.
+        var navmesh = ghost.GetComponentInParent<NavMeshObstacle>();
+        if (navmesh != null)
+            Destroy(navmesh);
         // Stejný výpočet zarovnání na zem jako při reálném spawnu (Building.SpawnAndAssignOwnership),
         // aby ghost přesně odpovídal tomu, kde budova nakonec skutečně vznikne.
         Collider[] colliders = ghost.GetComponentsInChildren<Collider>();

@@ -263,6 +263,11 @@ public abstract class Troop : NetworkBehaviour
             Debug.LogWarning($"[Troop-DIAG] {name} RequestMove voláno, ale IsOwner=false. Ignoruji.");
             return;
         }
+        if (!IsOperational)
+        {
+            Debug.LogWarning($"[Troop-DIAG] {name} RequestMove voláno, ale IsOperational=false. Ignoruji.");
+            return;
+        }
 
         Debug.Log($"[Troop-DIAG] {name} RequestMove -> posílám ServerRpc, cíl={destination}");
         RequestMoveServerRpc(destination, groupIndex, groupSize);

@@ -224,7 +224,16 @@ private void IssueMoveCommand(Vector3 destination)
 {
     int groupSize = selectedTroops.Count;
     for (int i = 0; i < selectedTroops.Count; i++)
-        selectedTroops[i]?.RequestMove(destination, i, groupSize);
+    {
+        if (selectedTroops[i] != null)
+        {
+            selectedTroops[i]?.RequestMove(destination, i, groupSize);
+        }
+        else
+        {
+            Debug.LogWarning($"[Selector] Troop na indexu {i} je null, nelze poslat příkaz k pohybu.");
+        }
+    }
 
     Debug.Log($"[Selector] Poslal jsem {groupSize} troopů na {destination}.");
 }
@@ -453,7 +462,6 @@ private void HandleBuildingClicked(Building building)
         {
             case BuildingType.Core: return corePanel;
             case BuildingType.LaserTower: return laserTowerPanel;
-            case BuildingType.Research: return researchPanel;
             case BuildingType.Factory: return factoryPanel;
             case BuildingType.Wall: return wallPanel;
             case BuildingType.Radar: return radarPanel;

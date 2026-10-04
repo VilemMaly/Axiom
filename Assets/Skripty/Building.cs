@@ -24,7 +24,7 @@ public abstract class Building : NetworkBehaviour
         Core,
         LaserTower,
         Battery,
-        Research,
+        Mine,
         Factory,
         Wall,
         Radar,
@@ -46,7 +46,7 @@ public abstract class Building : NetworkBehaviour
     protected PlayerResources OwnerResources { get; private set; }
 
     // Budova existuje a může přijímat damage / fungovat.
-    protected bool IsOperational { get; private set; } = false;
+    protected bool IsOperational { get; set; } = false;
 
     public NetworkVariable<bool> IsConstructionComplete =
         new NetworkVariable<bool>(
@@ -123,18 +123,151 @@ public abstract class Building : NetworkBehaviour
     {
     }
 
+    private float operationTimer = 0f;
+
+    private const float OperationInterval = 1f;
+
     private void Update()
     {
         if (!IsServer)
             return;
 
-        if (!IsOperational)
+        if (!IsConstructionComplete.Value)
+        {
+            IsOperational = false;
             return;
+        }
 
-        if (IsConstructionComplete.Value)
+        // ------------------------------------------------------------
+        // KONTROLA SPOTŘEBY - 1x ZA SEKUNDU
+        // ------------------------------------------------------------
+
+        operationTimer += Time.deltaTime;
+
+        if (operationTimer >= OperationInterval)
+        {
+            operationTimer -= OperationInterval;
+
+            UpdateOperation();
+        }
+
+        // ------------------------------------------------------------
+        // LOGIKA BUDOVY - KAŽDÝ FRAME
+        // ------------------------------------------------------------
+
+        if (IsOperational)
         {
             UpdateBuilding();
         }
+    }
+
+    private void UpdateOperation()
+    {
+        if (!IsServer)
+            return;
+
+        if (!IsConstructionComplete.Value)
+        {
+            IsOperational = false;
+            return;
+        }
+
+        if (OwnerResources == null)
+        {
+            IsOperational = false;
+            return;
+        }
+
+        // ------------------------------------------------------------
+        // URČENÍ SKUTEČNÉ SPOTŘEBY
+        // ------------------------------------------------------------
+
+        int actualCoriumConsumption = CoriumConsumption;
+        int actualEnergyConsumption = EnergyConsumption;
+
+        // ------------------------------------------------------------
+        // CORIUM
+        //
+        // Pokud budova vyrábí Corium a produkce by dosáhla/překročila
+        // maximální kapacitu, nemusí platit CoriumConsumption.
+        // ------------------------------------------------------------
+
+        if (CoriumProduction > 0)
+        {
+            int missingCorium = OwnerResources.MaxCorium.Value - OwnerResources.Corium.Value;
+
+            if (missingCorium <= 0)
+            {
+                actualEnergyConsumption = 0;
+                actualCoriumConsumption = 0;
+            }
+        }
+
+        // ------------------------------------------------------------
+        // ENERGIE
+        //
+        // Pokud budova vyrábí Energii a produkce by dosáhla/překročila
+        // maximální kapacitu, nemusí platit EnergyConsumption.
+        // ------------------------------------------------------------
+
+        if (EnergyProduction > 0)
+        {
+            int missingEnergy = OwnerResources.MaxEnergy.Value - OwnerResources.Energy.Value;
+
+            if (missingEnergy <= 0)
+            {
+                actualEnergyConsumption = 0;
+                actualCoriumConsumption = 0;
+            }
+        }
+
+        // ------------------------------------------------------------
+        // ZAPLACENÍ PROVOZU
+        // ------------------------------------------------------------
+
+        if (!OwnerResources.TrySpend(
+            actualCoriumConsumption,
+            actualEnergyConsumption))
+        {
+            IsOperational = false;
+
+            Debug.Log(
+                $"[Building] {Type} ({name}) hráč {OwnerClientId} " +
+                $"nemá dostatek coria/energie. Budova je OFFLINE."
+            );
+
+            return;
+        }
+
+        // ------------------------------------------------------------
+        // BUDOVA JE ONLINE
+        // ------------------------------------------------------------
+
+        IsOperational = true;
+
+        // Produkce proběhne až po úspěšném zaplacení provozu.
+        OwnerResources.Add(
+            CoriumProduction,
+            EnergyProduction
+        );
+        /*
+        Debug.Log(
+            $"[Building] {Type} ({name}) hráč {OwnerClientId} " +
+            $"zaplatil provoz: Corium={actualCoriumConsumption}, " +
+            $"Energy={actualEnergyConsumption}. " +
+            $"Produkce: Corium={CoriumProduction}, " +
+            $"Energy={EnergyProduction}. " +
+            $"Budova je ONLINE."
+        );*/
+
+        UpdateProduction();
+    }
+
+    // Zavolá se, když se úspěšně zaplatí provoz budovy
+    // a je online, aby se mohlo dělat něco navíc
+    // (např. těžit corium, vyrábět energii, atd.).
+    public virtual void UpdateProduction()
+    {
     }
 
     public virtual void TakeDamage(int damage)

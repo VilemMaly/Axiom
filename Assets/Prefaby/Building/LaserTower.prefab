@@ -254,10 +254,10 @@ MonoBehaviour:
   CoriumProduction: 0
   EnergyProduction: 0
   Damage: 10
-  AttackRange: 8.06
+  AttackRange: 20
   AttackSpeed: 1.19
   AttackCooldown: 1.1
-  SightRange: 7.77
+  SightRange: 20
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

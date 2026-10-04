@@ -12,7 +12,7 @@ using UnityEngine;
 [Serializable]
 public class Boom : MonoBehaviour
 {
-    [Header("Sken")]
+    [Header("Poloměr výbuchu.")]
     [Tooltip("Poloměr výbuchu.")]
     public float radius = 6f;
     public LayerMask troopLayerMask;
