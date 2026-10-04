@@ -24,7 +24,7 @@
 *.log
 
 # Koupené 3d modely
-Assets/RTS_Scifi_game_assets/
+Assets\RTS_Scifi_game_assets
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
