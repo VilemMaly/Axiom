@@ -23,10 +23,10 @@
 /[Uu]ser[Ss]ettings/
 *.log
 
-# Koupené 3d modely
+# Koupené 3D assety – verzovat pouze Unity .meta soubory
 /Assets/RTS_Scifi_game_assets/*
-!/Assets/RTS_Scifi_game_assets/**/*.meta
 !/Assets/RTS_Scifi_game_assets/**/
+!/Assets/RTS_Scifi_game_assets/**/*.meta
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
