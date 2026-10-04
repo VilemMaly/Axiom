@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6f9ffdd83e154b046bcbdfa1d9131317
+timeCreated: 1543761039
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Particles_container/3d/Stone_fragments/Stone_fragments.mat
+  uploadId: 312020

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 86a4769365d8f1444bbf429c6c0d2103
+timeCreated: 1541651104
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Structures/Structure_v6/Structure_v6_red.prefab
+  uploadId: 312020

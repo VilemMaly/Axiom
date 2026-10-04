@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0b642a0dac31e5949a6f9db0fda88998
+timeCreated: 1543740773
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Weapons/Automatic/Small_automatic_gun_v1/Hit_FX_Small_automatic_gun_v1.prefab
+  uploadId: 312020

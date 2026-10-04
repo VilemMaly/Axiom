@@ -1,0 +1,371 @@
+fileFormatVersion: 2
+guid: 9faa9ddf8d3696e488af0018c8295f6f
+timeCreated: 1532569212
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Box001_LP
+    100002: //RootNode
+    100004: Object001
+    100006: Object002
+    100008: Object003
+    100010: Object015
+    100012: Object016
+    100014: Object017
+    100016: Object018
+    100018: Object019
+    100020: Object020
+    100022: Object021
+    100024: Object022
+    100026: Object023
+    100028: Object024
+    100030: Object025
+    100032: Object026
+    100034: Object027
+    100036: Object028
+    100038: Object029
+    100040: Object030
+    100042: Object031
+    100044: Cargo_ship_v1_BL_cap
+    100046: Cargo_ship_v1_BL_lg_p1
+    100048: Cargo_ship_v1_BL_lg_p2
+    100050: Cargo_ship_v1_BL_lg_p3
+    100052: Cargo_ship_v1_body
+    100054: Cargo_ship_v1_BR_cap
+    100056: Cargo_ship_v1_BR_lg_p1
+    100058: Cargo_ship_v1_BR_lg_p2
+    100060: Cargo_ship_v1_BR_lg_p3
+    100062: Cargo_ship_v1_FL_ar
+    100064: Cargo_ship_v1_FL_lg
+    100066: Cargo_ship_v1_FR_ar
+    100068: Cargo_ship_v1_FR_lg
+    400000: Box001_LP
+    400002: //RootNode
+    400004: Object001
+    400006: Object002
+    400008: Object003
+    400010: Object015
+    400012: Object016
+    400014: Object017
+    400016: Object018
+    400018: Object019
+    400020: Object020
+    400022: Object021
+    400024: Object022
+    400026: Object023
+    400028: Object024
+    400030: Object025
+    400032: Object026
+    400034: Object027
+    400036: Object028
+    400038: Object029
+    400040: Object030
+    400042: Object031
+    400044: Cargo_ship_v1_BL_cap
+    400046: Cargo_ship_v1_BL_lg_p1
+    400048: Cargo_ship_v1_BL_lg_p2
+    400050: Cargo_ship_v1_BL_lg_p3
+    400052: Cargo_ship_v1_body
+    400054: Cargo_ship_v1_BR_cap
+    400056: Cargo_ship_v1_BR_lg_p1
+    400058: Cargo_ship_v1_BR_lg_p2
+    400060: Cargo_ship_v1_BR_lg_p3
+    400062: Cargo_ship_v1_FL_ar
+    400064: Cargo_ship_v1_FL_lg
+    400066: Cargo_ship_v1_FR_ar
+    400068: Cargo_ship_v1_FR_lg
+    2300000: Box001_LP
+    2300002: Object001
+    2300004: Object002
+    2300006: Object003
+    2300008: Object016
+    2300010: Object017
+    2300012: Object018
+    2300014: Object019
+    2300016: Object020
+    2300018: //RootNode
+    2300020: Object021
+    2300022: Object022
+    2300024: Object023
+    2300026: Object024
+    2300028: Object025
+    2300030: Object026
+    2300032: Object027
+    2300034: Object028
+    2300036: Object029
+    2300038: Object030
+    2300040: Object031
+    2300042: Cargo_ship_v1_BL_cap
+    2300044: Cargo_ship_v1_BL_lg_p1
+    2300046: Cargo_ship_v1_BL_lg_p2
+    2300048: Cargo_ship_v1_BL_lg_p3
+    2300050: Cargo_ship_v1_body
+    2300052: Cargo_ship_v1_BR_cap
+    2300054: Cargo_ship_v1_BR_lg_p1
+    2300056: Cargo_ship_v1_BR_lg_p2
+    2300058: Cargo_ship_v1_BR_lg_p3
+    2300060: Cargo_ship_v1_FL_ar
+    2300062: Cargo_ship_v1_FL_lg
+    2300064: Cargo_ship_v1_FR_ar
+    2300066: Cargo_ship_v1_FR_lg
+    3300000: Box001_LP
+    3300002: Object001
+    3300004: Object002
+    3300006: Object003
+    3300008: Object016
+    3300010: Object017
+    3300012: Object018
+    3300014: Object019
+    3300016: Object020
+    3300018: //RootNode
+    3300020: Object021
+    3300022: Object022
+    3300024: Object023
+    3300026: Object024
+    3300028: Object025
+    3300030: Object026
+    3300032: Object027
+    3300034: Object028
+    3300036: Object029
+    3300038: Object030
+    3300040: Object031
+    3300042: Cargo_ship_v1_BL_cap
+    3300044: Cargo_ship_v1_BL_lg_p1
+    3300046: Cargo_ship_v1_BL_lg_p2
+    3300048: Cargo_ship_v1_BL_lg_p3
+    3300050: Cargo_ship_v1_body
+    3300052: Cargo_ship_v1_BR_cap
+    3300054: Cargo_ship_v1_BR_lg_p1
+    3300056: Cargo_ship_v1_BR_lg_p2
+    3300058: Cargo_ship_v1_BR_lg_p3
+    3300060: Cargo_ship_v1_FL_ar
+    3300062: Cargo_ship_v1_FL_lg
+    3300064: Cargo_ship_v1_FR_ar
+    3300066: Cargo_ship_v1_FR_lg
+    4300000: Box001_LP
+    4300002: Object003
+    4300004: Object002
+    4300006: Object001
+    4300008: Object016
+    4300010: Object017
+    4300012: Object018
+    4300014: Object019
+    4300016: Object020
+    4300018: Object021
+    4300020: Object022
+    4300022: Object023
+    4300024: Object024
+    4300026: Object025
+    4300028: Object026
+    4300030: Object027
+    4300032: Object028
+    4300034: Object031
+    4300036: Object030
+    4300038: Object029
+    4300040: Cargo_ship_v1_body
+    4300042: Cargo_ship_v1_BR_cap
+    4300044: Cargo_ship_v1_BR_lg_p1
+    4300046: Cargo_ship_v1_BR_lg_p2
+    4300048: Cargo_ship_v1_BR_lg_p3
+    4300050: Cargo_ship_v1_FR_ar
+    4300052: Cargo_ship_v1_FR_lg
+    4300054: Cargo_ship_v1_FL_ar
+    4300056: Cargo_ship_v1_FL_lg
+    4300058: Cargo_ship_v1_BL_cap
+    4300060: Cargo_ship_v1_BL_lg_p1
+    4300062: Cargo_ship_v1_BL_lg_p2
+    4300064: Cargo_ship_v1_BL_lg_p3
+    7400000: Cargo_ship_v1_Start
+    7400002: Cargo_ship_v1_Landing
+    7400004: Fly
+    11100000: //RootNode
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Cargo_ship_v1_Start
+      takeName: Cargo_ship_v1
+      firstFrame: 0
+      lastFrame: 45
+      wrapMode: 1
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Cargo_ship_v1_body
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_cap
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_lg_p1
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_lg_p1/Cargo_ship_v1_BL_lg_p2
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_lg_p1/Cargo_ship_v1_BL_lg_p2/Cargo_ship_v1_BL_lg_p3
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_cap
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_lg_p1
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_lg_p1/Cargo_ship_v1_BR_lg_p2
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_lg_p1/Cargo_ship_v1_BR_lg_p2/Cargo_ship_v1_BR_lg_p3
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FL_ar
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FL_ar/Cargo_ship_v1_FL_lg
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FR_ar
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FR_ar/Cargo_ship_v1_FR_lg
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Cargo_ship_v1_Landing
+      takeName: Cargo_ship_v1
+      firstFrame: 45
+      lastFrame: 90
+      wrapMode: 1
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Cargo_ship_v1_body
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_cap
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_lg_p1
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_lg_p1/Cargo_ship_v1_BL_lg_p2
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BL_lg_p1/Cargo_ship_v1_BL_lg_p2/Cargo_ship_v1_BL_lg_p3
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_cap
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_lg_p1
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_lg_p1/Cargo_ship_v1_BR_lg_p2
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_BR_lg_p1/Cargo_ship_v1_BR_lg_p2/Cargo_ship_v1_BR_lg_p3
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FL_ar
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FL_ar/Cargo_ship_v1_FL_lg
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FR_ar
+        weight: 1
+      - path: Cargo_ship_v1_body/Cargo_ship_v1_FR_ar/Cargo_ship_v1_FR_lg
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Cargo_ship_v1/Source/Cargo_ship_v1.FBX
+  uploadId: 312020

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5f790c014e0620b429be2fc43d3a84d2
+timeCreated: 1527041768
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Structures/Structure_v4/Structure_v4_orange.prefab
+  uploadId: 312020

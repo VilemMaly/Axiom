@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ceca3d6b2b567f641bde1dc1e285c976
+timeCreated: 1523266302
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Vehicle/Vehicle_v2/Source/Vehicle_2_green.mat
+  uploadId: 312020

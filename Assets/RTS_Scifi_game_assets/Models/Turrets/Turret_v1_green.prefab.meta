@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 151e46d6397faf540bda5e9cffd91137
+timeCreated: 1517809248
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Turrets/Turret_v1_green.prefab
+  uploadId: 312020

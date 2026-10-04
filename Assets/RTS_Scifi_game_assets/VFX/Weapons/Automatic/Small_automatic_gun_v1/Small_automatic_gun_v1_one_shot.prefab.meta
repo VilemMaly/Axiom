@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: abc9fa721099a9649940bca153bf6e13
+timeCreated: 1543740779
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Weapons/Automatic/Small_automatic_gun_v1/Small_automatic_gun_v1_one_shot.prefab
+  uploadId: 312020

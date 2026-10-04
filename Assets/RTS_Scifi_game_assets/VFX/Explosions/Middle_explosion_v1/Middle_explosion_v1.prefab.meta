@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d79e6d7df7948694eb1ca87760187a6a
+timeCreated: 1543740746
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Explosions/Middle_explosion_v1/Middle_explosion_v1.prefab
+  uploadId: 312020

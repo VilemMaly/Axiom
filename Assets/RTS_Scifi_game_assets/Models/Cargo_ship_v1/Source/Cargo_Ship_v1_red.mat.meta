@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e73f20b8a2d48d44e8a7037fd17c64bd
+timeCreated: 1532569212
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Cargo_ship_v1/Source/Cargo_Ship_v1_red.mat
+  uploadId: 312020

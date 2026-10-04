@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: fc7b082814b1c6b42bca5102f20fcc45
+timeCreated: 1523343035
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Environment/Props/Props_set_v1/Big_broken_ice_part_v2.prefab
+  uploadId: 312020

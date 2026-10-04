@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f3a3886997c6d314e91951476084e13b
+timeCreated: 1446318687
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Environment/Textures/Sky/Sky_v1.mat
+  uploadId: 312020

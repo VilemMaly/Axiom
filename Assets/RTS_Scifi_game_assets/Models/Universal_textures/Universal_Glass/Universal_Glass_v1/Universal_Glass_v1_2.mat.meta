@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3974b32591c29874b892b38686e102ba
+timeCreated: 1532756876
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Universal_textures/Universal_Glass/Universal_Glass_v1/Universal_Glass_v1_2.mat
+  uploadId: 312020

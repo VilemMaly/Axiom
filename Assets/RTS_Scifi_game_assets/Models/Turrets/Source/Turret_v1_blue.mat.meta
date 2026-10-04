@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9387cf4b00e8fd04397d9aa9c9b1c3b9
+timeCreated: 1517679766
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Turrets/Source/Turret_v1_blue.mat
+  uploadId: 312020

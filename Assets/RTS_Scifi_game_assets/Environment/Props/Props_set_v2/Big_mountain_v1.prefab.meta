@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: daed550dff0e2634f98dce56a1a2b51c
+timeCreated: 1449919210
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Environment/Props/Props_set_v2/Big_mountain_v1.prefab
+  uploadId: 312020

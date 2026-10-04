@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 238180a619621214ca4ec1a5c5320846
+timeCreated: 1543740767
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Weapons/Automatic/Big_automatic_gun_v1/Big_automatic_gun_v1_one_shot.prefab
+  uploadId: 312020

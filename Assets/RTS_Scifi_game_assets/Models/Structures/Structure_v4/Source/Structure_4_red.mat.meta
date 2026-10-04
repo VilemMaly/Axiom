@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: dfffbc0f62ca47642b1d746c50b1d3e3
+timeCreated: 1523269364
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Structures/Structure_v4/Source/Structure_4_red.mat
+  uploadId: 312020

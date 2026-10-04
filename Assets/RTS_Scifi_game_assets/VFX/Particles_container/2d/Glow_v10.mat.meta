@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5a120015d5795c74fbd71d4742ea7bce
+timeCreated: 1530434737
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Particles_container/2d/Glow_v10.mat
+  uploadId: 312020

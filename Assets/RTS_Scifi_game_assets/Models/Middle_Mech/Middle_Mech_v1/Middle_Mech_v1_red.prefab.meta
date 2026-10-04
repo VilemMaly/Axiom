@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 1eeb4281da7d1dd4ba49395f59dd5311
+timeCreated: 1541413853
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Middle_Mech/Middle_Mech_v1/Middle_Mech_v1_red.prefab
+  uploadId: 312020

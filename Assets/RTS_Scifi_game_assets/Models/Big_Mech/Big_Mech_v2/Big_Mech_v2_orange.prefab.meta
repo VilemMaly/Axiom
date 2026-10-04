@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: aa90738bd7739e44787c3f4107a75d2f
+timeCreated: 1541425100
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Big_Mech/Big_Mech_v2/Big_Mech_v2_orange.prefab
+  uploadId: 312020

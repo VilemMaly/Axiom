@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3eb72f2adb3adae4cbfa7088c190b891
+timeCreated: 1523342838
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Environment/Props/Props_set_v1/Stone_set_v4.prefab
+  uploadId: 312020

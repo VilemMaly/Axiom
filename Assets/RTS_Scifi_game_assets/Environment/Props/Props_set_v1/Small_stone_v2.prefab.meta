@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e11e7b7c6dc08dd45b7539ed4372e835
+timeCreated: 1523342946
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Environment/Props/Props_set_v1/Small_stone_v2.prefab
+  uploadId: 312020

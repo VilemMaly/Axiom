@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 70344250784201a4dba8e7fda2131361
+timeCreated: 1523342855
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Environment/Props/Props_set_v1/Big_crystal_v1.prefab
+  uploadId: 312020

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2c1c23d869716004cb4bea3e0f302e63
+timeCreated: 1519415414
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Weapons/Plasma/Blue_small_plasma_v1/Hit_FX_Blue_small_one_shot_plasma_v1.prefab
+  uploadId: 312020

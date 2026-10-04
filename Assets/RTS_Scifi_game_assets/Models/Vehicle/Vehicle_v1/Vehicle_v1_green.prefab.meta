@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4fd1e42c380e7304bb3037738919c072
+timeCreated: 1518463134
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Vehicle/Vehicle_v1/Vehicle_v1_green.prefab
+  uploadId: 312020

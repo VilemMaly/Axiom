@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 3cf7f28c530d85f4081122bbbca89913
+timeCreated: 1543739804
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Weapons/Laser/Small_green_laser_v1/Small_green_one_shot_laser_v1.prefab
+  uploadId: 312020

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 54a4897c63806a44ea1bc884575cb1e4
+timeCreated: 1543739968
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Weapons/Plasma/Red_middle_plasma_v1/Red_middle_one_shot_plasma_v1.prefab
+  uploadId: 312020

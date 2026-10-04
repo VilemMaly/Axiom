@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f23ccfece6837ff47b0c03c7b635a7fa
+timeCreated: 1518463134
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Vehicle/Vehicle_v1/Vehicle_v1_blue.prefab
+  uploadId: 312020

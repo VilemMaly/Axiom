@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3bb319341668b6548a6aded1b9de6743
+timeCreated: 1523342671
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Environment/Props/Props_set_v1/Crystals_set_v3.prefab
+  uploadId: 312020

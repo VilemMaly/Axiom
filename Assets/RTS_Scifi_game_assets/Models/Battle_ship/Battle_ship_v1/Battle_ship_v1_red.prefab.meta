@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 9385938e8bef20a45b9736b561a59d0f
+timeCreated: 1541430414
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Battle_ship/Battle_ship_v1/Battle_ship_v1_red.prefab
+  uploadId: 312020

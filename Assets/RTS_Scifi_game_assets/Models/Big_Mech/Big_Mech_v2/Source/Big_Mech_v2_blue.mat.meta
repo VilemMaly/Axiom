@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 7261e1ce8436e4e4088f25c3b6dc2e76
+timeCreated: 1532761711
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Big_Mech/Big_Mech_v2/Source/Big_Mech_v2_blue.mat
+  uploadId: 312020

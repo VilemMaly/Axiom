@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 5e749116560e1a642a1f4f7336ce0ce1
+timeCreated: 1541651103
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Structures/Structure_v6/Structure_v6_blue.prefab
+  uploadId: 312020

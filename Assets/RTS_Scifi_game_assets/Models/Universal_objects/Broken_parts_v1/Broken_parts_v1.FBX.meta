@@ -1,0 +1,127 @@
+fileFormatVersion: 2
+guid: f9090cf53a8947c4895ed414bc401800
+timeCreated: 1543398667
+licenseType: Store
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Box001
+    100002: //RootNode
+    100004: Object001
+    100006: Object002
+    100008: Broken_parts_v1_1
+    100010: Broken_parts_v1_2
+    100012: Broken_parts_v1_3
+    400000: Box001
+    400002: //RootNode
+    400004: Object001
+    400006: Object002
+    400008: Broken_parts_v1_1
+    400010: Broken_parts_v1_2
+    400012: Broken_parts_v1_3
+    2100000: No Name
+    2300000: Box001
+    2300002: Object001
+    2300004: Object002
+    2300006: Broken_parts_v1_1
+    2300008: Broken_parts_v1_2
+    2300010: Broken_parts_v1_3
+    3300000: Box001
+    3300002: Object001
+    3300004: Object002
+    3300006: Broken_parts_v1_1
+    3300008: Broken_parts_v1_2
+    3300010: Broken_parts_v1_3
+    4300000: Box001
+    4300002: Object001
+    4300004: Object002
+    4300006: Broken_parts_v1_3
+    4300008: Broken_parts_v1_1
+    4300010: Broken_parts_v1_2
+  externalObjects: {}
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Universal_objects/Broken_parts_v1/Broken_parts_v1.FBX
+  uploadId: 312020

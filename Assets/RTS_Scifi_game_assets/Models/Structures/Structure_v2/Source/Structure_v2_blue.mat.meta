@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f3e8b46c617749b4fab46b926791512a
+timeCreated: 1517808476
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/Models/Structures/Structure_v2/Source/Structure_v2_blue.mat
+  uploadId: 312020

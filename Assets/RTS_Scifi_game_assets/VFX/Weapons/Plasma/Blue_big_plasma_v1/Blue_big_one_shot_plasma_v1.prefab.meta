@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 359f5b6f28e085941a89ec70fa67ef0d
+timeCreated: 1543740301
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 124168
+  packageName: RTS Sci-Fi Game Assets v3
+  packageVersion: 3.0
+  assetPath: Assets/RTS_Scifi_game_assets/VFX/Weapons/Plasma/Blue_big_plasma_v1/Blue_big_one_shot_plasma_v1.prefab
+  uploadId: 312020
