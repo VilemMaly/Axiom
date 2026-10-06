@@ -9634,6 +9634,8 @@ GameObject:
   - component: {fileID: 6394945880331003959}
   - component: {fileID: 5590227313221032427}
   - component: {fileID: 13316825908767613}
+  - component: {fileID: 2669324903911045947}
+  - component: {fileID: 2812867145716103431}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -9700,6 +9702,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   cilovaKamera: {fileID: 1700524481096388129}
   audioListener: {fileID: 5191376873995021448}
+  buildingPlacementController: {fileID: 5137927038056840595}
   hranicePixelu: 100
   povolitEdgeScroll: 0
   maxRychlost: 40
@@ -10011,6 +10014,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainUI
   ShowTopMostFoldoutHeaderGroup: 1
   uiPanel: {fileID: 152344866941815053}
+--- !u!114 &2669324903911045947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8600446094655747949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9faba7f703e031945a617bf87f2c5be8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractor
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &2812867145716103431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8600446094655747949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 680756c4ac8074f4caf6e3a78b1c68a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CableManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  cableMaterial: {fileID: 2100000, guid: 3aeee840818ee004fafa9efd4f5ab2ca, type: 2}
+  cableWidth: 1.11
 --- !u!1 &8779757340938621427
 GameObject:
   m_ObjectHideFlags: 0

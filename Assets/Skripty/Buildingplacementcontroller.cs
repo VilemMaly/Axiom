@@ -66,6 +66,7 @@ public class BuildingPlacementController : NetworkBehaviour
     private GameObject _ghostInstance;
     private int _selectedPrefabIndex = -1;
     private bool _isPlacing = false;
+    public bool IsPlacingBuilding => _isPlacing;
     private bool _isCurrentPositionValid = false;
     private Vector3 _currentPlacementPosition;
     private TroopInteractor troopManager;

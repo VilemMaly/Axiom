@@ -43,6 +43,7 @@ public class Network : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         }
+        localhostMode = localhostToggle != null && localhostToggle.isOn;
     }
 
     private void OnDestroy()

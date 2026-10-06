@@ -6,13 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Relay.unity
-    guid: c10cc4e401acbc34a89a47c63aae27a4
+    path: Assets/Scenes/Menu.unity
+    guid: 25227052c281f524a9517dc11bc77ec8
   - enabled: 1
     path: Assets/Scenes/Mapa1.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
-    path: Assets/Scenes/Menu.unity
-    guid: 25227052c281f524a9517dc11bc77ec8
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

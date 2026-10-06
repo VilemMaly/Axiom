@@ -35,7 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8119596687490623490}
-  - {fileID: 881756509445251411}
+  - {fileID: 881833169739828821}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &49990100835604090
@@ -109,7 +109,7 @@ MonoBehaviour:
   MaxHealth: 50
   Cost: 20
   RequiredCorium: 0
-  MaxBuildingAmount: 0
+  MaxBuildingAmount: 2
   CoriumConsumption: 0
   EnergyConsumption: 0
   CoriumProduction: 0
@@ -119,12 +119,19 @@ MonoBehaviour:
   AttackSpeed: 0
   AttackCooldown: 0
   SightRange: 0
+  IsPowerSource: 0
+  IsEnergyConsumer: 1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   StoredCorium:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  IsConnected:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
@@ -220,9 +227,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b080b9c6ee75f014b80e518aee358bf4, type: 3}
---- !u!4 &881756509445251411 stripped
+--- !u!4 &881833169739828821 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 4000014280689272, guid: b080b9c6ee75f014b80e518aee358bf4, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4067895678904702, guid: b080b9c6ee75f014b80e518aee358bf4, type: 3}
   m_PrefabInstance: {fileID: 878928851719382827}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6508620104996592936

@@ -38,17 +38,23 @@ public class PlayerResources : NetworkBehaviour
 
     public bool TrySpend(int coriumCost, int energyCost)
     {
+        if (coriumCost <= 0 && energyCost <= 0)
+        {
+            return true; // Není co utratit, takže úspěch
+        }
+        /*
         Debug.Log($"[PlayerResources] {name} hráč {OwnerClientId} se snaží utratit: " +
             $"{coriumCost} coria, {energyCost} energie. " +
-            $"Aktuálně má: {Corium.Value} coria, {Energy.Value} energie.");
+            $"Aktuálně má: {Corium.Value} coria, {Energy.Value} energie.");*/
         if (Corium.Value < coriumCost || Energy.Value < energyCost)
             return false;
 
         Corium.Value -= coriumCost;
         Energy.Value -= energyCost;
+        /*
         Debug.Log($"[PlayerResources] {name} hráč {OwnerClientId} utratil: " +
             $"{coriumCost} coria, {energyCost} energie. " +
-            $"Zbývá: {Corium.Value} coria, {Energy.Value} energie.");
+            $"Zbývá: {Corium.Value} coria, {Energy.Value} energie.");*/
         return true;
     }
 

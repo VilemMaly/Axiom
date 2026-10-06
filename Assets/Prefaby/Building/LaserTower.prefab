@@ -258,12 +258,19 @@ MonoBehaviour:
   AttackSpeed: 1.19
   AttackCooldown: 1.1
   SightRange: 20
+  IsPowerSource: 0
+  IsEnergyConsumer: 1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   StoredCorium:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  IsConnected:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0

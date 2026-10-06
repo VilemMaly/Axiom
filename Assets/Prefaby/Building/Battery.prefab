@@ -287,7 +287,7 @@ MonoBehaviour:
   MaxHealth: 100
   Cost: 50
   RequiredCorium: 0
-  MaxBuildingAmount: 0
+  MaxBuildingAmount: 10
   CoriumConsumption: 0
   EnergyConsumption: 0
   CoriumProduction: 0
@@ -297,12 +297,19 @@ MonoBehaviour:
   AttackSpeed: 0
   AttackCooldown: 0
   SightRange: 0
+  IsPowerSource: 0
+  IsEnergyConsumer: 1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   StoredCorium:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  IsConnected:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0

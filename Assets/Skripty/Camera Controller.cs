@@ -17,6 +17,7 @@ public class CameraController : NetworkBehaviour
     [Tooltip("Hlavní kamera (child tohoto objektu). Používá se pro určení směru pohybu a pro zoom.")]
     [SerializeField] private Camera cilovaKamera;
     [SerializeField] private AudioListener audioListener;
+    [SerializeField] private BuildingPlacementController buildingPlacementController;
 
     [Header("Nastavení okraje obrazovky")]
     [Tooltip("Kolik pixelů od okraje obrazovky spustí posun kamery.")]
@@ -262,6 +263,8 @@ public class CameraController : NetworkBehaviour
 
     private void ZpracujZoom()
     {
+        if (buildingPlacementController != null && buildingPlacementController.IsPlacingBuilding)
+            return;
         if (!povolitZoom || !cilovaKamera.orthographic)
             return;
 

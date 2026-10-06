@@ -64,9 +64,6 @@ public class LaserTower : Building
     [SerializeField] private Animator towerAnimator;
 
 
-    [Tooltip("Jméno Animator triggeru pro výstřel.")]
-    [SerializeField] private string fireTriggerName = "Fire";
-
 
     [SerializeField] private AudioSource audioSource;
 
@@ -82,19 +79,6 @@ public class LaserTower : Building
      */
     private NetworkObject lockedTarget;
 
-
-    // ============================================================
-    //  SYNCHRONIZOVANÝ ÚHEL
-    // ============================================================
-
-    /*
-     * Poslední úhel, který server poslal klientům.
-     *
-     * Jde pouze o Y rotaci.
-     */
-    private float lastSyncedYaw;
-
-
     /*
      * Poslední přijatý úhel na klientovi.
      */
@@ -106,12 +90,6 @@ public class LaserTower : Building
      * a má tedy věž otáčet.
      */
     private bool hasRotationTarget;
-
-
-    /*
-     * Čas, kdy se může znovu synchronizovat rotace.
-     */
-    private float nextRotationSync;
 
 
     // ============================================================
@@ -138,12 +116,6 @@ public class LaserTower : Building
          */
         attackTimer = 0f;
 
-
-        /*
-         * Resetujeme synchronizaci rotace.
-         */
-        nextRotationSync = 0f;
-        lastSyncedYaw = 0f;
         targetYaw = 0f;
         hasRotationTarget = false;
 
@@ -328,13 +300,6 @@ public class LaserTower : Building
 
     private void SyncTurretYaw(float yaw)
     {
-        /*
-         * Server si úhel nastaví okamžitě lokálně.
-         *
-         * To je důležité hlavně pro případ,
-         * kdy server běží jako host.
-         */
-        lastSyncedYaw = yaw;
 
         targetYaw = yaw;
         hasRotationTarget = true;

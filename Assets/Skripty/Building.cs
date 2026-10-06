@@ -18,6 +18,8 @@ public abstract class Building : NetworkBehaviour
     public float AttackSpeed;
     public float AttackCooldown;
     public float SightRange;
+    public bool IsPowerSource;
+    public bool IsEnergyConsumer;
 
     public enum BuildingType
     {
@@ -30,7 +32,8 @@ public abstract class Building : NetworkBehaviour
         Radar,
         EnergyPlant,
         Gate,
-        Storage
+        Storage,
+        connector,
     }
 
     public abstract BuildingType Type { get; }
@@ -47,6 +50,10 @@ public abstract class Building : NetworkBehaviour
 
     // Budova existuje a může přijímat damage / fungovat.
     protected bool IsOperational { get; set; } = false;
+
+    public NetworkVariable<bool> IsConnected =
+        new NetworkVariable<bool>(
+            writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<bool> IsConstructionComplete =
         new NetworkVariable<bool>(
@@ -96,6 +103,29 @@ public abstract class Building : NetworkBehaviour
 
         IsOperational = true;
 
+        if (IsOwner || IsServer)
+        {
+            BuildingInteractor interactor = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<BuildingInteractor>();
+            if (interactor != null)
+            {
+                if (!interactor.RegisterBuilding(this))
+                {
+                    
+                    if(IsServer)
+                    {
+                        NetworkObject.Despawn();
+                        Debug.LogWarning($"[Building-DIAG] {name} se nepodařilo zaregistrovat v BuildingInteractoru.");
+                        // pokud se nepodařilo zaregistrovat, tak se budova zničí (despawnne) a hráč dostane zpět corium.
+                        // příště by se to mělo kontrolovat ještě před spawnem, aby se to nestalo.
+                    }
+                        
+                }
+            }
+                
+            else
+                Debug.LogWarning($"[Building-DIAG] {name} nenašel BuildingInteractor na vlastním PlayerObjectu.");
+        }
+
         // Inicializace IsConstructionComplete podle StoredCorium.
         ReceiveCorium(0);
 
@@ -109,11 +139,66 @@ public abstract class Building : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         IsOperational = false;
+        if (IsOwner || IsServer)
+        {
+            BuildingInteractor interactor = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<BuildingInteractor>();
+            if (interactor != null)
+                interactor.UnregisterBuilding(this);
+            else
+                Debug.LogWarning($"[Building-DIAG] {name} nenašel BuildingInteractor na vlastním PlayerObjectu.");
+        }
         base.OnNetworkDespawn();
     }
 
     public virtual void OnBuilt()
     {
+    }
+
+    public void searchForEnergyConnections()
+    {
+        if (!IsServer)
+            return;
+        // pokud nepožaduje elektřinu, tak se nemusí připojovat k síti budov
+        if (IsEnergyConsumer == false)
+        {
+            IsConnected.Value = true;
+            return;
+        }
+        // pokud je zdroj energie tak je automaticky připojený k síti budov
+        IsConnected.Value = true;
+        // vyhledá budovy v okolí, které nejsou připojené k síti budov a připojí je k sobě, pokud jsou v dosahu.
+
+            // vytvoří sphere collider s lehkou pamětí, aby se našly všechny budovy v dosahu s určitým layer maskem (např. "Building").
+            Collider[] hitColliders = Physics.OverlapSphere(
+                transform.position,
+                SightRange,
+                LayerMask.GetMask("Building"),
+                QueryTriggerInteraction.Ignore
+            );
+            // pro každou budovu, která je v dosahu a není připojená k síti budov, se zavolá metoda searchForEnergyConnections (rekurzivně).
+            foreach (var hitCollider in hitColliders)
+            {
+                Building building = hitCollider.GetComponent<Building>();
+                if (building != null && !building.IsConnected.Value)
+                {
+                    building.IsConnected.Value = true;
+                    building.searchForEnergyConnections();
+                    // spojí visuálně kabel mezi zdrojem energie a budovou, která je v dosahu na obou klientech (server a vlastník budovy).
+                    CableManager cableManager = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<CableManager>();
+                    if (cableManager != null)
+                    {
+                        cableManager.CreateCableClientRpc(
+                            transform.position,
+                            building.transform.position
+                        );
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[Building-DIAG] {name} nenašel CableManager na vlastním PlayerObjectu.");
+                    }
+                }
+            }
+        
     }
 
     /// <summary>
@@ -138,6 +223,12 @@ public abstract class Building : NetworkBehaviour
             return;
         }
 
+        if (IsEnergyConsumer == true && IsConnected.Value == false)
+        {
+            // budoucí vylepšení: animace, že budova je odpojená od sítě a nefunguje, dokud se znovu nepřipojí k síti budov.
+            IsOperational = false;
+            return;
+        }
         // ------------------------------------------------------------
         // KONTROLA SPOTŘEBY - 1x ZA SEKUNDU
         // ------------------------------------------------------------
