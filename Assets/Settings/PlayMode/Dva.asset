@@ -48,7 +48,7 @@ MonoBehaviour:
         m_Settings:
           PlayerTag: 
           RoleMask: 1
-          InitialScene: {fileID: 102900000, guid: 25227052c281f524a9517dc11bc77ec8, type: 3}
+          InitialScene: {fileID: 102900000, guid: c10cc4e401acbc34a89a47c63aae27a4, type: 3}
         m_Decorators: []
     - rid: 7692418841065029634
       type: {class: 'InstanceItem`2[[Unity.Multiplayer.PlayMode.Editor.CloneEditorController, UnityEditor.MultiplayerModule],[Unity.Multiplayer.PlayMode.Editor.CloneEditorController/InstanceSettings, UnityEditor.MultiplayerModule]]', ns: Unity.Multiplayer.PlayMode.Editor, asm: UnityEditor.MultiplayerModule}
