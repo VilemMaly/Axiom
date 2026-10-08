@@ -15,7 +15,7 @@ public class DoctrineDefinition : ScriptableObject
     [SerializeField] private Sprite icon;
 
     [Header("Doctrine")]
-    [SerializeField] private DoctrineType doctrineType;
+    [SerializeField] public DoctrineType doctrineType;
 
     [Header("Research")]
     [SerializeField] private List<ResearchDefinition> researches = new List<ResearchDefinition>();
@@ -33,5 +33,6 @@ public enum DoctrineType
     Iron,
     Logistics,
     Energy,
-    AI
+    AI,
+    None
 }

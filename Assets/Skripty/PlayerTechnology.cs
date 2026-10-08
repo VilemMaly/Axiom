@@ -5,10 +5,12 @@ using System.Collections.Generic;
 public class PlayerTechnology : NetworkBehaviour
 {
     // proměnná doctrine, kterou může měnit pouze server, a klienti ji mohou pouze číst
-    private NetworkVariable<DoctrineDefinition> SelectedDoctrine = new NetworkVariable<DoctrineDefinition>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    private NetworkVariable<ResearchDefinition> SelectedResearch = new NetworkVariable<ResearchDefinition>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private NetworkVariable<DoctrineType> SelectedDoctrine = new NetworkVariable<DoctrineType>(DoctrineType.Iron, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private NetworkVariable<string> SelectedResearchId = new NetworkVariable<string>(null, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     // list odemčených výzkumů
     private List<ResearchDefinition> UnlockedResearches = new List<ResearchDefinition>();
+    [SerializeField] private DoctrineDefinition[] doctrines;
+    [SerializeField] private ResearchDefinition[] researches;
 
     private PlayerResources playerResources;
     private bool isResearchInProgress = false;
@@ -21,9 +23,9 @@ public class PlayerTechnology : NetworkBehaviour
         if(IsServer)
         {
             // Inicializace SelectedDoctrine na serveru
-            SelectedDoctrine.Value = null; // nebo nějaká výchozí hodnota
+            SelectedDoctrine.Value = DoctrineType.None; // nebo nějaká výchozí hodnota
             // Inicializace SelectedResearch na serveru
-            SelectedResearch.Value = null; // nebo nějaká výchozí hodnota
+            SelectedResearchId.Value = null; // nebo nějaká výchozí hodnota
         }
         playerResources = GetComponent<PlayerResources>();
     }
@@ -31,25 +33,27 @@ public class PlayerTechnology : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Pokud je výzkum v průběhu, odečítáme energii každou sekundu
-        if (isResearchInProgress)
+     // Pokud je výzkum v průběhu, odečítáme energii každou sekundu
+    if (isResearchInProgress)
+    {
+        lastTimeSpent += Time.deltaTime;
+
+        if (lastTimeSpent >= 1f)
         {
-            if (lastTimeSpent + Time.deltaTime <= 1f)
-            {
-                playerResources.TrySpend(0, energyCostPerSecond);
-                lastTimeSpent += Time.deltaTime;
-            }
-            else
+            lastTimeSpent -= 1f;
+
+            if (!playerResources.TrySpend(0, energyCostPerSecond))
             {
                 Debug.Log("Not enough energy to continue research.");
-                isResearchInProgress = false; // Zastavíme výzkum, pokud není dostatek energie
+                isResearchInProgress = false;
             }
         }
+    }
 
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SetSelectedDoctrineServerRpc(DoctrineDefinition doctrine)
+    public void SetSelectedDoctrineServerRpc(DoctrineType doctrine)
     {
         if(SelectedDoctrine.Value != doctrine)
         {
@@ -57,14 +61,37 @@ public class PlayerTechnology : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void SelectResearch(ResearchDefinition research)
+    public DoctrineDefinition GetDoctrine(DoctrineType type)
     {
-        if (SelectedResearch.Value != research)
+        foreach (var doctrine in doctrines)
         {
-            SelectedResearch.Value = research;
+            if (doctrine.DoctrineType == type)
+                return doctrine;
         }
-        if(research.coriumCost <= playerResources.Corium.Value)
+
+        return null;
+    }
+
+    public ResearchDefinition GetResearch(string researchId)
+    {
+        foreach (var research in researches)
+        {
+            if (research.ResearchId == researchId)
+                return research;
+        }
+
+        return null;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SelectResearchServerRpc(string researchId)
+    {
+        ResearchDefinition research = GetResearch(researchId);
+        if (SelectedResearchId.Value != researchId)
+        {
+            SelectedResearchId.Value = researchId;
+        }
+        if(research != null && research.coriumCost <= playerResources.Corium.Value)
         {
             playerResources.TrySpend(research.coriumCost,0);
         }

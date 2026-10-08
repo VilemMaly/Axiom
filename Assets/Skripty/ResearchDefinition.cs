@@ -9,7 +9,7 @@ using static Building;
 public class ResearchDefinition : ScriptableObject
 {
     [Header("Basic Information")]
-    [SerializeField] private string researchId;
+    [SerializeField] public string researchId;
     [SerializeField] private string displayName;
 
     [TextArea(2, 5)]
