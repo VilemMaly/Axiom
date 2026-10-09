@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bee5fc344fd3c1f4493ebfc630d1c04d, type: 3}
+  m_Name: Technology
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeDefinition
+  upgradeId: asd
+  displayName: Ramblimbiddamdam
+  description: Tohle je technologie ktera je tak vsemocna ze nejde vyzkoumat
+  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
+  targetType: 0
+  troopType: 0
+  buildingType: 0
+  statType: 0
+  value: 50
+  valueType: 1

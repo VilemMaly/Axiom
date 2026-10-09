@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
+  m_Name: Testik
+  m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
+  researchId: a2
+  displayName: Wow
+  description: Tohle odemkne vsechno
+  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
+  coriumCost: 100000
+  researchTime: 30000
+  energyPerSecond: 50000
+  requiredResearches: []
+  upgrades:
+  - {fileID: 11400000, guid: 3a9b8e0becad1be49a02a1694c6d941e, type: 2}
+  unlockedTroops: 
+  unlockedBuildings: 
