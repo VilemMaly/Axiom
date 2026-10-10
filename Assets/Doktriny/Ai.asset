@@ -12,9 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd3bd315ee3d84640a6033cd83db6dff, type: 3}
   m_Name: Ai
   m_EditorClassIdentifier: Assembly-CSharp::DoctrineDefinition
-  doctrineId: 
-  displayName: 
-  description: 
-  icon: {fileID: 0}
+  doctrineId: 1
+  displayName: Ai
+  description: "Doktr\xEDna zam\u011B\u0159en\xE1 na automatizaci, pokro\u010Dil\xE9
+    algoritmy a inteligentn\xED bojov\xE9 syst\xE9my, kter\xE9 zvy\u0161uj\xED efektivitu
+    jednotek a umo\u017E\u0148uj\xED z\xEDskat taktickou p\u0159evahu."
+  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   doctrineType: 3
-  researches: []
+  researches:
+  - {fileID: 11400000, guid: 4a49078ce99a3fd4cb70cdc3bbbe2a66, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}

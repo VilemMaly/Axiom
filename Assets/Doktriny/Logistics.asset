@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd3bd315ee3d84640a6033cd83db6dff, type: 3}
   m_Name: Logistics
   m_EditorClassIdentifier: Assembly-CSharp::DoctrineDefinition
-  doctrineId: 
-  displayName: 
-  description: 
-  icon: {fileID: 0}
+  doctrineId: 4
+  displayName: Logistics
+  description: "Doktr\xEDna zam\u011B\u0159en\xE1 na logistiku, rychlost p\u0159esunu
+    a efektivn\xED p\u0159epravu surovin i jednotek, kter\xE1 umo\u017E\u0148uje
+    rychlej\u0161\xED expanzi a lep\u0161\xED kontrolu nad mapou."
+  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   doctrineType: 1
   researches: []

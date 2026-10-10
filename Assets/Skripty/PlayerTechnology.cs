@@ -17,9 +17,9 @@ public class PlayerTechnology : NetworkBehaviour
             NetworkVariableWritePermission.Server
         );
 
-    private readonly NetworkVariable<string> selectedResearchId =
-        new NetworkVariable<string>(
-            string.Empty,
+    private readonly NetworkVariable<int> selectedResearchId =
+        new NetworkVariable<int>(
+            -1,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server
         );
@@ -39,12 +39,13 @@ public class PlayerTechnology : NetworkBehaviour
     private float lastTimeSpent;
     private float researchProgressSeconds;
     private ResearchDefinition activeResearch;
+    private ResearchUiController researchUiController;
 
     /// <summary>Aktuální síťový stav doktríny. Pouze pro čtení.</summary>
     public DoctrineType SelectedDoctrineValue => selectedDoctrine.Value;
 
     /// <summary>Aktuální ID běžícího výzkumu, případně prázdný řetězec. Pouze pro čtení.</summary>
-    public string CurrentSelectedResearchId => selectedResearchId.Value;
+    public int CurrentSelectedResearchId => selectedResearchId.Value;
 
     /// <summary>Datový katalog doktrín používaný controllerem UI.</summary>
     public IReadOnlyList<DoctrineDefinition> Doctrines =>
@@ -58,7 +59,7 @@ public class PlayerTechnology : NetworkBehaviour
     public event Action<DoctrineType, DoctrineType> SelectedDoctrineChanged;
 
     /// <summary>Vyvolá se při změně ID právě běžícího výzkumu.</summary>
-    public event Action<string, string> SelectedResearchChanged;
+    public event Action<int, int> SelectedResearchChanged;
 
     /// <summary>Vyvolá se při despawnu tohoto síťového objektu.</summary>
     public event Action<PlayerTechnology> NetworkObjectDespawned;
@@ -68,13 +69,14 @@ public class PlayerTechnology : NetworkBehaviour
         base.OnNetworkSpawn();
 
         playerResources = GetComponent<PlayerResources>();
+        researchUiController = GetComponent<ResearchUiController>();
 
         if (IsServer)
         {
             // Normalizace staršího/null stavu. Výchozí hodnota nové instance
             // je už DoctrineType.None a prázdné ResearchId.
             if (selectedResearchId.Value == null)
-                selectedResearchId.Value = string.Empty;
+                selectedResearchId.Value = -1;
 
             if (playerResources == null)
             {
@@ -190,6 +192,8 @@ public class PlayerTechnology : NetworkBehaviour
 
         selectedDoctrine.Value = doctrine;
         Debug.Log($"[{nameof(PlayerTechnology)}] Server nastavil doktrínu '{doctrine}' pro OwnerClientId {OwnerClientId}.", this);
+        researchUiController.SpawnResearchPrefabsClientRpc(doctrine);
+        
     }
 
     /// <summary>Vrátí definici doktríny podle jejího typu, případně null.</summary>
@@ -209,16 +213,16 @@ public class PlayerTechnology : NetworkBehaviour
     }
 
     /// <summary>Vrátí kanonickou definici výzkumu z katalogu PlayerTechnology, případně null.</summary>
-    public ResearchDefinition GetResearch(string researchId)
+    public ResearchDefinition GetResearch(int researchId)
     {
-        if (string.IsNullOrWhiteSpace(researchId) || researches == null)
+        if (researchId == -1)
             return null;
 
         for (int i = 0; i < researches.Length; i++)
         {
             ResearchDefinition research = researches[i];
             if (research != null &&
-                string.Equals(research.ResearchId, researchId, StringComparison.Ordinal))
+                research.ResearchId == researchId)
             {
                 return research;
             }
@@ -233,14 +237,14 @@ public class PlayerTechnology : NetworkBehaviour
     /// </summary>
     [ServerRpc(RequireOwnership = false)]
     public void SelectResearchServerRpc(
-        string researchId,
+        int researchId,
         ServerRpcParams rpcParams = default
     )
     {
         if (!IsAuthorizedRequest(rpcParams, "zahájení výzkumu"))
             return;
 
-        if (string.IsNullOrWhiteSpace(researchId))
+        if (researchId < 0)
         {
             Debug.LogWarning($"[{nameof(PlayerTechnology)}] Zamítnut požadavek s prázdným ResearchId.", this);
             return;
@@ -249,7 +253,7 @@ public class PlayerTechnology : NetworkBehaviour
         // Opakované potvrzení už běžícího výzkumu nic nestrhává podruhé.
         if (isResearchInProgress)
         {
-            if (string.Equals(selectedResearchId.Value, researchId, StringComparison.Ordinal))
+            if (selectedResearchId.Value == researchId)
             {
                 Debug.Log($"[{nameof(PlayerTechnology)}] Výzkum '{researchId}' už běží; další platba nebyla provedena.", this);
             }
@@ -363,7 +367,7 @@ public class PlayerTechnology : NetworkBehaviour
         return true;
     }
 
-    private bool DoctrineContainsResearch(DoctrineDefinition doctrine, string researchId)
+    private bool DoctrineContainsResearch(DoctrineDefinition doctrine, int researchId)
     {
         if (doctrine == null || doctrine.Researches == null)
             return false;
@@ -372,7 +376,7 @@ public class PlayerTechnology : NetworkBehaviour
         {
             ResearchDefinition listedResearch = doctrine.Researches[i];
             if (listedResearch != null &&
-                string.Equals(listedResearch.ResearchId, researchId, StringComparison.Ordinal))
+                listedResearch.ResearchId == researchId)
             {
                 return true;
             }
@@ -390,7 +394,7 @@ public class PlayerTechnology : NetworkBehaviour
         {
             ResearchDefinition requirement = research.RequiredResearches[i];
 
-            if (requirement == null || string.IsNullOrWhiteSpace(requirement.ResearchId))
+            if (requirement == null || requirement.ResearchId < 0)
             {
                 Debug.LogError(
                     $"[{nameof(PlayerTechnology)}] Výzkum '{research.DisplayName}' obsahuje neplatný požadovaný výzkum.",
@@ -412,13 +416,13 @@ public class PlayerTechnology : NetworkBehaviour
         return true;
     }
 
-    private bool IsResearchUnlocked(string researchId)
+    private bool IsResearchUnlocked(int researchId)
     {
         for (int i = 0; i < unlockedResearches.Count; i++)
         {
             ResearchDefinition unlocked = unlockedResearches[i];
             if (unlocked != null &&
-                string.Equals(unlocked.ResearchId, researchId, StringComparison.Ordinal))
+                unlocked.ResearchId == researchId)
             {
                 return true;
             }
@@ -442,7 +446,7 @@ public class PlayerTechnology : NetworkBehaviour
         energyCostPerSecond = 0;
         lastTimeSpent = 0f;
         researchProgressSeconds = 0f;
-        selectedResearchId.Value = string.Empty;
+        selectedResearchId.Value = -1;
 
         Debug.Log($"[{nameof(PlayerTechnology)}] Výzkum '{completedResearch.DisplayName}' byl dokončen.", this);
     }
@@ -452,14 +456,14 @@ public class PlayerTechnology : NetworkBehaviour
         if (!IsServer)
             return;
 
-        string researchName = activeResearch != null ? activeResearch.DisplayName : selectedResearchId.Value;
+        string researchName = "None";
 
         isResearchInProgress = false;
         activeResearch = null;
         energyCostPerSecond = 0;
         lastTimeSpent = 0f;
         researchProgressSeconds = 0f;
-        selectedResearchId.Value = string.Empty;
+        selectedResearchId.Value = -1;
 
         Debug.LogWarning(
             $"[{nameof(PlayerTechnology)}] Výzkum '{researchName}' byl přerušen. Důvod: {reason} Již zaplacené Corium se nevrací.",
@@ -472,7 +476,7 @@ public class PlayerTechnology : NetworkBehaviour
         SelectedDoctrineChanged?.Invoke(previous, current);
     }
 
-    private void HandleSelectedResearchValueChanged(string previous, string current)
+    private void HandleSelectedResearchValueChanged(int previous, int current)
     {
         SelectedResearchChanged?.Invoke(previous, current);
     }

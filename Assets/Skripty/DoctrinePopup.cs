@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DoctrineSelector : MonoBehaviour
+public class DoctrinePopup : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Button iconButton;

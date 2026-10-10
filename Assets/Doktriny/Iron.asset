@@ -10,11 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd3bd315ee3d84640a6033cd83db6dff, type: 3}
-  m_Name: "\xCFron"
+  m_Name: Iron
   m_EditorClassIdentifier: Assembly-CSharp::DoctrineDefinition
-  doctrineId: 
-  displayName: 
-  description: 
-  icon: {fileID: 0}
+  doctrineId: 3
+  displayName: Iron
+  description: "Doktr\xEDna zam\u011B\u0159en\xE1 na t\u011B\u017Ekou v\xFDzbroj,
+    odolnost a ni\u010Divou palebnou s\xEDlu, kter\xE1 umo\u017E\u0148uje prorazit
+    nep\u0159\xE1telskou obranu a dominovat na boji\u0161ti."
+  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   doctrineType: 0
   researches: []

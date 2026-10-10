@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Technology
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeDefinition
   upgradeId: asd
-  displayName: Ramblimbiddamdam
-  description: Tohle je technologie ktera je tak vsemocna ze nejde vyzkoumat
+  displayName: Tech1
+  description: Tohle je technologie ktera testuje funkcnost
   icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   targetType: 0
   troopType: 0

@@ -9,7 +9,7 @@ using static Building;
 public class ResearchDefinition : ScriptableObject
 {
     [Header("Basic Information")]
-    [SerializeField] public string researchId;
+    [SerializeField] public int researchId;
     [SerializeField] private string displayName;
 
     [TextArea(2, 5)]
@@ -41,7 +41,7 @@ public class ResearchDefinition : ScriptableObject
     private List<BuildingType> unlockedBuildings =
         new List<BuildingType>();
 
-    public string ResearchId => researchId;
+    public int ResearchId => researchId;
     public string DisplayName => displayName;
     public string Description => description;
     public Sprite Icon => icon;

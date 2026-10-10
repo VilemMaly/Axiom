@@ -49,10 +49,7 @@ public class ResearchPopup : MonoBehaviour
 
     [Tooltip("Automaticky nastaví výšku parentu podle počtu řádků.")]
     [SerializeField] private bool resizeGridParentHeight;
-
-    [Header("Accept Button Event")]
-    [Tooltip("Funkce volané po kliknutí na tlačítko Accept. ResearchUiController k této události přidává serverový požadavek.")]
-    [SerializeField] private UnityEvent onAcceptClicked = new UnityEvent();
+    public Action<int> OnAcceptClicked;
 
     private readonly List<UpgradePopup> spawnedUpgradePopups = new List<UpgradePopup>();
     private float lastLayoutWidth = float.NaN;
@@ -66,8 +63,6 @@ public class ResearchPopup : MonoBehaviour
     /// </summary>
     public event Action<ResearchPopup, ResearchDefinition> OnResearchClicked;
 
-    /// <summary>Událost kliknutí na Accept. Další posluchači se přidávají bez nahrazování UnityEvent nastaveného v Inspectoru.</summary>
-    public UnityEvent OnAcceptClicked => onAcceptClicked;
 
     /// <summary>Vyvolá se po zavření detailu výzkumu.</summary>
     public event Action OnPopupClosed;
@@ -354,6 +349,6 @@ public class ResearchPopup : MonoBehaviour
             return;
         }
 
-        onAcceptClicked?.Invoke();
+        OnAcceptClicked?.Invoke(currentResearch.ResearchId);
     }
 }

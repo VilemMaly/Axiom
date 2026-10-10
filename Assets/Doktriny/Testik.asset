@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
   m_Name: Testik
   m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
-  researchId: a2
+  researchId: 1
   displayName: Wow
-  description: Tohle odemkne vsechno
+  description: Tohle je test research
   icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   coriumCost: 100000
   researchTime: 30000

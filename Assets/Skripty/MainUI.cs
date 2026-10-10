@@ -15,6 +15,7 @@ public class MainUI : NetworkBehaviour
     [Header("Research UI")]
     public GameObject researchParent;
     public bool isResearchVisible = false;
+    private ResearchUiController researchUiController;
 
     private void Start()
     {
@@ -25,6 +26,7 @@ public class MainUI : NetworkBehaviour
             return;
 
         StartCoroutine(WaitForInputManager());
+        researchUiController = GetComponent<ResearchUiController>();
     }
 
     private IEnumerator WaitForInputManager()

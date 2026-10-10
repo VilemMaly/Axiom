@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
   m_Name: NewResearch
   m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
-  researchId: 
+  researchId: 2
   displayName: 
-  description: 
-  icon: {fileID: 0}
+  description: a
+  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   coriumCost: 100
   researchTime: 30
   energyPerSecond: 5

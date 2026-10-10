@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd3bd315ee3d84640a6033cd83db6dff, type: 3}
   m_Name: Energy
   m_EditorClassIdentifier: Assembly-CSharp::DoctrineDefinition
-  doctrineId: 
-  displayName: 
-  description: 
-  icon: {fileID: 0}
+  doctrineId: 2
+  displayName: Energy
+  description: "Doktr\xEDna zam\u011B\u0159en\xE1 na v\xFDrobu, distribuci a optimalizaci
+    energie, kter\xE1 zaji\u0161\u0165uje stabiln\xED provoz budov a podporuje rozvoj
+    cel\xE9 z\xE1kladny."
+  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   doctrineType: 2
   researches: []
