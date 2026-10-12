@@ -24,12 +24,11 @@ public class PlayerTechnology : NetworkBehaviour
             NetworkVariableWritePermission.Server
         );
 
-    private readonly List<ResearchDefinition> unlockedResearches =
+    public readonly List<ResearchDefinition> unlockedResearches =
         new List<ResearchDefinition>();
 
     [Header("Technology Data")]
     [SerializeField] private DoctrineDefinition[] doctrines;
-    [SerializeField] private ResearchDefinition[] researches;
 
     private PlayerResources playerResources;
 
@@ -50,10 +49,6 @@ public class PlayerTechnology : NetworkBehaviour
     /// <summary>Datový katalog doktrín používaný controllerem UI.</summary>
     public IReadOnlyList<DoctrineDefinition> Doctrines =>
         doctrines ?? Array.Empty<DoctrineDefinition>();
-
-    /// <summary>Datový katalog výzkumů používaný serverovým ověřením i UI.</summary>
-    public IReadOnlyList<ResearchDefinition> Researches =>
-        researches ?? Array.Empty<ResearchDefinition>();
 
     /// <summary>Vyvolá se při změně síťové proměnné vybrané doktríny.</summary>
     public event Action<DoctrineType, DoctrineType> SelectedDoctrineChanged;
@@ -156,6 +151,7 @@ public class PlayerTechnology : NetworkBehaviour
 
             if (researchProgressSeconds >= activeResearch.ResearchTime)
             {
+                Debug.Log("Výzkum dokončen");
                 CompleteActiveResearch();
                 return;
             }
@@ -212,20 +208,25 @@ public class PlayerTechnology : NetworkBehaviour
         return null;
     }
 
+    private DoctrineDefinition GetDoctrineByType(DoctrineType type)
+    {
+        foreach(DoctrineDefinition doctrine in Doctrines)
+        {
+            if(doctrine.doctrineType == type)
+                return doctrine;
+        }
+        return null;
+    }
     /// <summary>Vrátí kanonickou definici výzkumu z katalogu PlayerTechnology, případně null.</summary>
     public ResearchDefinition GetResearch(int researchId)
     {
         if (researchId == -1)
             return null;
 
-        for (int i = 0; i < researches.Length; i++)
+        foreach(ResearchDefinition research in GetDoctrineByType(SelectedDoctrineValue).Researches)
         {
-            ResearchDefinition research = researches[i];
-            if (research != null &&
-                research.ResearchId == researchId)
-            {
+            if(research.researchId == researchId)
                 return research;
-            }
         }
 
         return null;
@@ -439,7 +440,11 @@ public class PlayerTechnology : NetworkBehaviour
         ResearchDefinition completedResearch = activeResearch;
 
         if (!IsResearchUnlocked(completedResearch.ResearchId))
+        {
             unlockedResearches.Add(completedResearch);
+            AddResearchClientRpc(completedResearch.ResearchId);
+        }
+            
 
         isResearchInProgress = false;
         activeResearch = null;
@@ -449,6 +454,15 @@ public class PlayerTechnology : NetworkBehaviour
         selectedResearchId.Value = -1;
 
         Debug.Log($"[{nameof(PlayerTechnology)}] Výzkum '{completedResearch.DisplayName}' byl dokončen.", this);
+    }
+
+    [ClientRpc]
+    private void AddResearchClientRpc(int researchId)
+    {
+        if(!IsOwner)
+            return;
+        unlockedResearches.Add(GetResearch(researchId));
+        Debug.Log("Výzkum přidán na klientu");
     }
 
     private void AbortActiveResearch(string reason)

@@ -20,7 +20,7 @@ public class TroopStatus : MonoBehaviour
             if (buildPowerText != null)
                 buildPowerText.text = atlas.BuildCoriumPerSecond.ToString("0.0");
             if (repairPowerText != null)
-                repairPowerText.text = atlas.RepairPower.ToString("0.0");
+                repairPowerText.text = atlas.RepairCoriumPerSecond.ToString("0.0");
         }
     }
 }

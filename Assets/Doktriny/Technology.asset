@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeDefinition
   upgradeId: asd
   displayName: Tech1
-  description: Tohle je technologie ktera testuje funkcnost
+  description: "tohle p\u0159id\xE1 na photon nekone\u010Dn\u011B rychlou palbu"
   icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
   targetType: 0
-  troopType: 0
+  troopType: 1
   buildingType: 0
-  statType: 0
-  value: 50
+  statType: 3
+  value: 1000
   valueType: 1

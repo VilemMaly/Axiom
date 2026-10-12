@@ -10231,6 +10231,7 @@ GameObject:
   - component: {fileID: 2812867145716103431}
   - component: {fileID: 6895607523308573822}
   - component: {fileID: 349354855213126245}
+  - component: {fileID: 6098216747275359234}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -10676,11 +10677,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b36b9a0bcad80f48a72321f478d4f23, type: 2}
   - {fileID: 11400000, guid: c7bbb75f9832ae24d8ba393b7659aff1, type: 2}
   - {fileID: 11400000, guid: 3adfb4b3ec4fb6e4db6b4222cf140ca4, type: 2}
-  researches:
-  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
-  - {fileID: 11400000, guid: 4a49078ce99a3fd4cb70cdc3bbbe2a66, type: 2}
-  - {fileID: 11400000, guid: 4a49078ce99a3fd4cb70cdc3bbbe2a66, type: 2}
-  - {fileID: 11400000, guid: 4a49078ce99a3fd4cb70cdc3bbbe2a66, type: 2}
+--- !u!114 &6098216747275359234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8600446094655747949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac4a38ef02c1ee14bb6e9cb271f3e472, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TechResolver
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &8744124395040183519
 GameObject:
   m_ObjectHideFlags: 0

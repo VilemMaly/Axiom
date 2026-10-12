@@ -29,6 +29,7 @@ public abstract class Troop : NetworkBehaviour
     protected bool IsBusy;
     public int BuildCoriumPerSecond = 15;
     public float WorkRange = 2.5f;
+    public int RepairCoriumPerSecond = 0;
     public int HarvestCoriumPerSecond = 15;
     public int MaxCargo = 100;
     public int DepositCoriumPerSecond = 20;
@@ -133,7 +134,14 @@ public abstract class Troop : NetworkBehaviour
             new Vector3(SightRange, SightRange, 1f);
 
         if (IsServer)
+        {
             Health.Value = MaxHealth;
+        }
+        // Boost půjde na klientovi i server zvlášť, protože se stejně pravděpodobně bude kontrolovat vzdálenost při výstřelu rychlost atd
+        // takže i kdyby si klient dal upgrade svůj tak by nefungoval
+        NetworkManager.Singleton.ConnectedClients[OwnerClientId]
+                .PlayerObject.GetComponent<TechResolver>().AddBoost(this);
+            
 
         IsOperational = true;
 

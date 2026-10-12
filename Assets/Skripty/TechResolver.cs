@@ -12,10 +12,10 @@ public class TechResolver : NetworkBehaviour
 
     public void AddBoost(Troop troop)
     {
-        if (!IsServer || troop == null || research == null)
+        if (troop == null || research == null)
             return;
 
-        foreach (ResearchDefinition researchDefinition in research.UnlockedResearches)
+        foreach (ResearchDefinition researchDefinition in research.unlockedResearches)
         {
             foreach (UpgradeDefinition upgrade in researchDefinition.Upgrades)
             {
@@ -49,8 +49,8 @@ public class TechResolver : NetworkBehaviour
 
             case UpgradeStatType.Damage:
                 troop.Damage = upgrade.ValueType == UpgradeValueType.Flat
-                    ? troop.Damage + value
-                    : troop.Damage * (1f + value);
+                    ? troop.Damage + (int)value
+                    : troop.Damage * (int)(1f + value);
                 break;
 
             case UpgradeStatType.AttackRange:
@@ -79,27 +79,27 @@ public class TechResolver : NetworkBehaviour
                 break;
 
             case UpgradeStatType.BuildSpeed:
-                troop.BuildSpeed = upgrade.ValueType == UpgradeValueType.Flat
-                    ? troop.BuildSpeed + value
-                    : troop.BuildSpeed * (1f + value);
+                troop.BuildCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
+                    ? troop.BuildCoriumPerSecond + (int)value
+                    : troop.BuildCoriumPerSecond * (int)(1f + value);
                 break;
 
             case UpgradeStatType.RepairPower:
-                troop.RepairPower = upgrade.ValueType == UpgradeValueType.Flat
-                    ? troop.RepairPower + value
-                    : troop.RepairPower * (1f + value);
+                troop.RepairCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
+                    ? troop.RepairCoriumPerSecond + (int)value
+                    : troop.RepairCoriumPerSecond * (int)(1f + value);
                 break;
 
             case UpgradeStatType.MiningSpeed:
-                troop.MiningSpeed = upgrade.ValueType == UpgradeValueType.Flat
-                    ? troop.MiningSpeed + value
-                    : troop.MiningSpeed * (1f + value);
+                troop.HarvestCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
+                    ? troop.HarvestCoriumPerSecond + (int)value
+                    : troop.HarvestCoriumPerSecond * (int)(1f + value);
                 break;
 
             case UpgradeStatType.CargoCapacity:
-                troop.CargoCapacity = upgrade.ValueType == UpgradeValueType.Flat
-                    ? troop.CargoCapacity + value
-                    : troop.CargoCapacity * (1f + value);
+                troop.MaxCargo = upgrade.ValueType == UpgradeValueType.Flat
+                    ? troop.MaxCargo + (int)value
+                    : troop.MaxCargo * (int)(1f + value);
                 break;
         }
     }
