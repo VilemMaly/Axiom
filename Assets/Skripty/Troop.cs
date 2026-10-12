@@ -27,6 +27,14 @@ public abstract class Troop : NetworkBehaviour
     public int Cost;
     public float SightRange;
     protected bool IsBusy;
+    public int BuildCoriumPerSecond = 15;
+    public float WorkRange = 2.5f;
+    public int HarvestCoriumPerSecond = 15;
+    public int MaxCargo = 100;
+    public int DepositCoriumPerSecond = 20;
+    public int Damage;
+    public float AttackRange;
+    public float AttackSpeed;
 
     [Header("Pohyb - NavMesh")]
     [SerializeField] private SpriteRenderer currentVisibility;

@@ -6,15 +6,6 @@ using UnityEngine;
 
 public class Harvester : Troop
 {
-    [Header("Harvester - sběr surovin")]
-    public float WorkRange = 2.5f;
-    public int HarvestCoriumPerSecond = 15;
-
-    [Tooltip("Kolik coria může jednotka najednou převážet.")]
-    public int MaxCargo = 100;
-
-    [Header("Harvester - vykládka do core")]
-    public int DepositCoriumPerSecond = 20;
 
     [Header("Detekce resources")]
     [SerializeField] private LayerMask ResourceLayerMask;

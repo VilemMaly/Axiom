@@ -27,13 +27,6 @@ public class Atlas : Troop
         }
     }
 
-    [Header("Atlas - stavba a oprava")]
-    public float RepairPower = 10f;
-    public float WorkRange = 2.5f;
-
-    [Header("Stavba")]
-    public int BuildCoriumPerSecond = 15;
-
     private PlayerResources resources;
     public event Action<Atlas, int, Vector3, int, int> NearBuilding; // atlas, index, pozice, rotace, počet zbývajících ve frontě
 

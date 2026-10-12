@@ -26,6 +26,10 @@ public class UpgradeDefinition : ScriptableObject
     [SerializeField] private UpgradeStatType statType;
 
     [Header("Value")]
+    [Tooltip(
+        "Pro Flat se hodnota přičte. " +
+        "Pro Percentage zadej například 15 pro +15 %."
+    )]
     [SerializeField] private float value;
 
     [Header("Value Type")]
@@ -61,6 +65,7 @@ public enum UpgradeValueType
 
 public enum UpgradeStatType
 {
+    // Původní hodnoty ponechány ve stejném pořadí.
     MaxHealth,
     Damage,
     AttackRange,
@@ -70,5 +75,9 @@ public enum UpgradeStatType
     BuildSpeed,
     RepairPower,
     MiningSpeed,
-    CargoCapacity
+    CargoCapacity,
+
+    // Nové upgrady podporované NavMeshAgentem.
+    AgentAcceleration,
+    TurnSpeed
 }

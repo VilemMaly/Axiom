@@ -5,21 +5,18 @@ public class Photon : Troop
 {
     [Header("Photon - laserový útok")]
     [SerializeField] private LayerMask enemyLayerMask;
-    [SerializeField] private float enemyScanInterval = 0.25f;
-    [SerializeField] private float fireInterval = 1f; // sekundy mezi zásahy
 
     [Header("Photon - VFX/SFX výstřelu")]
     [Tooltip("Particle system výstřelu (child prefab pod troopem) - natočí se směrem na cíl a přehraje.")]
     [SerializeField] private ParticleSystem shotParticle;
     [Tooltip("Zvuk výstřelu - přehraje se přes sdílený audioSource z Troop.")]
     [SerializeField] private AudioClip fireSfx;
+    [SerializeField] private float enemyScanInterval = 0.25f;
+    [SerializeField] private float fireInterval = 1f; // sekundy mezi zásahy
 
     private readonly Collider[] enemyResults = new Collider[32];
     private float nextEnemyScan;
     private float nextFireTime;
-    public int Damage;
-    public float AttackRange;
-    public float AttackSpeed;
 
     // Synced pro klienty - aby si mohli přehrát laser VFX na správný cíl
     public NetworkVariable<NetworkObjectReference> CurrentTarget =
