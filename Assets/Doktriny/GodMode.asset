@@ -15,7 +15,7 @@ MonoBehaviour:
   researchId: 5
   displayName: Godmode
   description: "Tohle p\u0159id\xE1 velmi dobr\xE9 staty"
-  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
+  icon: {fileID: 437919363, guid: 5f4b5718b0afad9439b33e960af5cf29, type: 3}
   coriumCost: 10
   researchTime: 5
   energyPerSecond: 10

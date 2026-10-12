@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeId: asd
   displayName: Tech1
   description: "tohle p\u0159id\xE1 na photon nekone\u010Dn\u011B rychlou palbu"
-  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
+  icon: {fileID: 1625215973, guid: 3a095c8a5f46c024091a8a5cd4bd8ca4, type: 3}
   targetType: 0
   troopType: 1
   buildingType: 0

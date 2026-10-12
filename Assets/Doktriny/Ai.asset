@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "Doktr\xEDna zam\u011B\u0159en\xE1 na automatizaci, pokro\u010Dil\xE9
     algoritmy a inteligentn\xED bojov\xE9 syst\xE9my, kter\xE9 zvy\u0161uj\xED efektivitu
     jednotek a umo\u017E\u0148uj\xED z\xEDskat taktickou p\u0159evahu."
-  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
+  icon: {fileID: -1793273040, guid: 5054274a45f47ae4f8634f4fb74b4fc1, type: 3}
   doctrineType: 3
   researches:
   - {fileID: 11400000, guid: 4a49078ce99a3fd4cb70cdc3bbbe2a66, type: 2}

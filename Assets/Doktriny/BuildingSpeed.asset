@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeId: 10
   displayName: BuildSpeed
   description: "Tohle zrychl\xED stav\u011Bn\xED"
-  icon: {fileID: 0}
+  icon: {fileID: -107788051, guid: 2c60a77227dc6784aaadf91d534d2c88, type: 3}
   targetType: 0
   troopType: 0
   buildingType: 0

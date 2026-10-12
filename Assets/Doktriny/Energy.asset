@@ -17,6 +17,6 @@ MonoBehaviour:
   description: "Doktr\xEDna zam\u011B\u0159en\xE1 na v\xFDrobu, distribuci a optimalizaci
     energie, kter\xE1 zaji\u0161\u0165uje stabiln\xED provoz budov a podporuje rozvoj
     cel\xE9 z\xE1kladny."
-  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
+  icon: {fileID: 2126705799, guid: fcd6e78dcae73a8478b2a2c53e19ec31, type: 3}
   doctrineType: 2
   researches: []
