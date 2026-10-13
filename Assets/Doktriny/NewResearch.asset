@@ -19,7 +19,8 @@ MonoBehaviour:
   coriumCost: 100
   researchTime: 30
   energyPerSecond: 5
-  requiredResearches: []
+  requiredResearches:
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
   upgrades: []
   unlockedTroops: 
   unlockedBuildings: 

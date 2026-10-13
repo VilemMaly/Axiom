@@ -5,7 +5,7 @@ using Unity.Services.Matchmaker.Models;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class ResearchUiController : MonoBehaviour
+public class ResearchUiController : NetworkBehaviour
 {
     [SerializeField] private Transform uiPanel;
     [SerializeField] private Transform ResearchParent;
@@ -24,6 +24,7 @@ public class ResearchUiController : MonoBehaviour
         playerTechnology = GetComponent<PlayerTechnology>();
         SpawnDoctrinePrefabs();
     }
+
 
     public void SpawnDoctrinePrefabs()
     {
@@ -66,28 +67,43 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
         DoctrineDefinition selectedDoctrine = null;
         foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
         {
-            if(doctrine.DoctrineType == Doctrinetype)
+            if (doctrine.DoctrineType == Doctrinetype)
             {
                 selectedDoctrine = doctrine;
             }
         }
-        if(selectedDoctrine == null)
+        if (selectedDoctrine == null)
             return;
         chooseParent.SetActive(false);
         researchParent.SetActive(true);
-
+        Debug.Log("Client rpc spawn research");
         int cycle = 0;
+        // Počet výzkumů v každém řádku
+        // Musí být mimo foreach, aby se hodnoty neresetovaly.
+        int[] radky = new int[10];
+
         foreach (ResearchDefinition research in selectedDoctrine.Researches)
         {
             if (research == null)
                 continue;
 
+            // Určí řádek podle RequiredResearches.
+            int row = GetResearchRow(research);
+
+            // Pole radky podporuje maximálně 10 řádků.
+            if (row >= radky.Length)
+            {
+                Debug.LogWarning($"Výzkum {research.name} je mimo povolený počet řádků.");
+                continue;
+            }
+
+            // Sloupec odpovídá počtu výzkumů v tomto řádku.
+            int column = radky[row];
+            radky[row]++;
+
             GameObject spawnedResearch = Instantiate(researchPrefab, ResearchParent);
 
             RectTransform rect = spawnedResearch.GetComponent<RectTransform>();
-
-            int column = cycle % 4;
-            int row = cycle / 4;
 
             rect.anchoredPosition = new Vector2(
                 column * gridSpacing.x,
@@ -95,15 +111,43 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
             );
 
             ResearchPopup researchPopup = spawnedResearch.GetComponent<ResearchPopup>();
+
             researchPopup.Fill(research);
             researchPopup.OnResearchClicked += HidePopups;
             researchPopup.OnPopupClosed += ShowPopups;
             researchPopup.OnAcceptClicked = researchId =>
-            playerTechnology.SelectResearchServerRpc(researchId);
+                playerTechnology.SelectResearchServerRpc(researchId);
+
             researchPopups.Add(researchPopup);
 
             cycle++;
         }
+    }
+
+        private int GetResearchRow(ResearchDefinition research)
+    {
+        // Výzkum bez požadavků patří do řádku 0.
+        if (research.RequiredResearches == null ||
+            research.RequiredResearches.Count == 0)
+        {
+            return 0;
+        }
+
+        int row = 0;
+
+        // Najde nejnižší řádek ze všech požadovaných výzkumů
+        // a umístí tento výzkum o řádek níže.
+        foreach (ResearchDefinition required in research.RequiredResearches)
+        {
+            if (required == null)
+                continue;
+
+            int requiredRow = GetResearchRow(required);
+
+            row = Mathf.Max(row, requiredRow + 1);
+        }
+
+        return row;
     }
 
     private void HidePopups(ResearchPopup notThisOne, ResearchDefinition ignoredResearch)
