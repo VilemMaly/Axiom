@@ -305,7 +305,7 @@ public class Network : NetworkBehaviour
         Debug.Log($"Client {clientId} connected.");
 
         NetworkManager.Singleton.SceneManager.LoadScene(
-            "Mapa2",
+            "Mapa1",
             LoadSceneMode.Single
         );
     }

@@ -23,5 +23,6 @@ MonoBehaviour:
   upgrades:
   - {fileID: 11400000, guid: 3a9b8e0becad1be49a02a1694c6d941e, type: 2}
   - {fileID: 11400000, guid: dd82e3ce5207007408700b5bae79edb2, type: 2}
+  - {fileID: 11400000, guid: dd82e3ce5207007408700b5bae79edb2, type: 2}
   unlockedTroops: 
   unlockedBuildings: 
