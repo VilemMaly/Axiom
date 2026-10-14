@@ -60,8 +60,8 @@ public class Factory : Building
         var instance = Instantiate(data.prefab, spawnPoint.position, spawnPoint.rotation);
         instance.GetComponent<NetworkObject>().SpawnWithOwnership(OwnerClientId);
 
-        // TODO: po spawnu poslat jednotku na rallyPoint
-        // instance.GetComponent<Troop>().MoveTo(rallyPoint.position);
+        // TODO: dodělat vybírání rally pointu
+        instance.GetComponent<Troop>().MoveTo(rallyPoint.position);
 
         StartNextProduction();
     }

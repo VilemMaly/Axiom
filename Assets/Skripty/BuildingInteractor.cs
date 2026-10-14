@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -11,6 +12,7 @@ public class BuildingInteractor : NetworkBehaviour
     private readonly List<Building> myBuildings = new List<Building>();
     public IReadOnlyList<Building> MyBuildings => myBuildings;
     private CableManager cableManager;
+    public event Action<int> lostGame; // zavolá se z core do game spawner a ukončí hru pokud je core zničen nebo nefunkční
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -22,11 +24,12 @@ public class BuildingInteractor : NetworkBehaviour
         cableManager = GetComponent<CableManager>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    private float timer = 0f;
+
+void Update()
+{
+
+}
 
     // ============================================================
     //  Seznam vlastních budov

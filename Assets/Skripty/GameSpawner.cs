@@ -1,5 +1,7 @@
+using System.Data.Common;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameSpawner : NetworkBehaviour
 {
@@ -109,5 +111,15 @@ public class GameSpawner : NetworkBehaviour
 
         var p2 = Instantiate(playerPrefab, spawn2.position, Quaternion.identity);
         p2.GetComponent<NetworkObject>().SpawnAsPlayerObject(1);
+    }
+
+    public void endGame(int lostPlayerId)
+    {
+        if (NetworkManager.Singleton != null)
+    {
+        NetworkManager.Singleton.Shutdown();
+    }
+
+        SceneManager.LoadScene("Menu");
     }
 }
