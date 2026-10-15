@@ -494,4 +494,44 @@ public class PlayerTechnology : NetworkBehaviour
     {
         SelectedResearchChanged?.Invoke(previous, current);
     }
+
+    public bool CheckTroopResearched(Troop troop)
+    {
+        if(!IsServer)
+            return false;
+        foreach(ResearchDefinition research in unlockedResearches)
+        {
+            if(research.UnlockedTroops.Count > 0)
+            {
+                foreach(TroopType unlockedTroop in research.UnlockedTroops)
+                {
+                    if(troop.Type == unlockedTroop)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+        public bool CheckBuildingResearched(Building building)
+    {
+        if(!IsServer)
+            return false;
+        foreach(ResearchDefinition research in unlockedResearches)
+        {
+            if(research.UnlockedBuildings.Count > 0)
+            {
+                foreach(Building.BuildingType unlockedBuilding in research.UnlockedBuildings)
+                {
+                    if(building.Type == unlockedBuilding)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }

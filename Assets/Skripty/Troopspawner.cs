@@ -80,6 +80,7 @@ public class TroopSpawner : NetworkBehaviour
                 return;
             }
         }
+
         
         if(buildingNetObj.GetComponent<Building>().Type == Building.BuildingType.Core || buildingNetObj.GetComponent<Building>().Type == Building.BuildingType.Factory)
         {
@@ -105,6 +106,12 @@ public class TroopSpawner : NetworkBehaviour
         if(!gameObject.GetComponent<TroopInteractor>().isAllowedToSpawn(troop))
         {
             Debug.Log("Hráč to nemůže spawnout, protože by překročil limit jednotek pro hráče");
+            return;
+        }
+        // kontrola jestli vlastní klient research troopa
+        if(!GetComponent<PlayerTechnology>().CheckTroopResearched(troop))
+        {
+            Debug.Log("Klient nemá vyzkoumanou tu jednotku, nemůže ji spawnout");
             return;
         }
 
