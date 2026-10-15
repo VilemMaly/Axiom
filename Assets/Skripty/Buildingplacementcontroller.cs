@@ -193,6 +193,8 @@ public class BuildingPlacementController : NetworkBehaviour
         foreach (var netObj in ghost.GetComponentsInParent<NetworkObject>())
             Destroy(netObj);
 
+        // musí se zobrazit správný model
+        ghost.GetComponent<BuildingModelSpawn>().spawnPrefabModel(IsServer, (int)OwnerClientId);
         // Nesmí mít ani žádný NavMesh Obstacle v rodiči, jinak se jednotky bugují.
         var navmesh = ghost.GetComponentInParent<NavMeshObstacle>();
         if (navmesh != null)
@@ -212,6 +214,7 @@ public class BuildingPlacementController : NetworkBehaviour
         // ghost se nesmí srážet s ničím ani blokovat raycast na zem.
         foreach (var col in colliders)
             col.enabled = false;
+
     }
 
     private void Update()

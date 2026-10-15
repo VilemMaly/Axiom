@@ -20,17 +20,17 @@ public class BuildingModelSpawn : MonoBehaviour
     {
         if(isOwner)
         {
-            Instantiate(blue, spawnParent.transform,false);
+            blue.SetActive(true);
             return;
             }
             
         switch(id)
         {
             case 1:
-                Instantiate(red, spawnParent.transform,false);
+                red.SetActive(true);
                 break;
             case 0:
-                Instantiate(green, spawnParent.transform,false);
+                green.SetActive(true);
                 break;
         }
     }
