@@ -20,11 +20,11 @@ MonoBehaviour:
   icon: {fileID: -1793273040, guid: 5054274a45f47ae4f8634f4fb74b4fc1, type: 3}
   doctrineType: 3
   researches:
-  - {fileID: 11400000, guid: 4a49078ce99a3fd4cb70cdc3bbbe2a66, type: 2}
-  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
-  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
-  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
-  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
-  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
-  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: ecaa4c8ca1d05b8488354ee8ca519588, type: 2}
   - {fileID: 11400000, guid: fd48ff958a67421478c66fb0e649e202, type: 2}
+  - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}
+  - {fileID: 11400000, guid: de9a0fb5396744049a5f915bc7bf6060, type: 2}

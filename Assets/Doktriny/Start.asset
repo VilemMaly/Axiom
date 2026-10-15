@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
+  m_Name: Start
+  m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
+  researchId: 1
+  displayName: Start
+  description: "Tohle odemkne v\u0161echny z\xE1kladn\xED prvky hry"
+  icon: {fileID: 1038277060, guid: 0388fcf9df2addf4a9b0a98d9d5a9c66, type: 3}
+  coriumCost: 0
+  researchTime: 5
+  energyPerSecond: 5
+  requiredResearches: []
+  upgrades: []
+  unlockedTroops: 00000000
+  unlockedBuildings: 0000000004000000

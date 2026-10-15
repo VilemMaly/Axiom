@@ -90,6 +90,12 @@ void Update()
             Debug.Log($"[BuildingInteractor] Nelze postavit budovu {building.name} (typ {building.Type}) - dosaženo max. počtu {building.MaxBuildingAmount}.");
         return false;
         }
+
+        if(!GetComponent<PlayerTechnology>().CheckBuildingResearched(building))
+        {
+            Debug.Log("Hráč tuto budovu nemůže postavit, protože ji nemá odemčenou ve výzkumu.");
+            return false;
+        }
         return true;
     }
 

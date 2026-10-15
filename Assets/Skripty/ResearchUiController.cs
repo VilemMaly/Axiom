@@ -59,8 +59,40 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
             playerTechnology.SetSelectedDoctrineServerRpc(selectedDoctrine.DoctrineType);
         }
     };
+
+    doctrinePopup.OnPopupOpened += (opened) =>
+    {
+        hideIcons(opened, doctrinePopup);
+    };
 }
+
     }
+
+    private void hideIcons(bool wasOpened, DoctrinePopup notThisOne)
+    {
+        if(!wasOpened)
+        {
+            showIcons();
+            return;
+        }
+        foreach (Transform child in uiPanel)
+        {
+            DoctrinePopup popupIcon = child.GetComponent<DoctrinePopup>();
+
+            if (popupIcon != null && popupIcon != notThisOne)
+            {
+                child.GameObject().SetActive(false);
+            }
+        }
+    }
+    private void showIcons()
+    {
+        foreach (Transform child in uiPanel)
+        {
+            child.GameObject().SetActive(true);
+        }
+    }
+
     [ClientRpc]
     public void SpawnResearchPrefabsClientRpc(DoctrineType Doctrinetype)
     {

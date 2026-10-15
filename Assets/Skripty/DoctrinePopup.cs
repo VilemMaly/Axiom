@@ -33,6 +33,7 @@ public class DoctrinePopup : MonoBehaviour
     /// Druhý parametr = true při přijetí, false při odmítnutí.
     /// </summary>
     public event Action<DoctrineDefinition, bool> OnDecisionMade;
+    public event Action<bool> OnPopupOpened;
 
     private void Awake()
     {
@@ -143,6 +144,7 @@ public class DoctrinePopup : MonoBehaviour
             return;
 
         SetExpanded(!IsExpanded);
+        OnPopupOpened?.Invoke(IsExpanded);
     }
 
     /// <summary>
@@ -190,6 +192,7 @@ public class DoctrinePopup : MonoBehaviour
 
         // Zavře panel a znovu zobrazí tlačítko Icon.
         SetExpanded(false);
+        OnPopupOpened?.Invoke(IsExpanded);
     }
 
     private void UpdateButtonStates()
