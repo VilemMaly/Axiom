@@ -303,7 +303,7 @@ ParticleSystem:
         m_RotationOrder: 0
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -356,7 +356,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -409,7 +409,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationX:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -462,7 +462,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -5097,7 +5097,7 @@ ParticleSystem:
         m_RotationOrder: 0
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -5150,7 +5150,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -5203,7 +5203,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationX:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -5256,7 +5256,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -9778,7 +9778,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1740923664320254884}
   m_Enabled: 0
   m_AgentTypeID: 0
-  m_Radius: 0.46
+  m_Radius: 1.54
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -9787,8 +9787,8 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
   m_AutoRepath: 1
-  m_Height: 1.94
-  m_BaseOffset: 1.38
+  m_Height: 4.75
+  m_BaseOffset: 3.71
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &5866719038095795321
@@ -9808,6 +9808,15 @@ MonoBehaviour:
   MaxHealth: 30
   Cost: 40
   SightRange: 16.7
+  BuildCoriumPerSecond: 15
+  WorkRange: 2.5
+  RepairCoriumPerSecond: 0
+  HarvestCoriumPerSecond: 15
+  MaxCargo: 100
+  DepositCoriumPerSecond: 20
+  Damage: 10
+  AttackRange: 5.7
+  AttackSpeed: 10
   currentVisibility: {fileID: 365583955660702408}
   groundLayerMask:
     serializedVersion: 2
@@ -9836,13 +9845,10 @@ MonoBehaviour:
   enemyLayerMask:
     serializedVersion: 2
     m_Bits: 1536
-  enemyScanInterval: 0.25
-  fireInterval: 1
   shotParticle: {fileID: 1187657888333121176}
   fireSfx: {fileID: 8300000, guid: 4f611b8a2557e0c4c94964224546ce14, type: 3}
-  Damage: 10
-  AttackRange: 5.7
-  AttackSpeed: 10
+  enemyScanInterval: 0.25
+  fireInterval: 1
   CurrentTarget:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

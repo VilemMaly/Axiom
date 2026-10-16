@@ -56,6 +56,25 @@ public class UpgradePopup : MonoBehaviour
         }
     }
 
+    private void middleScreen()
+    {
+        RectTransform rect = emptyParent.GetComponent<RectTransform>();
+
+        Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(
+            null,
+            rect.position
+        );
+
+        Vector2 requiredPositionOnScreen = new Vector2(
+            Screen.width / 2f,
+            Screen.height / 2f
+        );
+
+        Vector2 difference = requiredPositionOnScreen - screenPosition;
+
+        rect.position += new Vector3(difference.x, difference.y, 0);
+    }
+
     /// <summary>
     /// Načte data vylepšení a vyplní příslušné UI prvky.
     /// Po naplnění zůstane panel zavřený.
@@ -150,6 +169,7 @@ public class UpgradePopup : MonoBehaviour
     public void OpenPopup()
     {
         SetVisible(true);
+        middleScreen();
     }
 
     /// <summary>

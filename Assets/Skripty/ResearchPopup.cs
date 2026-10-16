@@ -152,6 +152,24 @@ public class ResearchPopup : MonoBehaviour
         Debug.Log($"[{nameof(ResearchPopup)}] Načten výzkum: {researchData.DisplayName}.", this);
     }
 
+    private void middleScreen()
+    {
+        RectTransform rect = popupContentParent.GetComponent<RectTransform>();
+
+        Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(
+            null,
+            rect.position
+        );
+
+        Vector2 requiredPositionOnScreen = new Vector2(
+            Screen.width / 2f,
+            Screen.height / 2f
+        );
+
+        Vector2 difference = requiredPositionOnScreen - screenPosition;
+
+        rect.position += new Vector3(difference.x, difference.y, 0);
+    }
     private void SpawnUpgradePopups(ResearchDefinition researchData)
     {
         ClearSpawnedUpgradePopups();
@@ -321,6 +339,7 @@ public class ResearchPopup : MonoBehaviour
 
         if (iconButton != null)
             iconButton.gameObject.SetActive(false);
+        middleScreen();
     }
 
     public void ClosePopup()

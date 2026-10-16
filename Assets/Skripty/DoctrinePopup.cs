@@ -69,6 +69,25 @@ public class DoctrinePopup : MonoBehaviour
         UpdateButtonStates();
     }
 
+    private void middleScreen()
+    {
+        RectTransform rect = detailsPanel.GetComponent<RectTransform>();
+
+        Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(
+            null,
+            rect.position
+        );
+
+        Vector2 requiredPositionOnScreen = new Vector2(
+            Screen.width / 2f,
+            Screen.height / 2f
+        );
+
+        Vector2 difference = requiredPositionOnScreen - screenPosition;
+
+        rect.position += new Vector3(difference.x, difference.y, 0);
+    }
+
     private void OnDisable()
     {
         if (iconButton != null)
@@ -145,6 +164,7 @@ public class DoctrinePopup : MonoBehaviour
 
         SetExpanded(!IsExpanded);
         OnPopupOpened?.Invoke(IsExpanded);
+        middleScreen();
     }
 
     /// <summary>
