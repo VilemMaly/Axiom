@@ -21,5 +21,5 @@ MonoBehaviour:
   energyPerSecond: 5
   requiredResearches: []
   upgrades: []
-  unlockedTroops: 00000000
-  unlockedBuildings: 0000000004000000
+  unlockedTroops: 000000000100000002000000
+  unlockedBuildings: 00000000040000000500000008000000090000000a00000003000000020000000600000007000000

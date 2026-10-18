@@ -178,7 +178,7 @@ MonoBehaviour:
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  navMeshSampleRadius: 3
+  navMeshSampleRadius: 6.06
   formationSpacing: 1.5
   positionSyncInterval: 1
   buildingLayerMask:
@@ -199,6 +199,10 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  GoingToBuilding: 0
+  BuildingPosition: {x: 0, y: 0, z: 0}
+  BuildingIndex: 0
+  pendingBuildQueue: []
   IsBuilding:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

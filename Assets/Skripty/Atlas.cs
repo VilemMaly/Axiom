@@ -33,11 +33,11 @@ public class Atlas : Troop
     private Building currentTarget;
     private float nextBuildSendTime;
 
-    private bool GoingToBuilding = false;
-    private Vector3 BuildingPosition;
-    private int BuildingIndex;
+    [SerializeField] private bool GoingToBuilding = false;
+    [SerializeField] private Vector3 BuildingPosition;
+    [SerializeField] private int BuildingIndex;
     private int BuildingRotation;
-    private List<PendingBuildRequest> pendingBuildQueue = new List<PendingBuildRequest>();
+    [SerializeField] private List<PendingBuildRequest> pendingBuildQueue = new List<PendingBuildRequest>();
     
     public NetworkVariable<bool> IsBuilding = new(writePerm: NetworkVariableWritePermission.Server);
     public NetworkVariable<bool> IsRepairing = new(writePerm: NetworkVariableWritePermission.Server);
@@ -128,28 +128,49 @@ public class Atlas : Troop
 
 
         if (IsBuilding.Value)
+{
+    // Cíl mohl být zničen nebo jinak odstraněn ze scény.
+    if (currentTarget == null)
+    {
+        Debug.LogWarning(
+            $"[Atlas] {name}: currentTarget je null. " +
+            "Ukončuji stavbu a odemykám frontu."
+        );
+
+        StopBuilding();
+        return;
+    }
+
+    // Budova už byla dokončena.
+    if (currentTarget.IsConstructionComplete.Value)
+    {
+        Debug.Log(
+            $"[Atlas] {name}: budova {currentTarget.name} je dokončena."
+        );
+
+        StopBuilding();
+        return;
+    }
+
+    // Pravidelné přispívání coriem do stavby.
+    if (Time.time >= nextBuildSendTime)
+    {
+        Debug.Log(
+            $"[Atlas] {name} staví budovu {currentTarget.name}. " +
+            $"Zbývá: " +
+            $"{currentTarget.RequiredCorium - currentTarget.StoredCorium.Value} coria."
+        );
+
+        nextBuildSendTime = Time.time + 1f;
+
+        int amount = BuildCoriumPerSecond;
+
+        if (resources != null && resources.TrySpend(amount, 0))
         {
-            if (currentTarget == null ||
-                currentTarget.IsConstructionComplete.Value)
-            {
-                Debug.Log($"[Atlas] {name} staví budovu {currentTarget.name}. Zbývá: {currentTarget.RequiredCorium - currentTarget.StoredCorium.Value} coria.");
-                StopBuilding();
-                return;
-            }
-
-            if (Time.time >= nextBuildSendTime)
-            {
-                Debug.Log($"[Atlas] {name} staví budovu {currentTarget.name}. Zbývá: {currentTarget.RequiredCorium - currentTarget.StoredCorium.Value} coria.");
-                nextBuildSendTime = Time.time + 1f;
-                int amount = BuildCoriumPerSecond;
-
-                if (resources != null &&
-                    resources.TrySpend(amount, 0))
-                {
-                    currentTarget.ReceiveCorium(amount);
-                }
-            }
+            currentTarget.ReceiveCorium(amount);
         }
+    }
+}
 
 
         if (IsRepairing.Value)

@@ -9815,7 +9815,7 @@ MonoBehaviour:
   MaxCargo: 100
   DepositCoriumPerSecond: 20
   Damage: 10
-  AttackRange: 5.7
+  AttackRange: 16.05
   AttackSpeed: 10
   currentVisibility: {fileID: 365583955660702408}
   groundLayerMask:

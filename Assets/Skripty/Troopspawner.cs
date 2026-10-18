@@ -119,7 +119,10 @@ public class TroopSpawner : NetworkBehaviour
         buildingNetObj.GetComponent<BuildingSpawner>().startBuildingTroop(troop);
         currentTroopIndex = troopIndex;
         // Subscribe the method group so the event receives the ownerClientId parameter when invoked
-        buildingNetObj.GetComponent<BuildingSpawner>().loadingFinished += TrySpawnTroopServerSide;
+        buildingNetObj.GetComponent<BuildingSpawner>().loadingFinished += (ulong value) =>
+        {
+            TrySpawnTroopServerSide(value, buildingNetObj.GetComponent<Building>());
+        };
     }
 
     public bool RequestSetSelectedBuilding()
@@ -187,7 +190,7 @@ private void RequestSetSelectedBuildingServerRpc(NetworkObjectReference building
     //  SERVEROVÁ LOGIKA (jediné místo, kde se reálně spawnuje)
     // ============================================================
 
-    private void TrySpawnTroopServerSide(ulong ownerClientId)
+    private void TrySpawnTroopServerSide(ulong ownerClientId, Building factory)
     {
         if (!IsServer) return;
 
@@ -205,14 +208,32 @@ private void RequestSetSelectedBuildingServerRpc(NetworkObjectReference building
         }
 
         Debug.Log($"[TroopSpawner] Server spawn '{entry.troopName}' pro hráče {ownerClientId}.");
-
-        if (TryFindFreePosition(entry.checkRadius, out Vector3 spawnPos))
+        Vector3 spawnPos = new Vector3(0,0,0);
+        if(Building.BuildingType.Factory == factory.Type)
         {
-            SpawnTroopAt(entry.prefab, spawnPos, ownerClientId);
+            Factory spawnerBuilding = factory as Factory;
+            spawnPos = spawnerBuilding.spawnPoint.position;  
         }
         else
+        {       
+            TryFindFreePosition(1, out spawnPos);
+        }
+        if(spawnPos == new Vector3(0,0,0))
         {
-            Debug.LogWarning($"[TroopSpawner] Nepodařilo se najít volné místo pro '{entry.troopName}'.");
+            Debug.Log("Server nespawnuje jednotku, neví kde");
+            return;
+        }
+        
+        Troop spawnedTroop = SpawnTroopAt(entry.prefab, spawnPos, ownerClientId);
+        if(spawnedTroop == null)
+        {
+            Debug.Log("Spawnutá troop neexistuje");
+            return;
+        }
+        if(Building.BuildingType.Factory == factory.Type)
+        {
+            Factory spawnerBuilding = factory as Factory;
+            spawnedTroop.MoveTo(spawnerBuilding.rallyPoint.position);
         }
     }
 
@@ -246,7 +267,7 @@ private void RequestSetSelectedBuildingServerRpc(NetworkObjectReference building
         return false;
     }
 
-    private void SpawnTroopAt(GameObject prefab, Vector3 position, ulong ownerClientId)
+    private Troop SpawnTroopAt(GameObject prefab, Vector3 position, ulong ownerClientId)
     {
         GameObject instance = Instantiate(prefab, position, Quaternion.identity);
         NetworkObject netObj = instance.GetComponent<NetworkObject>();
@@ -255,13 +276,14 @@ private void RequestSetSelectedBuildingServerRpc(NetworkObjectReference building
         {
             Debug.LogError($"[TroopSpawner] Prefab '{prefab.name}' nemá komponentu NetworkObject!");
             Destroy(instance);
-            return;
+            return null;
         }
         Debug.Log($"[TroopSpawner] Server spawnul '{prefab.name}' pro hráče {ownerClientId} na {position}.");
 
         // Jednotka bude patřit hráči, který o ni požádal.
         // Pokud má být jednotka vlastněná serverem (ne hráčem), použij: netObj.Spawn();
         netObj.SpawnWithOwnership(ownerClientId);
+        return instance.GetComponent<Troop>();
     }
 
     // ============================================================

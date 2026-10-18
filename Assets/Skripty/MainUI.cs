@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
@@ -9,7 +10,7 @@ public class MainUI : NetworkBehaviour
 {
     [Header("World UI")]
     public RectTransform uiPanel;
-    private bool isVisible = false;
+    public bool isVisible = false;
     private Vector3 position = Vector3.zero;
 
     [Header("Research UI")]
@@ -19,7 +20,8 @@ public class MainUI : NetworkBehaviour
 
     private void Start()
     {
-        // Nastavení počáteční viditelnosti research panelu
+        // Nastavení počáteční viditelnosti UI panelů.
+        SetUIVisibility(isVisible);
         SetResearchVisibility(isResearchVisible);
 
         if (!IsOwner)
@@ -41,9 +43,10 @@ public class MainUI : NetworkBehaviour
     {
         if (isVisible && uiPanel != null)
         {
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(
-                position + new Vector3(0, 2, 0)
-            );
+            Vector3 screenPos = Camera.main != null
+                ? Camera.main.WorldToScreenPoint(
+                    position + new Vector3(0, 2, 0))
+                : uiPanel.position;
 
             uiPanel.position = screenPos;
         }
@@ -56,10 +59,7 @@ public class MainUI : NetworkBehaviour
 
     public void uiClose()
     {
-        isVisible = false;
-
-        if (uiPanel != null)
-            uiPanel.GameObject().SetActive(false);
+        SetUIVisibility(false);
     }
 
     private void uiClicked(InputAction.CallbackContext context)
@@ -78,20 +78,27 @@ public class MainUI : NetworkBehaviour
             position = hit.point;
         }
 
-        isVisible = !isVisible;
+        SetUIVisibility(!isVisible);
+    }
+
+    // Zapne nebo vypne World UI panel podle bool hodnoty.
+    public void SetUIVisibility(bool visible)
+    {
+        isVisible = visible;
 
         if (uiPanel != null)
-            uiPanel.GameObject().SetActive(isVisible);
+        {
+            uiPanel.gameObject.SetActive(isVisible);
+        }
+    }
+
+    // Přepne viditelnost World UI panelu.
+    public void ToggleUIVisibility()
+    {
+        SetUIVisibility(!isVisible);
     }
 
     // Zapne nebo vypne celý Research panel.
-    // Po zapnutí panelu se spawnou všechny prefaby doktrín, které jsou v seznamu doktrine types ve skriptu doctrine data,
-    // spawnou se podle nastavitelného gridu vedle sebe, na nastavitelný empty parent, než narazí na konec gridu, pak se spawnou pod ně a tak dále.
-    // od všech spawnutých doktrín (None se nespawnuje) se začne odebírat event zda li byli stisknuty, a potom se zjistí jaká byla stisknuta,
-    // a podle toho se ve skriptu player technology zavolá funkce server rpc o požadavek vybrání doktríny,
-    // server ten požadavek zpracuje a zavolá client rpc na všechny hráče, aby se jim přeplo na doktrínu, která byla vybrána,
-    // a aby se zobrazily a spawly se všechny researchy, které jsou v seznamu researchů vybrané doktríny, stejně jako se spawnuly doktríny, 
-    // jen místo doktrín se spawnou researchy, a od všech researchů se začne odebírat event zda li byli stisknuty, a potom se zjistí jaký byl stisknutý,
     public void SetResearchVisibility(bool visible)
     {
         isResearchVisible = visible;

@@ -39,4 +39,5 @@ public class Core : Building
         if (!IsOperational || !IsServer || OwnerResources == null) return;
 
     }
+    // budoucí animace při spawnu, jak padá z nebe a udělá v zemi díru
 }

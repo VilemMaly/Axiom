@@ -129,7 +129,7 @@ public abstract class Building : NetworkBehaviour
         // Inicializace IsConstructionComplete podle StoredCorium.
         ReceiveCorium(0);
         
-        GetComponent<BuildingModelSpawn>().spawnPrefabModel(IsOwner, (int)OwnerClientId);
+        GetComponent<BuildingMaterial>().changeMaterial(IsOwner, (int)OwnerClientId);
 
         Debug.Log(
             $"[Building] {Type} spawned for client {OwnerClientId}. " +

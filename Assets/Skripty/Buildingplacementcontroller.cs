@@ -194,7 +194,7 @@ public class BuildingPlacementController : NetworkBehaviour
             Destroy(netObj);
 
         // musí se zobrazit správný model
-        ghost.GetComponent<BuildingModelSpawn>().spawnPrefabModel(IsServer, (int)OwnerClientId);
+        ghost.GetComponent<BuildingMaterial>().changeMaterial(IsServer, (int)OwnerClientId);
         // Nesmí mít ani žádný NavMesh Obstacle v rodiči, jinak se jednotky bugují.
         var navmesh = ghost.GetComponentInParent<NavMeshObstacle>();
         if (navmesh != null)
