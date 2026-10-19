@@ -140,6 +140,7 @@ public abstract class Building : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        onDestroy();
         IsOperational = false;
         if (IsOwner || IsServer)
         {
@@ -151,7 +152,11 @@ public abstract class Building : NetworkBehaviour
         }
         base.OnNetworkDespawn();
     }
-
+    
+    public virtual void onDestroy()
+    {
+        
+    }
     public virtual void OnBuilt()
     {
     }

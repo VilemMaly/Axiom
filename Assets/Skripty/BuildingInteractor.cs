@@ -12,7 +12,7 @@ public class BuildingInteractor : NetworkBehaviour
     private readonly List<Building> myBuildings = new List<Building>();
     public IReadOnlyList<Building> MyBuildings => myBuildings;
     private CableManager cableManager;
-    public event Action<int> lostGame; // zavolá se z core do game spawner a ukončí hru pokud je core zničen nebo nefunkční
+    public event Action<ulong> lostGame; // zavolá se z core do game spawner a ukončí hru pokud je core zničen nebo nefunkční
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -63,6 +63,11 @@ void Update()
             return false;
 
         myBuildings.Add(building);
+        if(building.Type == Building.BuildingType.Core)
+        {
+            Core core = building as Core;
+            core.coreNotFunctional += clientId => lostGame?.Invoke(clientId);
+        }
         ResetEnergySources();
         Debug.Log($"[BuildingInteractor] Zaregistrována budova {building.name} (typ {building.Type}). Celkem: {myBuildings.Count} Stav Sítě: {(building.IsConnected.Value ? "Připojeno" : "Nepřipojeno")}");
         return CheckBuildingRules(building, OwnerClientId);

@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -7,6 +8,7 @@ public class Core : Building
 
     public override BuildingType Type => BuildingType.Core;
     private Animator animace;
+    public event Action<ulong> coreNotFunctional;
 
     public override void OnBuilt()
     {
@@ -22,6 +24,11 @@ public class Core : Building
             return;
         OwnerResources.Add(amount, 0); // pouze server volá tuhle funkci aby hráč nemohl podvádět
         OpenAndCloseClientRpc();
+    }
+
+    public override void onDestroy()
+    {
+        coreNotFunctional?.Invoke(OwnerClientId);
     }
 
     [ClientRpc]

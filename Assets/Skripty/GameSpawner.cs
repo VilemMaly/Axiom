@@ -107,19 +107,22 @@ public class GameSpawner : NetworkBehaviour
     {
         var p1 = Instantiate(playerPrefab, spawn1.position, Quaternion.identity);
         p1.GetComponent<NetworkObject>().SpawnAsPlayerObject(0);
-
+        p1.GetComponent<BuildingInteractor>().lostGame += endGame;
 
         var p2 = Instantiate(playerPrefab, spawn2.position, Quaternion.identity);
         p2.GetComponent<NetworkObject>().SpawnAsPlayerObject(1);
+        p2.GetComponent<BuildingInteractor>().lostGame += endGame;
     }
 
-    public void endGame(int lostPlayerId)
+    public void endGame(ulong lostPlayerId)
     {
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            "Menu",
+            LoadSceneMode.Single
+        );
         if (NetworkManager.Singleton != null)
     {
         NetworkManager.Singleton.Shutdown();
     }
-
-        SceneManager.LoadScene("Menu");
     }
 }
