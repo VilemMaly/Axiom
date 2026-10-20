@@ -41,15 +41,6 @@ public class MainUI : NetworkBehaviour
 
     private void Update()
     {
-        if (isVisible && uiPanel != null)
-        {
-            Vector3 screenPos = Camera.main != null
-                ? Camera.main.WorldToScreenPoint(
-                    position + new Vector3(0, 2, 0))
-                : uiPanel.position;
-
-            uiPanel.position = screenPos;
-        }
     }
 
     public void uiClose(InputAction.CallbackContext context)

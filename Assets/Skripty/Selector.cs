@@ -44,7 +44,6 @@ public class Selector : NetworkBehaviour
     [SerializeField] private GameObject harvesterPanel;
     [SerializeField] private GameObject photonPanel;
 
-    [SerializeField] private UIFollower uiFollower;
 
     private Building selectedBuilding;
     private Troop selectedTroop;
@@ -425,9 +424,6 @@ private void HandleBuildingClicked(Building building)
         {
             activePanel.SetActive(true);
 
-            uiFollower.ShowFor(building.transform);
-            uiFollower.LateUpdate();
-
             EnemyBuildingStatus status = activePanel.GetComponent<EnemyBuildingStatus>();
             if (status != null)
             {
@@ -447,8 +443,8 @@ private void HandleBuildingClicked(Building building)
         Debug.Log($"Zobrazujeme panel pro budovu typu {building.Type}");
         activePanel.SetActive(true);
 
-        uiFollower.ShowFor(building.transform);
-        uiFollower.LateUpdate();
+        //uiFollower.ShowFor(building.transform);
+        //uiFollower.LateUpdate();
 
         BuildingStatus status = activePanel.GetComponent<BuildingStatus>();
         if (status != null)
@@ -494,9 +490,6 @@ private void HandleBuildingClicked(Building building)
             {
                 activePanel.SetActive(true);
 
-                uiFollower.ShowFor(troop.transform);
-                uiFollower.LateUpdate();
-
                 EnemyTroopStatus status = activePanel.GetComponent<EnemyTroopStatus>();
                 if (status != null)
                 {
@@ -515,8 +508,6 @@ private void HandleBuildingClicked(Building building)
         {
             Debug.Log($"Zobrazujeme panel pro trooba typu {troop.Type}");
             activePanel.SetActive(true);
-            uiFollower.ShowFor(troop.transform);
-            uiFollower.LateUpdate();
 
             TroopStatus status = activePanel.GetComponent<TroopStatus>();
             if (status != null)
@@ -550,6 +541,5 @@ private void HandleBuildingClicked(Building building)
         HideActivePanel();
         selectedBuilding = null;
         selectedTroop = null;
-        uiFollower.Hide();
     }
 }

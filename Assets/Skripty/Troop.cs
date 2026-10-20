@@ -206,7 +206,8 @@ public abstract class Troop : NetworkBehaviour
         if (IsOwner &&
             NetworkManager.Singleton != null &&
             NetworkManager.Singleton.LocalClient != null &&
-            NetworkManager.Singleton.LocalClient.PlayerObject != null)
+            NetworkManager.Singleton.LocalClient.PlayerObject != null ||
+            IsServer)
         {
             TroopInteractor interactor =
                 NetworkManager.Singleton.LocalClient.PlayerObject
