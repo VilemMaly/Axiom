@@ -125,39 +125,6 @@ public class BuildingPlacementController : NetworkBehaviour
         InputManager.StaticClass.Controls.UI.RightClick.performed -= OnCancelPerformed;
     }
 
-    public void buildCore()
-    {
-        BeginPlacement(0);
-    }
-    public void buildLaserTower()
-    {
-        BeginPlacement(3);
-    }
-    public void buildCoriumMiner()
-    {
-        BeginPlacement(2);
-    }
-    public void buildWall()
-    {
-        BeginPlacement(7);
-    }
-    public void buildRadar()
-    {
-        BeginPlacement(4);
-    }
-    public void buildFactory()
-    {
-        BeginPlacement(1);
-    }
-    public void buildResearchLab()
-    {
-        BeginPlacement(5);
-    }
-    public void buildEnergyPlant()
-    {
-        BeginPlacement(6);
-    }
-
     /// <summary>
     /// Zavolej z UI (např. kliknutí na ikonu budovy), aby se spustilo umisťování.
     /// </summary>
@@ -236,6 +203,10 @@ public class BuildingPlacementController : NetworkBehaviour
 
             _isCurrentPositionValid = IsPositionValid(_currentPlacementPosition);
             UpdateGhostColor(_isCurrentPositionValid);
+            if(_ghostInstance.GetComponent<Building>().Type == Building.BuildingType.Wall)
+            { 
+                // pokud je to zeď, tak si získáme její zámky, zkusíme kolem ní dát sphere collider detekci pomocí layer Building, a jestli je tam další zeď, tak se jeden z nejblišších zámků vůči poloze kursoru musí dotýkat dvou nejblišších zámků u dvou zdí, není li žádná building type zeď u ní, může se libovolně dávat jako předtím.
+            }
         }
     }
 

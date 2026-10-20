@@ -186,7 +186,7 @@ public abstract class Building : NetworkBehaviour
             foreach (var hitCollider in hitColliders)
             {
                 Building building = hitCollider.GetComponent<Building>();
-                if (building != null && !building.IsConnected.Value)
+                if (building != null && !building.IsConnected.Value && building.IsEnergyConsumer)
                 {
                     building.IsConnected.Value = true;
                     building.searchForEnergyConnections();
