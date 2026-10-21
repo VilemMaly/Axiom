@@ -16436,8 +16436,13 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   coriumText: {fileID: 1144617787207869410}
+  coriumStatusText: {fileID: 2504720771850270178}
   energyText: {fileID: 2236245012902400215}
+  energyStatusText: {fileID: 7435783661720924219}
   hudRoot: {fileID: 3013764061069572308}
+  LoseColor: {r: 1, g: 0, b: 0, a: 1}
+  ProfitColor: {r: 0.08675188, g: 1, b: 0, a: 1}
+  NeutralColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
 --- !u!114 &5137927038056840595
 MonoBehaviour:
   m_ObjectHideFlags: 0

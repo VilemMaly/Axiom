@@ -13,9 +13,17 @@ public class PlayerResources : NetworkBehaviour
 
     [Header("HUD refs")]
     [SerializeField] private TMP_Text coriumText;
+    [SerializeField] private TMP_Text coriumStatusText;
     [SerializeField] private TMP_Text energyText;
+    [SerializeField] private TMP_Text energyStatusText;
     [SerializeField] private GameObject hudRoot; // celý HUD canvas/panel
-
+    [SerializeField] public Color LoseColor;
+    [SerializeField] public Color ProfitColor;
+    [SerializeField] public Color NeutralColor;
+    private float timer = 0;
+    private float interval = 10;
+    private int lastCoriumValue;
+    private int lastEnergyValue;
     public override void OnNetworkSpawn()
     {
         // HUD vidí jen vlastník, ne soupeř
@@ -32,9 +40,54 @@ public class PlayerResources : NetworkBehaviour
         UpdateCoriumText();
         UpdateEnergyText(Energy.Value);
     }
+    public void Update()
+    {
+        timer += Time.deltaTime;
 
-    void UpdateCoriumText() => coriumText.text = $"Corium: {Corium.Value} / {MaxCorium.Value}";
-    void UpdateEnergyText(int value) => energyText.text = $"Energy: {value}";
+        if (timer >= interval)
+        {
+            timer = 0f;
+            // pokud minulá hodnota je menší než aktuální, ztratili jsme za 10s tu hodnotu, vynásobíme šesti, a získáme hodnotu
+            // pravděpodobnou za 1 minutu
+            if(lastCoriumValue < Corium.Value)
+            {
+                coriumStatusText.color = ProfitColor;
+                coriumStatusText.SetText("+{0}/m", Mathf.Abs((Corium.Value - lastCoriumValue) * 6));
+            }
+            else if(lastCoriumValue > Corium.Value)
+            {
+                coriumStatusText.color = LoseColor;
+                coriumStatusText.text = $"-{(lastCoriumValue - Corium.Value)*6}/m";
+            }
+            else if(lastCoriumValue == Corium.Value)
+            {
+                coriumStatusText.color = NeutralColor;
+                coriumStatusText.text = $"0/m";
+            }
+
+            if(lastEnergyValue < Energy.Value)
+            {
+                energyStatusText.color = ProfitColor;
+                energyStatusText.text = $"+{(Energy.Value - lastEnergyValue)*6}/m";
+            }
+            else if(lastEnergyValue > Energy.Value)
+            {
+                energyStatusText.color = LoseColor;
+                energyStatusText.text = $"-{(lastEnergyValue - Energy.Value)*6}/m";
+            }
+            else if(lastEnergyValue == Energy.Value)
+            {
+                energyStatusText.color = NeutralColor;
+                energyStatusText.text = $"0/m";
+            }
+
+            lastCoriumValue = Corium.Value;
+            lastEnergyValue = Energy.Value;
+        }
+    }
+
+    void UpdateCoriumText() => coriumText.text = $"{Corium.Value} / {MaxCorium.Value}";
+    void UpdateEnergyText(int value) => energyText.text = $"{value}";
 
     public bool TrySpend(int coriumCost, int energyCost)
     {
