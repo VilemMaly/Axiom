@@ -13,13 +13,26 @@ public class MainUI : NetworkBehaviour
     [Header("Research UI")]
     public GameObject researchParent;
     public bool isResearchVisible = false;
+    public bool BuildingOn = false;
     private ResearchUiController researchUiController;
+
+    [SerializeField] private GameObject buildingsPanel;
+
+    [Header("Troop UI")]
+    [SerializeField] private GameObject troopPanel;
+    public bool TroopOn = false;
 
     private void Start()
     {
         // Nastavení počáteční viditelnosti UI panelů.
         SetUIVisibility(isVisible);
         SetResearchVisibility(isResearchVisible);
+
+        if (buildingsPanel != null)
+            buildingsPanel.SetActive(BuildingOn);
+
+        if (troopPanel != null)
+            troopPanel.SetActive(TroopOn);
 
         if (!IsOwner)
             return;
@@ -33,9 +46,25 @@ public class MainUI : NetworkBehaviour
         isVisible = visible;
 
         if (uiPanel != null)
-        {
             uiPanel.gameObject.SetActive(isVisible);
-        }
+    }
+
+    // Přepne Building panel.
+    public void ToggleBuilding()
+    {
+        BuildingOn = !BuildingOn;
+
+        if (buildingsPanel != null)
+            buildingsPanel.SetActive(BuildingOn);
+    }
+
+    // Přepne Troop panel.
+    public void ToggleTroop()
+    {
+        TroopOn = !TroopOn;
+
+        if (troopPanel != null)
+            troopPanel.SetActive(TroopOn);
     }
 
     // Přepne viditelnost World UI panelu.
@@ -50,9 +79,7 @@ public class MainUI : NetworkBehaviour
         isResearchVisible = visible;
 
         if (researchParent != null)
-        {
             researchParent.SetActive(isResearchVisible);
-        }
     }
 
     // Přepne viditelnost Research panelu.

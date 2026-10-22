@@ -13,6 +13,7 @@ public class ResearchUiController : NetworkBehaviour
     [SerializeField] private GameObject researchPrefab;
     [SerializeField] private Vector2 gridSpacing = new Vector2(200, 200);
     [SerializeField] private GameObject researchParent;
+    private ResearchInspectorUI inspectorUI;
     private Vector3 position;
     private bool isVisible = false;
     private PlayerTechnology playerTechnology;
@@ -21,7 +22,10 @@ public class ResearchUiController : NetworkBehaviour
     private void Start()
     {
         playerTechnology = GetComponent<PlayerTechnology>();
+        inspectorUI = GetComponent<ResearchInspectorUI>();
+
         SpawnDoctrinePrefabs();
+        inspectorUI.SetPlayerTechnology(playerTechnology);
     }
 
 
@@ -51,13 +55,7 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
 
     cycle++;
 
-    doctrinePopup.OnDecisionMade += (selectedDoctrine, accepted) =>
-    {
-        if (accepted)
-        {
-            playerTechnology.SetSelectedDoctrineServerRpc(selectedDoctrine.DoctrineType);
-        }
-    };
+    doctrinePopup.Opened += inspectorUI.FillInspector;
 
 }
 
@@ -139,10 +137,7 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
             ResearchPopup researchPopup = spawnedResearch.GetComponent<ResearchPopup>();
 
             researchPopup.Fill(research);
-            researchPopup.OnResearchClicked += HidePopups;
-            researchPopup.OnPopupClosed += ShowPopups;
-            researchPopup.OnAcceptClicked = researchId =>
-                playerTechnology.SelectResearchServerRpc(researchId);
+            researchPopup.Opened += inspectorUI.FillInspector;
 
             researchPopups.Add(researchPopup);
 

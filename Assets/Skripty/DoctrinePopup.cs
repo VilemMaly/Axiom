@@ -1,231 +1,68 @@
+
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DoctrinePopup : MonoBehaviour
 {
-    [Header("UI References")]
+    [Header("Button")]
     [SerializeField] private Button iconButton;
+
+    [Header("Icon")]
     [SerializeField] private Image iconImage;
 
-    [SerializeField] private GameObject detailsPanel;
+    public event Action<DoctrineDefinition> Opened;
 
-    [SerializeField] private Button acceptButton;
-    [SerializeField] private Button declineButton;
-
-    [SerializeField] private TMP_Text doctrineNameText;
-    [SerializeField] private TMP_Text doctrineDescriptionText;
-
-    [Header("Behavior")]
-    [SerializeField] private bool destroyAfterAccept = true;
+    public bool IsVisible { get; private set; }
 
     private DoctrineDefinition currentDoctrine;
-    private bool decisionMade;
-
-    /// <summary>
-    /// True, pokud je karta rozbalená.
-    /// </summary>
-    public bool IsExpanded { get; private set; }
-
-    /// <summary>
-    /// První parametr = vybraná doktrína.
-    /// Druhý parametr = true při přijetí, false při odmítnutí.
-    /// </summary>
-    public event Action<DoctrineDefinition, bool> OnDecisionMade;
-    public event Action<bool> OnPopupOpened;
 
     private void Awake()
     {
-        // Pokud Image nebyl přiřazen v Inspectoru,
-        // automaticky ho zkusíme najít na tlačítku Icon.
-        if (iconImage == null && iconButton != null)
-        {
-            iconImage = iconButton.GetComponent<Image>();
-        }
+        if (iconButton != null)
+            iconButton.onClick.AddListener(IconClick);
     }
 
-    private void OnEnable()
+    private void OnDestroy()
     {
         if (iconButton != null)
-        {
-            iconButton.onClick.RemoveListener(ToggleDetails);
-            iconButton.onClick.AddListener(ToggleDetails);
-        }
-
-        if (acceptButton != null)
-        {
-            acceptButton.onClick.RemoveListener(HandleAccept);
-            acceptButton.onClick.AddListener(HandleAccept);
-        }
-
-        if (declineButton != null)
-        {
-            declineButton.onClick.RemoveListener(HandleDecline);
-            declineButton.onClick.AddListener(HandleDecline);
-        }
-
-        SetExpanded(false);
-        UpdateButtonStates();
+            iconButton.onClick.RemoveListener(IconClick);
     }
 
-    private void middleScreen()
+    private void IconClick()
     {
-        RectTransform rect = detailsPanel.GetComponent<RectTransform>();
-
-        Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(
-            null,
-            rect.position
-        );
-
-        Vector2 requiredPositionOnScreen = new Vector2(
-            Screen.width / 2f + Screen.width / 4f,
-            Screen.height / 2f
-        );
-
-        Vector2 difference = requiredPositionOnScreen - screenPosition;
-
-        rect.position += new Vector3(difference.x, difference.y, 0);
-    }
-
-    private void OnDisable()
-    {
-        if (iconButton != null)
-            iconButton.onClick.RemoveListener(ToggleDetails);
-
-        if (acceptButton != null)
-            acceptButton.onClick.RemoveListener(HandleAccept);
-
-        if (declineButton != null)
-            declineButton.onClick.RemoveListener(HandleDecline);
+        Opened?.Invoke(currentDoctrine);
     }
 
     /// <summary>
-    /// Naplní kartu daty vybrané doktríny.
+    /// Nastaví doktrínu, kterou lze následně získat po kliknutí.
     /// </summary>
-    public void Fill(DoctrineDefinition doctrine)
+    public void Fill(DoctrineDefinition data)
     {
-        currentDoctrine = doctrine;
-        decisionMade = false;
-
-        if (currentDoctrine == null)
+        if (data == null)
         {
             Debug.LogError(
-                "DoctrineSelector: Byla předána neplatná doktrína.",
+                "DoctrinePopup: Fill obdržel null místo DoctrineDefinition.",
                 this
             );
 
-            if (doctrineNameText != null)
-                doctrineNameText.text = string.Empty;
-
-            if (doctrineDescriptionText != null)
-                doctrineDescriptionText.text = string.Empty;
+            currentDoctrine = null;
 
             if (iconImage != null)
+            {
                 iconImage.sprite = null;
+                iconImage.enabled = false;
+            }
 
-            SetExpanded(false);
-            UpdateButtonStates();
             return;
         }
 
-        // Nastavení názvu a popisu doktríny.
-        if (doctrineNameText != null)
-            doctrineNameText.text = doctrine.DisplayName;
+        currentDoctrine = data;
 
-        if (doctrineDescriptionText != null)
-            doctrineDescriptionText.text = doctrine.Description;
-
-        // Načtení ikony z DoctrineDefinition.
         if (iconImage != null)
         {
-            iconImage.sprite = doctrine.Icon;
-            iconImage.enabled = doctrine.Icon != null;
+            iconImage.sprite = data.Icon;
+            iconImage.enabled = data.Icon != null;
         }
-        else
-        {
-            Debug.LogWarning(
-                "DoctrineSelector: Není přiřazen Image pro ikonu doktríny.",
-                this
-            );
-        }
-
-        SetExpanded(false);
-        UpdateButtonStates();
-    }
-
-    /// <summary>
-    /// Přepne mezi zavřenou a rozbalenou kartou.
-    /// </summary>
-    private void ToggleDetails()
-    {
-        if (currentDoctrine == null || decisionMade)
-            return;
-
-        SetExpanded(!IsExpanded);
-        OnPopupOpened?.Invoke(IsExpanded);
-        middleScreen();
-    }
-
-    /// <summary>
-    /// Změní viditelnost ikony a detailního panelu.
-    /// </summary>
-    private void SetExpanded(bool expanded)
-    {
-        IsExpanded = expanded;
-
-        if (iconButton != null)
-            iconButton.gameObject.SetActive(!expanded);
-
-        if (detailsPanel != null)
-            detailsPanel.SetActive(expanded);
-    }
-
-    /// <summary>
-    /// Přijetí doktríny.
-    /// </summary>
-    private void HandleAccept()
-    {
-        if (currentDoctrine == null || decisionMade)
-            return;
-
-        decisionMade = true;
-
-        SetExpanded(false);
-        UpdateButtonStates();
-
-        OnDecisionMade?.Invoke(currentDoctrine, true);
-
-        if (destroyAfterAccept)
-            Destroy(gameObject);
-    }
-
-    /// <summary>
-    /// Odmítnutí doktríny / zavření detailního panelu.
-    /// </summary>
-    private void HandleDecline()
-    {
-        if (currentDoctrine == null || decisionMade)
-            return;
-
-        OnDecisionMade?.Invoke(currentDoctrine, false);
-
-        // Zavře panel a znovu zobrazí tlačítko Icon.
-        SetExpanded(false);
-        OnPopupOpened?.Invoke(IsExpanded);
-    }
-
-    private void UpdateButtonStates()
-    {
-        bool canInteract = currentDoctrine != null && !decisionMade;
-
-        if (iconButton != null)
-            iconButton.interactable = canInteract;
-
-        if (acceptButton != null)
-            acceptButton.interactable = canInteract;
-
-        if (declineButton != null)
-            declineButton.interactable = canInteract;
     }
 }
