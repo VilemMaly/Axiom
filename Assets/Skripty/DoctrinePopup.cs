@@ -79,7 +79,7 @@ public class DoctrinePopup : MonoBehaviour
         );
 
         Vector2 requiredPositionOnScreen = new Vector2(
-            Screen.width / 2f,
+            Screen.width / 2f + Screen.width / 4f,
             Screen.height / 2f
         );
 

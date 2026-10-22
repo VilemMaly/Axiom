@@ -1,9 +1,7 @@
-
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
-using Unity.VisualScripting;
 using System.Collections;
 
 public class MainUI : NetworkBehaviour
@@ -11,7 +9,6 @@ public class MainUI : NetworkBehaviour
     [Header("World UI")]
     public RectTransform uiPanel;
     public bool isVisible = true;
-    private Vector3 position = Vector3.zero;
 
     [Header("Research UI")]
     public GameObject researchParent;
@@ -27,49 +24,7 @@ public class MainUI : NetworkBehaviour
         if (!IsOwner)
             return;
 
-        StartCoroutine(WaitForInputManager());
         researchUiController = GetComponent<ResearchUiController>();
-    }
-
-    private IEnumerator WaitForInputManager()
-    {
-        yield return new WaitUntil(() => InputManager.StaticClass != null);
-
-        InputManager.StaticClass.Controls.UI.RightClick.started += uiClicked;
-        InputManager.StaticClass.Controls.UI.RightClick.canceled += uiClose;
-    }
-
-    private void Update()
-    {
-    }
-
-    public void uiClose(InputAction.CallbackContext context)
-    {
-        uiClose();
-    }
-
-    public void uiClose()
-    {
-        SetUIVisibility(false);
-    }
-
-    private void uiClicked(InputAction.CallbackContext context)
-    {
-        if (Camera.main == null || Mouse.current == null)
-            return;
-
-        Ray ray = Camera.main.ScreenPointToRay(
-            Mouse.current.position.ReadValue()
-        );
-
-        position = Vector3.zero;
-
-        if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
-        {
-            position = hit.point;
-        }
-
-        SetUIVisibility(!isVisible);
     }
 
     // Zapne nebo vypne World UI panel podle bool hodnoty.
@@ -104,6 +59,6 @@ public class MainUI : NetworkBehaviour
     public void ToggleResearchVisibility()
     {
         SetResearchVisibility(!isResearchVisible);
-        SetUIVisibility(isResearchVisible);
+        ToggleUIVisibility();
     }
 }

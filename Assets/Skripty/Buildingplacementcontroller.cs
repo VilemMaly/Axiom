@@ -89,7 +89,6 @@ public class BuildingPlacementController : NetworkBehaviour
     private void Start()
     {
         troopManager = GetComponent<TroopInteractor>();
-        CloseUI += mainUI.uiClose;
     }
 
     public override void OnNetworkSpawn()
