@@ -12,7 +12,6 @@ public class ResearchUiController : NetworkBehaviour
     [SerializeField] private GameObject doctrinePrefab;
     [SerializeField] private GameObject researchPrefab;
     [SerializeField] private Vector2 gridSpacing = new Vector2(200, 200);
-    [SerializeField] private GameObject chooseParent;
     [SerializeField] private GameObject researchParent;
     private Vector3 position;
     private bool isVisible = false;
@@ -39,8 +38,8 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
 
     RectTransform rect = spawnedDoctrine.GetComponent<RectTransform>();
 
-    int column = cycle % 4;
-    int row = cycle / 4;
+    int column = cycle / 4;
+    int row = cycle % 4;
 
     rect.anchoredPosition = new Vector2(
         column * gridSpacing.x,
@@ -60,10 +59,6 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
         }
     };
 
-    doctrinePopup.OnPopupOpened += (opened) =>
-    {
-        hideIcons(opened, doctrinePopup);
-    };
 }
 
     }
@@ -106,7 +101,6 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
         }
         if (selectedDoctrine == null)
             return;
-        chooseParent.SetActive(false);
         researchParent.SetActive(true);
         Debug.Log("Client rpc spawn research");
         int cycle = 0;

@@ -86,7 +86,7 @@ public class PlayerResources : NetworkBehaviour
         }
     }
 
-    void UpdateCoriumText() => coriumText.text = $"{Corium.Value} / {MaxCorium.Value}";
+    void UpdateCoriumText() => coriumText.text = $"{Corium.Value}";
     void UpdateEnergyText(int value) => energyText.text = $"{value}";
 
     public bool TrySpend(int coriumCost, int energyCost)

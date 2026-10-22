@@ -10,7 +10,7 @@ public class MainUI : NetworkBehaviour
 {
     [Header("World UI")]
     public RectTransform uiPanel;
-    public bool isVisible = false;
+    public bool isVisible = true;
     private Vector3 position = Vector3.zero;
 
     [Header("Research UI")]
@@ -104,5 +104,6 @@ public class MainUI : NetworkBehaviour
     public void ToggleResearchVisibility()
     {
         SetResearchVisibility(!isResearchVisible);
+        SetUIVisibility(isResearchVisible);
     }
 }
