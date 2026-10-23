@@ -13,6 +13,7 @@ public abstract class Building : NetworkBehaviour
     public int EnergyConsumption;
     public int CoriumProduction;
     public int EnergyProduction;
+    public int Level;
     public int Damage;
     public float AttackRange;
     public float AttackSpeed;
@@ -20,6 +21,7 @@ public abstract class Building : NetworkBehaviour
     public float SightRange;
     public bool IsPowerSource;
     public bool IsEnergyConsumer;
+    private bool IsDestroyed = false;
 
     public enum BuildingType
     {
@@ -49,7 +51,7 @@ public abstract class Building : NetworkBehaviour
     protected PlayerResources OwnerResources { get; private set; }
 
     // Budova existuje a může přijímat damage / fungovat.
-    protected bool IsOperational { get; set; } = false;
+    public bool IsOperational { get; set; } = false;
 
     public NetworkVariable<bool> IsConnected =
         new NetworkVariable<bool>(
@@ -99,6 +101,16 @@ public abstract class Building : NetworkBehaviour
         {
             var client = NetworkManager.Singleton.ConnectedClients[OwnerClientId];
             OwnerResources = client.PlayerObject.GetComponent<PlayerResources>();
+        }
+
+        if (IsOwner || IsServer)
+        {
+            if (NetworkManager.Singleton.ConnectedClients.TryGetValue(OwnerClientId, out var ownerClient) &&
+                ownerClient.PlayerObject != null)
+            {
+                TechResolver techResolver = ownerClient.PlayerObject.GetComponent<TechResolver>();
+                techResolver?.AddBoost(this);
+            }
         }
 
         IsOperational = true;
@@ -158,6 +170,11 @@ public abstract class Building : NetworkBehaviour
         
     }
     public virtual void OnBuilt()
+    {
+    }
+
+    /// <summary>Called by the server when research grants this building an upgrade tier.</summary>
+    public virtual void UpgradeBuilding(int tier)
     {
     }
 
@@ -370,7 +387,7 @@ public abstract class Building : NetworkBehaviour
 
     public virtual void TakeDamage(int damage)
     {
-        if (!IsServer || !IsOperational)
+        if (!IsServer || IsDestroyed)
             return;
 
         if (Health.Value - damage <= 0)
@@ -380,7 +397,7 @@ public abstract class Building : NetworkBehaviour
             // Díky tomu domino exploze nemůže tuto budovu znovu poškodit
             // a spustit její DestroyBuilding().
             Health.Value = 0;
-            IsOperational = false;
+            IsDestroyed = true;
 
             DestroyBuilding();
         }

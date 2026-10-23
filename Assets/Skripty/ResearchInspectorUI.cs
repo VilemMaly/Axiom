@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class ResearchInspectorUI : MonoBehaviour
 {
@@ -47,6 +49,48 @@ public class ResearchInspectorUI : MonoBehaviour
     }
 
     private SelectedDefinition selected = SelectedDefinition.None;
+    private bool selectionLocked;
+    private InputSystem_Actions controls;
+
+    private void Start()
+    {
+        if (InputManager.StaticClass != null && InputManager.StaticClass.Controls != null)
+        {
+            controls = InputManager.StaticClass.Controls;
+            controls.UI.Click.performed += OnLeftClick;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (controls != null)
+            controls.UI.Click.performed -= OnLeftClick;
+    }
+
+    private void OnLeftClick(InputAction.CallbackContext context)
+    {
+        if (selectionLocked &&
+            (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
+        {
+            selectionLocked = false;
+        }
+    }
+
+    public void HoverDoctrine(DoctrineDefinition value) { if (!selectionLocked) FillInspector(value); }
+    public void HoverResearch(ResearchDefinition value) { if (!selectionLocked) FillInspector(value); }
+    public void HoverUpgrade(UpgradeDefinition value) { if (!selectionLocked) FillInspector(value); }
+
+    public void ClickDoctrine(DoctrineDefinition value) { ToggleLock(value); FillInspector(value); }
+    public void ClickResearch(ResearchDefinition value) { ToggleLock(value); FillInspector(value); }
+    public void ClickUpgrade(UpgradeDefinition value) { ToggleLock(value); FillInspector(value); }
+
+    private void ToggleLock(UnityEngine.Object value)
+    {
+        bool same = (selected == SelectedDefinition.Doctrine && currentDoctrine == value) ||
+                    (selected == SelectedDefinition.Research && currentResearch == value) ||
+                    (selected == SelectedDefinition.Upgrade && currentUpgrade == value);
+        selectionLocked = !(selectionLocked && same);
+    }
 
     private void Awake()
     {
@@ -93,7 +137,8 @@ public class ResearchInspectorUI : MonoBehaviour
         UpgradePopup popup = upgradeObject.GetComponent<UpgradePopup>();
 
         if (popup != null)
-            popup.Opened -= FillInspector;
+            popup.Opened -= ClickUpgrade;
+            popup.Hovered -= HoverUpgrade;
 
         Destroy(upgradeObject);
     }
@@ -137,7 +182,8 @@ public class ResearchInspectorUI : MonoBehaviour
             UpgradeInstance.transform.localPosition += grid;
             UpgradePopup skript = UpgradeInstance.GetComponent<UpgradePopup>();
             skript.Fill(upgrade);
-            skript.Opened += FillInspector;
+            skript.Opened += ClickUpgrade;
+            skript.Hovered += HoverUpgrade;
             upgradeList.Add(UpgradeInstance);
             i++;
         }
@@ -173,6 +219,8 @@ public class ResearchInspectorUI : MonoBehaviour
             : $"{upgrade.Value:+0.##;-0.##;0}";
 
         string stat = GetStatDisplayName(upgrade.StatType);
+        if (upgrade.BuildingTierUpgrade)
+            stat = $"Vylepšení budovy na úroveň {upgrade.BuildingUpgradeTier}";
 
         SetText(
             ExtraInfo,
@@ -233,6 +281,7 @@ public class ResearchInspectorUI : MonoBehaviour
 
     public void ClearInspector()
     {
+        selectionLocked = false;
         currentDoctrine = null;
         currentResearch = null;
         currentUpgrade = null;

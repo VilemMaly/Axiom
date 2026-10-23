@@ -11,6 +11,30 @@ public class BuildingInteractor : NetworkBehaviour
     // pokud je její vlastníkem tenhle klient.
     private readonly List<Building> myBuildings = new List<Building>();
     public IReadOnlyList<Building> MyBuildings => myBuildings;
+
+    /// <summary>Returns the first eligible idle spawner, or the first eligible spawner if all are busy.</summary>
+    public BuildingSpawner GetSpawner(TroopType troopType)
+    {
+        BuildingSpawner firstBusySpawner = null;
+
+        foreach (Building building in myBuildings)
+        {
+            if (building == null || !building.IsConstructionComplete.Value || !building.IsOperational)
+                continue;
+
+            BuildingSpawner spawner = building.GetComponent<BuildingSpawner>();
+            if (spawner == null || !spawner.CanSpawn(troopType))
+                continue;
+
+            if (!spawner.HasQueuedTroops)
+                return spawner;
+
+            if (firstBusySpawner == null)
+                firstBusySpawner = spawner;
+        }
+
+        return firstBusySpawner;
+    }
     private CableManager cableManager;
     public event Action<ulong> lostGame; // zavolá se z core do game spawner a ukončí hru pokud je core zničen nebo nefunkční
 
@@ -113,6 +137,49 @@ void Update()
             Debug.Log($"[BuildingInteractor] Odregistrována budova {building.name} (typ {building.Type}). Celkem: {myBuildings.Count}");
         ResetEnergySources();
         return true;
+    }
+
+    /// <summary>Ask the server to apply the building upgrade granted by completed research.</summary>
+    public void RequestResearchBuildingUpgrade(
+        int researchId,
+        string upgradeId,
+        Building.BuildingType buildingType,
+        int tier)
+    {
+        if (!IsSpawned || !IsOwner || tier < 1)
+            return;
+
+        ApplyResearchBuildingUpgradeServerRpc(researchId, upgradeId, buildingType, tier);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ApplyResearchBuildingUpgradeServerRpc(
+        int researchId,
+        string upgradeId,
+        Building.BuildingType buildingType,
+        int tier,
+        ServerRpcParams rpcParams = default)
+    {
+        if (rpcParams.Receive.SenderClientId != OwnerClientId || string.IsNullOrEmpty(upgradeId) || tier < 1)
+            return;
+
+        PlayerTechnology technology = GetComponent<PlayerTechnology>();
+        if (technology == null || !technology.TryGetUnlockedBuildingUpgrade(researchId, upgradeId, buildingType, tier))
+            return;
+
+        bool upgraded = false;
+        foreach (Building building in myBuildings)
+        {
+            if (building != null && building.IsSpawned && building.OwnerClientId == OwnerClientId &&
+                building.Type == buildingType && building.IsConstructionComplete.Value)
+            {
+                building.UpgradeBuilding(tier);
+                upgraded = true;
+            }
+        }
+
+        if (!upgraded)
+            Debug.LogWarning($"[BuildingInteractor] Nebyla nalezena dokončená budova typu {buildingType} pro upgrade na tier {tier}.", this);
     }
 
 }

@@ -43,6 +43,8 @@ public class Core : Building
         // 1) IsOperational - nastaví se JEN v OnNetworkSpawn, tedy JEN po Spawnu
         // 2) IsServer - těžba se počítá jen na serveru
         // 3) OwnerResources != null - pro jistotu, i kdyby se OnBuilt nějak minul
+        if (!IsOperational)
+            coreNotFunctional?.Invoke(OwnerClientId);
         if (!IsOperational || !IsServer || OwnerResources == null) return;
 
     }

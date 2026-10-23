@@ -5,7 +5,7 @@ public class TechResolver : NetworkBehaviour
 {
     private PlayerTechnology research;
 
-    private void Start()
+    private void Awake()
     {
         research = GetComponent<PlayerTechnology>();
     }
@@ -50,7 +50,7 @@ public class TechResolver : NetworkBehaviour
             case UpgradeStatType.Damage:
                 troop.Damage = upgrade.ValueType == UpgradeValueType.Flat
                     ? troop.Damage + (int)value
-                    : troop.Damage * (int)(1f + value);
+                    : Mathf.RoundToInt(troop.Damage * (1f + value));
                 break;
 
             case UpgradeStatType.AttackRange:
@@ -81,38 +81,95 @@ public class TechResolver : NetworkBehaviour
             case UpgradeStatType.BuildSpeed:
                 troop.BuildCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
                     ? troop.BuildCoriumPerSecond + (int)value
-                    : troop.BuildCoriumPerSecond * (int)(1f + value);
+                    : Mathf.RoundToInt(troop.BuildCoriumPerSecond * (1f + value));
                 break;
 
             case UpgradeStatType.RepairPower:
                 troop.RepairCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
                     ? troop.RepairCoriumPerSecond + (int)value
-                    : troop.RepairCoriumPerSecond * (int)(1f + value);
+                    : Mathf.RoundToInt(troop.RepairCoriumPerSecond * (1f + value));
                 break;
 
             case UpgradeStatType.MiningSpeed:
                 troop.HarvestCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
                     ? troop.HarvestCoriumPerSecond + (int)value
-                    : troop.HarvestCoriumPerSecond * (int)(1f + value);
+                    : Mathf.RoundToInt(troop.HarvestCoriumPerSecond * (1f + value));
                 break;
 
             case UpgradeStatType.CargoCapacity:
                 troop.MaxCargo = upgrade.ValueType == UpgradeValueType.Flat
                     ? troop.MaxCargo + (int)value
-                    : troop.MaxCargo * (int)(1f + value);
+                    : Mathf.RoundToInt(troop.MaxCargo * (1f + value));
                 break;
         }
     }
 
     public void AddBoost(Building building)
     {
+        if (building == null || research == null)
+            return;
+
+        foreach (ResearchDefinition researchDefinition in research.unlockedResearches)
+        {
+            if (researchDefinition == null || researchDefinition.Upgrades == null)
+                continue;
+
+            foreach (UpgradeDefinition upgrade in researchDefinition.Upgrades)
+            {
+                if (upgrade == null ||
+                    upgrade.TargetType != UpgradeTargetType.Building ||
+                    upgrade.BuildingType != building.Type)
+                    continue;
+
+                if (upgrade.BuildingTierUpgrade)
+                    building.UpgradeBuilding(upgrade.BuildingUpgradeTier);
+                HandleBuildingUpgrade(building, upgrade);
+            }
+        }
     }
 
-    public void CheckUnlocked(Troop troop)
+    private void HandleBuildingUpgrade(Building building, UpgradeDefinition upgrade)
     {
+        float value = upgrade.Value;
+        if (upgrade.ValueType == UpgradeValueType.Percentage)
+            value /= 100f;
+
+        switch (upgrade.StatType)
+        {
+            case UpgradeStatType.MaxHealth:
+                int oldMaxHealth = building.MaxHealth;
+                building.MaxHealth = upgrade.ValueType == UpgradeValueType.Flat
+                    ? oldMaxHealth + Mathf.RoundToInt(value)
+                    : Mathf.RoundToInt(oldMaxHealth * (1f + value));
+
+                if (building.IsServer)
+                    building.Health.Value += building.MaxHealth - oldMaxHealth;
+                break;
+
+            case UpgradeStatType.Damage:
+                building.Damage = upgrade.ValueType == UpgradeValueType.Flat
+                    ? building.Damage + Mathf.RoundToInt(value)
+                    : Mathf.RoundToInt(building.Damage * (1f + value));
+                break;
+
+            case UpgradeStatType.AttackRange:
+                building.AttackRange = upgrade.ValueType == UpgradeValueType.Flat
+                    ? building.AttackRange + value
+                    : building.AttackRange * (1f + value);
+                break;
+
+            case UpgradeStatType.AttackSpeed:
+                building.AttackSpeed = upgrade.ValueType == UpgradeValueType.Flat
+                    ? building.AttackSpeed + value
+                    : building.AttackSpeed * (1f + value);
+                break;
+
+            case UpgradeStatType.SightRange:
+                building.SightRange = upgrade.ValueType == UpgradeValueType.Flat
+                    ? building.SightRange + value
+                    : building.SightRange * (1f + value);
+                break;
+        }
     }
 
-    public void CheckUnlocked(Building building)
-    {
-    }
 }

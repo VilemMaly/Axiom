@@ -49,20 +49,34 @@ public class TroopInteractor : NetworkBehaviour
 
     public bool isAllowedToSpawn(Troop troopToSpawn)
     {
-        if(!IsServer)
+        if (!IsServer || troopToSpawn == null)
             return false;
         
-        int TroopCount = 0;
+        int troopCount = 0;
         foreach (Troop spawnedTroops in myTroops)
         {
-            if (troopToSpawn.Type == spawnedTroops.Type)
+            if (spawnedTroops != null && troopToSpawn.Type == spawnedTroops.Type)
             {
-                TroopCount++;
+                troopCount++;
             }
         }
 
-        if(TroopCount >= troopToSpawn.MaxTroopAmount)
-                return false;
+        BuildingInteractor buildingInteractor = GetComponent<BuildingInteractor>();
+        if (buildingInteractor != null)
+        {
+            foreach (Building building in buildingInteractor.MyBuildings)
+            {
+                if (building == null)
+                    continue;
+
+                BuildingSpawner buildingSpawner = building.GetComponent<BuildingSpawner>();
+                if (buildingSpawner != null)
+                    troopCount += buildingSpawner.CountQueuedTroopsOfType(troopToSpawn.Type);
+            }
+        }
+
+        if (troopCount >= troopToSpawn.MaxTroopAmount)
+            return false;
         
         return true;
     }

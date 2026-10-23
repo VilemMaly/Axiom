@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ResearchPopup : MonoBehaviour
+public class ResearchPopup : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler
 {
     [Header("Button")]
     [SerializeField] private Button iconButton;
@@ -12,6 +12,7 @@ public class ResearchPopup : MonoBehaviour
     [SerializeField] private Image iconImage;
 
     public event Action<ResearchDefinition> Opened;
+    public event Action<ResearchDefinition> Hovered;
 
     public bool IsVisible { get; private set; }
 
@@ -33,6 +34,8 @@ public class ResearchPopup : MonoBehaviour
     {
         Opened?.Invoke(currentResearch);
     }
+
+    public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData) => Hovered?.Invoke(currentResearch);
 
     /// <summary>
     /// Nastaví výzkum, který lze následně získat po kliknutí.

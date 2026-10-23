@@ -38,13 +38,7 @@ public class TroopSpawner : NetworkBehaviour
     [Header("Seznam jednotek (pořadí = index)")]
     [SerializeField] private List<TroopEntry> troopPrefabs = new List<TroopEntry>();
 
-    [SerializeField] private Selector buildingSelector;
-    private int currentTroopIndex;
-    private NetworkVariable<NetworkObjectReference> selectedBuildingRef = new NetworkVariable<NetworkObjectReference>(
-    default,
-    NetworkVariableReadPermission.Everyone,
-    NetworkVariableWritePermission.Server   // teď píše jen server
-);
+    private readonly HashSet<BuildingSpawner> subscribedBuildingSpawners = new HashSet<BuildingSpawner>();
 
     private Transform SpawnCenter => spawnCenter != null ? spawnCenter : transform;
 
@@ -61,7 +55,6 @@ public class TroopSpawner : NetworkBehaviour
     if (!IsOwner) return;
 
     Debug.Log($"[TroopSpawner] Hráč {OwnerClientId} žádá o spawn jednotky index {troopIndex}.");
-    if (!RequestSetSelectedBuilding()) return; // zajistí, že server ví, která budova je vybraná
     RequestSpawnTroopServerRpc(troopIndex);
 }
 
@@ -69,118 +62,69 @@ public class TroopSpawner : NetworkBehaviour
     private void RequestSpawnTroopServerRpc(int troopIndex, ServerRpcParams rpcParams = default)
     {
         ulong requestingClientId = rpcParams.Receive.SenderClientId;
-
-        Transform center = transform; // fallback na hráče
-        if (selectedBuildingRef.Value.TryGet(out NetworkObject buildingNetObj))
+        if (troopIndex < 0 || troopIndex >= troopPrefabs.Count)
         {
-            spawnCenter = buildingNetObj.transform;
-            if(troopIndex == 0 && buildingNetObj.GetComponent<Building>().Type != Building.BuildingType.Core)
-            {
-                Debug.LogWarning($"[TroopSpawner] Hráč {requestingClientId} se snaží spawnout Core jednotku z budovy, která není Core.");
-                return;
-            }
-        }
-
-        
-        if(buildingNetObj.GetComponent<Building>().Type == Building.BuildingType.Core || buildingNetObj.GetComponent<Building>().Type == Building.BuildingType.Factory)
-        {
-        
-        }
-        else
-        {
-            Debug.Log($"[TroopSpawner] Hráč {requestingClientId} nemůže spawnout jednotku, protože to není správná budova, asi podvádí");
+            Debug.LogWarning($"[TroopSpawner] Neplatný index jednotky: {troopIndex}");
             return;
         }
 
-        if(buildingNetObj.GetComponent<Building>().Type == Building.BuildingType.Core && troopIndex > 0)
+        TroopEntry entry = troopPrefabs[troopIndex];
+        Troop troop = entry != null && entry.prefab != null ? entry.prefab.GetComponent<Troop>() : null;
+        if (troop == null)
         {
-            Debug.Log($"[TroopSpawner] Hráč {requestingClientId} nemůže spawnout jednotku, protože to není správná budova, asi podvádí");
+            Debug.LogWarning($"[TroopSpawner] Pro index {troopIndex} není přiřazen prefab s komponentou Troop.");
             return;
         }
-        if(!buildingNetObj.GetComponent<Building>().IsConstructionComplete.Value)
-        {
-            Debug.Log($"[TroopSpawner] Hráč {requestingClientId} nemůže spawnout jednotku, protože budova není dostavěná");
-            return;
-        }
-        Troop troop = troopPrefabs[troopIndex].prefab.GetComponent<Troop>();
-        if(!gameObject.GetComponent<TroopInteractor>().isAllowedToSpawn(troop))
+
+        if (!gameObject.GetComponent<TroopInteractor>().isAllowedToSpawn(troop))
         {
             Debug.Log("Hráč to nemůže spawnout, protože by překročil limit jednotek pro hráče");
             return;
         }
-        // kontrola jestli vlastní klient research troopa
-        if(!GetComponent<PlayerTechnology>().CheckTroopResearched(troop))
+
+        if (!GetComponent<PlayerTechnology>().CheckTroopResearched(troop))
         {
             Debug.Log("Klient nemá vyzkoumanou tu jednotku, nemůže ji spawnout");
             return;
         }
 
-        // kouknu na cenu troop a na rychlost spawn budovy, pošlu klient rpc na visual spawn skript u spawn budovy, pokaždé co přičtu corium do počtu potřebného coria
-        buildingNetObj.GetComponent<BuildingSpawner>().startBuildingTroop(troop);
-        currentTroopIndex = troopIndex;
-        // Subscribe the method group so the event receives the ownerClientId parameter when invoked
-        buildingNetObj.GetComponent<BuildingSpawner>().loadingFinished += (ulong value) =>
+        if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(requestingClientId, out var client) ||
+            client.PlayerObject == null)
         {
-            TrySpawnTroopServerSide(value, buildingNetObj.GetComponent<Building>());
-        };
+            Debug.LogWarning($"[TroopSpawner] Nelze najít hráče {requestingClientId}.");
+            return;
+        }
+
+        BuildingInteractor buildingInteractor = client.PlayerObject.GetComponent<BuildingInteractor>();
+        BuildingSpawner buildingSpawner = buildingInteractor != null ? buildingInteractor.GetSpawner(troop.Type) : null;
+        if (buildingSpawner == null)
+        {
+            Debug.LogWarning($"[TroopSpawner] Hráč {requestingClientId} nemá vhodnou budovu pro jednotku {troop.Type}.");
+            return;
+        }
+
+        Building building = buildingSpawner.GetComponent<Building>();
+        if (building == null || building.OwnerClientId != requestingClientId || !building.IsConstructionComplete.Value ||
+            !building.IsOperational || !buildingSpawner.CanSpawn(troop.Type))
+        {
+            Debug.LogWarning($"[TroopSpawner] Vybraný spawner pro jednotku {troop.Type} není způsobilý.");
+            return;
+        }
+
+        if (building.Type == Building.BuildingType.Core)
+            spawnCenter = building.transform;
+
+        bool addedListener = subscribedBuildingSpawners.Add(buildingSpawner);
+        if (addedListener)
+            buildingSpawner.loadingFinished += TrySpawnTroopServerSide;
+
+        if (!buildingSpawner.EnqueueTroop(troopIndex, troop) && addedListener)
+        {
+            subscribedBuildingSpawners.Remove(buildingSpawner);
+            buildingSpawner.loadingFinished -= TrySpawnTroopServerSide;
+        }
+        
     }
-
-    public bool RequestSetSelectedBuilding()
-{
-    if (!IsOwner) return false;
-
-    if (buildingSelector.SelectedBuilding == null)
-    {
-        Debug.LogWarning("[TroopSpawner] Žádná budova není vybraná.");
-        return false;
-    }
-
-    var buildingNetObj = buildingSelector.SelectedBuilding.GetComponent<NetworkObject>();
-    if (buildingNetObj == null)
-    {
-        Debug.LogWarning("[TroopSpawner] Vybraná budova nemá NetworkObject.");
-        return false;
-    }
-
-    RequestSetSelectedBuildingServerRpc(buildingNetObj);
-    return true;
-}
-
-[ServerRpc]
-private void RequestSetSelectedBuildingServerRpc(NetworkObjectReference buildingRef, ServerRpcParams rpcParams = default)
-{
-    ulong requestingClientId = rpcParams.Receive.SenderClientId;
-
-    if (!buildingRef.TryGet(out NetworkObject buildingNetObj))
-    {
-        Debug.LogWarning("[TroopSpawner] Server nenašel budovu podle reference.");
-        return;
-    }
-
-    // === VALIDACE NA SERVERU ===
-
-    // 1) Patří budova opravdu tomuhle hráči? (např. přes NetworkObject.OwnerClientId, nebo vlastní komponentu Building.cs)
-    Building building = buildingNetObj.GetComponent<Building>();
-    if (building == null || building.OwnerClientId != requestingClientId)
-    {
-        Debug.LogWarning($"[TroopSpawner] Hráč {requestingClientId} se snaží nastavit cizí/neplatnou budovu.");
-        return;
-    }
-    /* TODO asi nastavit polohu kamery na serveru, aby se dalo ověřit, že je budova dost blízko hráči
-    // 2) (volitelně) je budova dost blízko hráči / v rozumné vzdálenosti?
-    float maxDistance = 50f;
-    if (Vector3.Distance(transform.position, buildingNetObj.transform.position) > maxDistance)
-    {
-        Debug.LogWarning($"[TroopSpawner] Budova je moc daleko od hráče {requestingClientId}.");
-        return;
-    }*/
-
-
-    // Validace prošla → server teprve teď zapisuje
-    Debug.Log($"[TroopSpawner] Server nastavil vybranou budovu pro hráče {requestingClientId} na {building.Type}.");
-    selectedBuildingRef.Value = buildingRef;
-}
-
 
     // ============================================================
     //  RPC – klient žádá server
@@ -190,51 +134,76 @@ private void RequestSetSelectedBuildingServerRpc(NetworkObjectReference building
     //  SERVEROVÁ LOGIKA (jediné místo, kde se reálně spawnuje)
     // ============================================================
 
-    private void TrySpawnTroopServerSide(ulong ownerClientId, Building factory)
+    private void TrySpawnTroopServerSide(int troopIndex, Building building)
     {
-        if (!IsServer) return;
+        if (IsServer && building != null)
+            SpawnCompletedTroop(troopIndex, building);
 
-        if (currentTroopIndex < 0 || currentTroopIndex >= troopPrefabs.Count)
+        BuildingSpawner buildingSpawner = building != null ? building.GetComponent<BuildingSpawner>() : null;
+        if (buildingSpawner != null && !buildingSpawner.HasQueuedTroops &&
+            subscribedBuildingSpawners.Remove(buildingSpawner))
         {
-            Debug.LogWarning($"[TroopSpawner] Neplatný index jednotky: {currentTroopIndex}");
+            buildingSpawner.loadingFinished -= TrySpawnTroopServerSide;
+        }
+    }
+
+    private void SpawnCompletedTroop(int troopIndex, Building building)
+    {
+        if (troopIndex < 0 || troopIndex >= troopPrefabs.Count)
+        {
+            Debug.LogWarning($"[TroopSpawner] Neplatný index jednotky: {troopIndex}");
             return;
         }
 
-        TroopEntry entry = troopPrefabs[currentTroopIndex];
-        if (entry.prefab == null)
+        TroopEntry entry = troopPrefabs[troopIndex];
+        if (entry == null || entry.prefab == null)
         {
-            Debug.LogWarning($"[TroopSpawner] Prefab na indexu {currentTroopIndex} není přiřazen.");
+            Debug.LogWarning($"[TroopSpawner] Prefab na indexu {troopIndex} není přiřazen.");
             return;
         }
 
+        ulong ownerClientId = building.OwnerClientId;
         Debug.Log($"[TroopSpawner] Server spawn '{entry.troopName}' pro hráče {ownerClientId}.");
-        Vector3 spawnPos = new Vector3(0,0,0);
-        if(Building.BuildingType.Factory == factory.Type)
+        Vector3 spawnPos;
+        if (building.GetComponent<BuildingSpawner>() != null)
         {
-            Factory spawnerBuilding = factory as Factory;
-            spawnPos = spawnerBuilding.spawnPoint.position;  
+            BuildingSpawner spawner = building.GetComponent<BuildingSpawner>();
+            if (spawner.spawnPoint == null)
+            {
+                Debug.LogWarning("[TroopSpawner] Factory nemá platný spawnPoint.");
+                return;
+            }
+            spawnPos = spawner.spawnPoint.position;
         }
-        else
-        {       
-            TryFindFreePosition(1, out spawnPos);
-        }
-        if(spawnPos == new Vector3(0,0,0))
+        else if (!TryFindFreePosition(1f, out spawnPos))
         {
-            Debug.Log("Server nespawnuje jednotku, neví kde");
+            Debug.Log("Server nespawnuje jednotku, nenašel volnou pozici.");
             return;
         }
         
         Troop spawnedTroop = SpawnTroopAt(entry.prefab, spawnPos, ownerClientId);
-        if(spawnedTroop == null)
+        if (spawnedTroop == null)
         {
-            Debug.Log("Spawnutá troop neexistuje");
+            Debug.Log("Spawnutá jednotka neexistuje.");
             return;
         }
-        if(Building.BuildingType.Factory == factory.Type)
+
+        if (building.GetComponent<BuildingSpawner>() != null)
         {
-            Factory spawnerBuilding = factory as Factory;
-            spawnedTroop.MoveTo(spawnerBuilding.rallyPoint.position);
+            spawnedTroop.MoveTo(building.GetComponent<BuildingSpawner>().rallyPoint.position);
         }
+            
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        foreach (BuildingSpawner buildingSpawner in subscribedBuildingSpawners)
+        {
+            if (buildingSpawner != null)
+                buildingSpawner.loadingFinished -= TrySpawnTroopServerSide;
+        }
+        subscribedBuildingSpawners.Clear();
+        base.OnNetworkDespawn();
     }
 
     private bool TryFindFreePosition(float checkRadius, out Vector3 result)

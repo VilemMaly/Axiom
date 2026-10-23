@@ -454,6 +454,59 @@ public class PlayerTechnology : NetworkBehaviour
         selectedResearchId.Value = -1;
 
         Debug.Log($"[{nameof(PlayerTechnology)}] Výzkum '{completedResearch.DisplayName}' byl dokončen.", this);
+
+        foreach (UpgradeDefinition upgrade in completedResearch.Upgrades)
+        {
+            if (upgrade == null || !upgrade.BuildingTierUpgrade || upgrade.BuildingUpgradeTier < 1)
+                continue;
+
+            RequestBuildingUpgradeClientRpc(
+                completedResearch.ResearchId,
+                upgrade.UpgradeId,
+                upgrade.BuildingType,
+                upgrade.BuildingUpgradeTier);
+        }
+    }
+
+    [ClientRpc]
+    private void RequestBuildingUpgradeClientRpc(
+        int researchId,
+        string upgradeId,
+        Building.BuildingType buildingType,
+        int tier)
+    {
+        if (!IsOwner)
+            return;
+
+        GetComponent<BuildingInteractor>()?.RequestResearchBuildingUpgrade(researchId, upgradeId, buildingType, tier);
+    }
+
+    public bool TryGetUnlockedBuildingUpgrade(
+        int researchId,
+        string upgradeId,
+        Building.BuildingType buildingType,
+        int tier)
+    {
+        if (!IsServer || tier < 1)
+            return false;
+
+        for (int i = 0; i < unlockedResearches.Count; i++)
+        {
+            ResearchDefinition research = unlockedResearches[i];
+            if (research == null || research.ResearchId != researchId || research.Upgrades == null)
+                continue;
+
+            for (int upgradeIndex = 0; upgradeIndex < research.Upgrades.Count; upgradeIndex++)
+            {
+                UpgradeDefinition upgrade = research.Upgrades[upgradeIndex];
+                if (upgrade != null && upgrade.UpgradeId == upgradeId && upgrade.BuildingTierUpgrade &&
+                    upgrade.TargetType == UpgradeTargetType.Building && upgrade.BuildingType == buildingType &&
+                    upgrade.BuildingUpgradeTier == tier)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     [ClientRpc]

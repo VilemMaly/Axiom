@@ -61,4 +61,5 @@ public class ResearchDefinition : ScriptableObject
 
     public IReadOnlyList<BuildingType> UnlockedBuildings =>
         unlockedBuildings;
+
 }

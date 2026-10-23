@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UpgradePopup : MonoBehaviour
+public class UpgradePopup : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler
 {
 
     [Header("Buttons")]
@@ -14,6 +14,7 @@ public class UpgradePopup : MonoBehaviour
     [Tooltip("Image ikony umístěná uvnitř tlačítka Button Icon.")]
     [SerializeField] private Image imageIcon;
     public event Action<UpgradeDefinition> Opened;
+    public event Action<UpgradeDefinition> Hovered;
 
     public bool IsVisible { get; private set; }
 
@@ -39,6 +40,8 @@ public class UpgradePopup : MonoBehaviour
     {
         Opened?.Invoke(currentUpgrade);
     }
+
+    public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData) => Hovered?.Invoke(currentUpgrade);
 
     /// <summary>
     /// Fill jen nastaví typ tohoto upgradu, ať jde potom získat když se na něj klikne

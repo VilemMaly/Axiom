@@ -22,6 +22,10 @@ public class UpgradeDefinition : ScriptableObject
     [SerializeField] private TroopType troopType;
     [SerializeField] private BuildingType buildingType;
 
+    [Tooltip("Enable for a building tier upgrade. When research completes, this tier is applied to every owned building of Building Type.")]
+    [SerializeField] private bool buildingTierUpgrade;
+    [SerializeField, Min(1)] private int buildingUpgradeTier = 1;
+
     [Header("Stat")]
     [SerializeField] private UpgradeStatType statType;
 
@@ -44,6 +48,8 @@ public class UpgradeDefinition : ScriptableObject
 
     public TroopType TroopType => troopType;
     public BuildingType BuildingType => buildingType;
+    public bool BuildingTierUpgrade => buildingTierUpgrade;
+    public int BuildingUpgradeTier => buildingUpgradeTier;
 
     public UpgradeStatType StatType => statType;
 

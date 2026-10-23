@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3b2d14f81daadd459e9a32642a907fe, type: 3}
+  m_Name: Factory
+  m_EditorClassIdentifier: Assembly-CSharp::InspectorData
+  troop: 0
+  budova: 1
+  troopType: 0
+  buildingType: 4
+  icon: {fileID: 0}
+  displayName: Factory
+  description: "Factory slou\u017E\xED k v\xFDrob\u011B vozidel, jako jsou harvester
+    nebo tanky a dal\u0161\xED."

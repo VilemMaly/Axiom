@@ -1,7 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static Building;
 using System;
 using System.Collections; // pro IEnumerator, přidej nahoru, pokud tam ještě není
 using System.Collections.Generic; // přidej nahoru, pokud tam ještě není
@@ -28,22 +27,8 @@ public class Selector : NetworkBehaviour
     [SerializeField] private LayerMask resourceLayer;
     [SerializeField] private float maxRaycastDistance = 200f;
 
-    [Header("UI panely - budovy")]
-    [SerializeField] private GameObject corePanel;
-    [SerializeField] private GameObject laserTowerPanel;
-    [SerializeField] private GameObject coriumMinerPanel;
-    [SerializeField] private GameObject researchPanel;
-    [SerializeField] private GameObject factoryPanel;
-    [SerializeField] private GameObject wallPanel;
-    [SerializeField] private GameObject radarPanel;
-    [SerializeField] private GameObject enemyBuildingPanel;
-    [SerializeField] private GameObject enemyTroopPanel;
-
-    [Header("UI panely - troopi (zatím jen Atlas)")]
-    [SerializeField] private GameObject atlasPanel;
-    [SerializeField] private GameObject harvesterPanel;
-    [SerializeField] private GameObject photonPanel;
-
+    [Header("Inspector")]
+    [SerializeField] private Inspector inspector;
 
     private Building selectedBuilding;
     private Troop selectedTroop;
@@ -56,7 +41,12 @@ public class Selector : NetworkBehaviour
     /// <summary>Vyvolá se, když se probíhající box-select zruší cancel akcí.</summary>
     public event Action OnBoxSelectCancelled;
 
-    private GameObject activePanel;
+
+    private void Awake()
+    {
+        if (inspector == null)
+            inspector = GetComponent<Inspector>();
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -186,7 +176,7 @@ private Ray GetMouseRay()
 
 private void StartBoxSelect(Vector3 point)
 {
-    Deselect(); // schová případný panel budovy/trooba
+    Deselect(); // zruší aktuální výběr a vyčistí inspector
     boxFirstPoint = point;
     boxState = TroopBoxState.FirstPointSet;
     ShowSelectionBoxVisual();
@@ -403,143 +393,43 @@ private bool TryGetGroundPoint(out Vector3 point)
 
     // ---------- Budovy ----------
 
-private void HandleBuildingClicked(Building building)
-{
-    if (selectedBuilding == building)
+    private void HandleBuildingClicked(Building building)
     {
-        Deselect();
-        return;
-    }
-
-    HideActivePanel();
-    selectedTroop = null;
-    selectedBuilding = building;
-
-    // Nepřátelská budova
-    if (building.OwnerClientId != NetworkManager.Singleton.LocalClientId)
-    {
-        activePanel = enemyBuildingPanel;
-
-        if (activePanel != null)
+        if (selectedBuilding == building)
         {
-            activePanel.SetActive(true);
-
-            EnemyBuildingStatus status = activePanel.GetComponent<EnemyBuildingStatus>();
-            if (status != null)
-            {
-                // TODO: až budeš mít PlayerName systém, nahraď tímto skutečné jméno hráče.
-                status.UpdateStatus(building, $"Player {building.OwnerClientId}");
-            }
+            Deselect();
+            return;
         }
 
-        return;
-    }
-
-    // Vlastní budova
-    activePanel = GetPanelForBuildingType(building.Type);
-
-    if (activePanel != null)
-    {
-        Debug.Log($"Zobrazujeme panel pro budovu typu {building.Type}");
-        activePanel.SetActive(true);
-
-        //uiFollower.ShowFor(building.transform);
-        //uiFollower.LateUpdate();
-
-        BuildingStatus status = activePanel.GetComponent<BuildingStatus>();
-        if (status != null)
-            status.UpdateStatus(building);
-    }
-}
-
-    private GameObject GetPanelForBuildingType(BuildingType type)
-    {
-        switch (type)
-        {
-            case BuildingType.Core: return corePanel;
-            case BuildingType.LaserTower: return laserTowerPanel;
-            case BuildingType.Factory: return factoryPanel;
-            case BuildingType.Wall: return wallPanel;
-            case BuildingType.Radar: return radarPanel;
-            default: return null;
-        }
+        selectedTroop = null;
+        selectedBuilding = building;
+        if (inspector != null)
+            inspector.ShowInspector(building);
     }
 
     // ---------- Troopi ----------
 
     private void HandleTroopClicked(Troop troop)
     {
-        // TODO: stejně jako u budov - pokud troop.OwnerClientId != LocalClientId,
-        // zobrazit jen read-only info o cizí jednotce
-
         if (selectedTroop == troop)
         {
             Deselect();
             return;
         }
 
-        HideActivePanel();
         selectedBuilding = null;
-
-            // Nepřátelská budova
-        if (troop.OwnerClientId != NetworkManager.Singleton.LocalClientId)
-        {
-            activePanel = enemyTroopPanel;
-
-            if (activePanel != null)
-            {
-                activePanel.SetActive(true);
-
-                EnemyTroopStatus status = activePanel.GetComponent<EnemyTroopStatus>();
-                if (status != null)
-                {
-                    // TODO: až budeš mít PlayerName systém, nahraď tímto skutečné jméno hráče.
-                    status.UpdateStatus(troop, $"Player {troop.OwnerClientId}");
-                }
-            }
-
-            return;
-        }
-
         selectedTroop = troop;
-        activePanel = GetPanelForTroopType(troop.Type);
-
-        if (activePanel != null)
-        {
-            Debug.Log($"Zobrazujeme panel pro trooba typu {troop.Type}");
-            activePanel.SetActive(true);
-
-            TroopStatus status = activePanel.GetComponent<TroopStatus>();
-            if (status != null)
-                status.UpdateStatus(troop);
-        }
-    }
-
-    private GameObject GetPanelForTroopType(TroopType type)
-    {
-        switch (type)
-        {
-            case TroopType.Atlas: return atlasPanel;
-            case TroopType.Photon: return photonPanel; // TODO: vytvořit vlastní panel pro photon
-            case TroopType.Harvester: return harvesterPanel; // TODO: vytvořit vlastní panel pro harvester
-            // sem se budou přidávat další typy troopů
-            default: return null;
-        }
+        if (inspector != null)
+            inspector.ShowInspector(troop);
     }
 
     // ---------- Společné ----------
 
-    private void HideActivePanel()
-    {
-        if (activePanel != null)
-            activePanel.SetActive(false);
-        activePanel = null;
-    }
-
     private void Deselect()
     {
-        HideActivePanel();
         selectedBuilding = null;
         selectedTroop = null;
+        if (inspector != null)
+            inspector.ClearInspector();
     }
 }

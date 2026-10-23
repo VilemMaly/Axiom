@@ -21,7 +21,7 @@ public class PlayerResources : NetworkBehaviour
     [SerializeField] public Color ProfitColor;
     [SerializeField] public Color NeutralColor;
     private float timer = 0;
-    private float interval = 10;
+    [SerializeField] private float interval = 10;
     private int lastCoriumValue;
     private int lastEnergyValue;
     public override void OnNetworkSpawn()
@@ -42,6 +42,8 @@ public class PlayerResources : NetworkBehaviour
     }
     public void Update()
     {
+        if(!IsOwner)
+            return;
         timer += Time.deltaTime;
 
         if (timer >= interval)
@@ -57,7 +59,7 @@ public class PlayerResources : NetworkBehaviour
             else if(lastCoriumValue > Corium.Value)
             {
                 coriumStatusText.color = LoseColor;
-                coriumStatusText.text = $"-{(lastCoriumValue - Corium.Value)*6}/m";
+                coriumStatusText.text = $"-{(lastCoriumValue - Corium.Value)*(60 / interval)}/m";
             }
             else if(lastCoriumValue == Corium.Value)
             {

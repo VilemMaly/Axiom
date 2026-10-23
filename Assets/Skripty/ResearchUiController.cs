@@ -55,7 +55,8 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
 
     cycle++;
 
-    doctrinePopup.Opened += inspectorUI.FillInspector;
+    doctrinePopup.Opened += inspectorUI.ClickDoctrine;
+    doctrinePopup.Hovered += inspectorUI.HoverDoctrine;
 
 }
 
@@ -137,7 +138,8 @@ foreach (DoctrineDefinition doctrine in playerTechnology.Doctrines)
             ResearchPopup researchPopup = spawnedResearch.GetComponent<ResearchPopup>();
 
             researchPopup.Fill(research);
-            researchPopup.Opened += inspectorUI.FillInspector;
+            researchPopup.Opened += inspectorUI.ClickResearch;
+            researchPopup.Hovered += inspectorUI.HoverResearch;
 
             researchPopups.Add(researchPopup);
 
