@@ -6,6 +6,10 @@ public class Gate : Building
 {
     public override BuildingType Type => BuildingType.Gate;
 
+    [Header("Napojení na zdi a další brány")]
+    [SerializeField] public Transform leftLock;
+    [SerializeField] public Transform rightLock;
+
     [Header("Gate – detekce přátelských jednotek")]
     [Tooltip("Radius, ve kterém brána hledá přátelské jednotky pro otevření.")]
     [SerializeField] private float detectionRadius = 8f;
@@ -17,16 +21,14 @@ public class Gate : Building
     [SerializeField] private float scanInterval = 0.3f;
 
     [Header("Gate – vizuál")]
-    [Tooltip("Animator na bráně – stavy 'Open' a 'Close' (nepovinné, pokud brána nemá animaci).")]
+    [Tooltip("Animator brány s bool parametrem GateClosed.")]
     [SerializeField] private Animator gateAnimator;
 
     [Tooltip("Collider brány, který se vypne/zapne při otevření/zavření.")]
     [SerializeField] private Collider gateCollider;
     [SerializeField] private NavMeshObstacle obstacle;
 
-    [Header("Materiály")]
-    [SerializeField] private Material material1;
-    [SerializeField] private Material material2;
+    private static readonly int GateClosedHash = Animator.StringToHash("GateClosed");
 
     /// <summary>
     /// Synchronizovaný stav brány – true = otevřená, false = zavřená.
@@ -128,17 +130,8 @@ public class Gate : Building
         if (gateCollider != null)
             gateCollider.enabled = !open;
         obstacle.enabled = !open;
-        Renderer targetRenderer = GetComponentInChildren<Renderer>();
-
-        if (open)
-            targetRenderer.material = material1;
-        else
-            targetRenderer.material = material2;
-        // Animator – přehrát odpovídající stav (pokud existuje)
         if (gateAnimator != null)
-        {
-            
-        }
+            gateAnimator.SetBool(GateClosedHash, !open);
     }
 
 #if UNITY_EDITOR

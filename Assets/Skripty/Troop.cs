@@ -45,6 +45,7 @@ public abstract class Troop : NetworkBehaviour
 
     [Header("Synchronizace pozice")]
     [SerializeField] private float positionSyncInterval = 1f;
+    [SerializeField] private float positionSyncTolerance = 2f;
 
     [Header("Detekce budov")]
     [SerializeField] private LayerMask buildingLayerMask;
@@ -180,12 +181,10 @@ public abstract class Troop : NetworkBehaviour
         }
 
         if (IsServer)
-        {
             Agent.avoidancePriority = Random.Range(30, 70);
 
-            // První synchronizace bude okamžitě po spawnu.
+        if (IsOwner)
             nextPositionSync = Time.time;
-        }
 
         Debug.Log(
             $"[Troop-DIAG] {name} OnNetworkSpawn | IsServer={IsServer} IsOwner={IsOwner} " +
@@ -388,31 +387,38 @@ public abstract class Troop : NetworkBehaviour
     }
 
     // ---------------------------------------------------------
-    // NOVÉ: server každou sekundu pošle správnou pozici
+    // Klienti pravidelně posílají pozici serveru ke kontrole.
     // ---------------------------------------------------------
 
     private void SendPositionSync()
     {
-        if (!IsServer || !IsOperational)
+        if (IsServer || !IsOperational)
             return;
 
-        SyncPositionClientRpc(transform.position);
+        CheckPositionServerRpc(transform.position);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void CheckPositionServerRpc(Vector3 clientPosition, ServerRpcParams rpcParams = default)
+    {
+        if (!IsOperational || !NetworkManager.ConnectedClients.ContainsKey(rpcParams.Receive.SenderClientId))
+            return;
+
+        if (Vector3.Distance(clientPosition, transform.position) <= positionSyncTolerance)
+        {
+            return;
+        }
+        Debug.Log($"Position Sync {Vector3.Distance(clientPosition, transform.position)}");
+        CorrectPositionClientRpc(transform.position);
     }
 
     [ClientRpc]
-    private void SyncPositionClientRpc(Vector3 serverPosition)
+    private void CorrectPositionClientRpc(Vector3 serverPosition)
     {
-        // Host/server už má správnou autoritativní pozici.
-        if (IsServer)
+        if (IsServer || Agent == null)
             return;
 
-        if (Agent == null)
-            return;
-
-        // Když lokální NavMesh nesedí se serverem,
-        // nastavíme alespoň přesnou serverovou pozici.
         transform.position = serverPosition;
-        
     }
 
     [ServerRpc]
@@ -543,10 +549,10 @@ public abstract class Troop : NetworkBehaviour
             return;
 
         // -----------------------------------------------------
-        // Server -> klient synchronizace pozice
+        // Klient -> server kontrola pozice
         // -----------------------------------------------------
 
-        if (IsServer && Time.time >= nextPositionSync)
+        if (!IsServer && Time.time >= nextPositionSync)
         {
             nextPositionSync = Time.time + positionSyncInterval;
             SendPositionSync();

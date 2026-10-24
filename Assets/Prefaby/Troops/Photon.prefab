@@ -9824,6 +9824,7 @@ MonoBehaviour:
   navMeshSampleRadius: 3
   formationSpacing: 1.5
   positionSyncInterval: 0.21
+  positionSyncTolerance: 1
   buildingLayerMask:
     serializedVersion: 2
     m_Bits: 512

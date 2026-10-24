@@ -54,6 +54,11 @@ public class BuildingPlacementController : NetworkBehaviour
     [Header("Player Spawn / Core limit")]
     [SerializeField] private float maxCoreDistanceFromSpawn = 30f;
 
+    [Header("Napojení zdí")]
+    [Tooltip("Vrstva zdí a bran, které se mohou spojit zámky.")]
+    [SerializeField] private LayerMask wallLayerMask;
+    [SerializeField] private float wallSearchRadius = 2f;
+
     public NetworkVariable<Vector3> SpawnPosition = new NetworkVariable<Vector3>(
         Vector3.zero,
         NetworkVariableReadPermission.Everyone,
@@ -79,6 +84,14 @@ public class BuildingPlacementController : NetworkBehaviour
     // Collider.bounds při vytvoření ghosta). Použije se k tomu, aby ghost stál
     // na zemi a nebyl napůl pod mapou, i když má prefab pivot uprostřed modelu.
     private float _ghostGroundOffset = 0f;
+    private bool _wallLineMode;
+    private bool _wallLineStarted;
+    private Vector3 _wallLineStart;
+    private float _wallLineRotation;
+    private float _wallPieceLength;
+    private int _wallLinePieceCount;
+    private GameObject _wallLineAnchorGhost;
+    private readonly List<GameObject> _wallLineGhosts = new List<GameObject>();
 
     private void Awake()
     {
@@ -138,6 +151,8 @@ public class BuildingPlacementController : NetworkBehaviour
         _isPlacing = true;
         _ghostRotationY = 0f;
         _scrollCooldownTimer = 0f;
+        _wallLineMode = buildablePrefabs[prefabIndex].GetComponent<Wall>() != null;
+        _wallLineStarted = false;
 
         _ghostInstance = Instantiate(buildablePrefabs[prefabIndex]);
         PrepareGhostVisual(_ghostInstance);
@@ -187,7 +202,9 @@ public class BuildingPlacementController : NetworkBehaviour
     {
         if (!_isPlacing || _ghostInstance == null) return;
 
-        HandleRotationInput();
+        // V řadě držíme natočení první zdi. Kolečko myši už ho nemění.
+        if (!_wallLineStarted)
+            HandleRotationInput();
 
         if (TryGetGroundPoint(out Vector3 groundPoint))
         {
@@ -200,12 +217,17 @@ public class BuildingPlacementController : NetworkBehaviour
                 _currentPlacementPosition,
                 Quaternion.Euler(0f, _ghostRotationY, 0f));
 
+            Building ghostBuilding = _ghostInstance.GetComponent<Building>();
+            Wall ghostWall = ghostBuilding as Wall;
+            bool hasLocks = TryGetLocks(ghostBuilding, out _, out _);
+            if (hasLocks && !_wallLineStarted)
+                SnapBuildingToNearbyLock(ghostBuilding);
+
             _isCurrentPositionValid = IsPositionValid(_currentPlacementPosition);
             UpdateGhostColor(_isCurrentPositionValid);
-            if(_ghostInstance.GetComponent<Building>().Type == Building.BuildingType.Wall)
-            { 
-                // pokud je to zeď, tak si získáme její zámky, zkusíme kolem ní dát sphere collider detekci pomocí layer Building, a jestli je tam další zeď, tak se jeden z nejblišších zámků vůči poloze kursoru musí dotýkat dvou nejblišších zámků u dvou zdí, není li žádná building type zeď u ní, může se libovolně dávat jako předtím.
-            }
+
+            if (ghostWall != null && _wallLineMode && _wallLineStarted)
+                UpdateWallLine(ghostWall);
         }
     }
 
@@ -279,16 +301,46 @@ public class BuildingPlacementController : NetworkBehaviour
 
     private void UpdateGhostColor(bool valid)
     {
-        var mat = valid ? ghostValidMaterial : ghostInvalidMaterial;
-        if (mat == null) return;
+        UpdateGhostColor(valid, _ghostInstance);
+    }
 
-        foreach (var renderer in _ghostInstance.GetComponentsInChildren<Renderer>())
+    private void UpdateGhostColor(bool valid, GameObject ghost)
+    {
+        var mat = valid ? ghostValidMaterial : ghostInvalidMaterial;
+        if (mat == null || ghost == null) return;
+
+        foreach (var renderer in ghost.GetComponentsInChildren<Renderer>())
             renderer.material = mat;
     }
 
     private void OnConfirmPerformed(InputAction.CallbackContext ctx)
     {
         if (!_isPlacing) return;
+
+        if (_wallLineMode && _ghostInstance.GetComponent<Wall>() != null)
+        {
+            if (!_wallLineStarted)
+            {
+                if (!_isCurrentPositionValid) return;
+                _wallLineStart = _currentPlacementPosition;
+                _wallLineStarted = true;
+                _wallLinePieceCount = 1;
+                _wallLineRotation = _ghostRotationY;
+                Wall firstWall = _ghostInstance.GetComponent<Wall>();
+                _wallPieceLength = Vector3.Distance(firstWall.leftLock.position, firstWall.rightLock.position);
+                _wallLineAnchorGhost = Instantiate(buildablePrefabs[_selectedPrefabIndex]);
+                PrepareGhostVisual(_wallLineAnchorGhost);
+                _wallLineAnchorGhost.transform.SetPositionAndRotation(
+                    _wallLineStart, Quaternion.Euler(0f, _ghostRotationY, 0f));
+                return;
+            }
+
+            if (_wallLinePieceCount < 1) return;
+            PlaceWallLine();
+            CancelPlacement();
+            return;
+        }
+
         if (!_isCurrentPositionValid) return; // klient si to lokálně "ověří", server má finální slovo
 
 
@@ -304,10 +356,172 @@ public class BuildingPlacementController : NetworkBehaviour
         CancelPlacement();
     }
 
+    // Vrátí zámky ze zdi nebo brány.
+    private bool TryGetLocks(Building building, out Transform left, out Transform right)
+    {
+        left = null;
+        right = null;
+        if (building is Wall wall)
+        {
+            left = wall.leftLock;
+            right = wall.rightLock;
+        }
+        else if (building is Gate gate)
+        {
+            left = gate.leftLock;
+            right = gate.rightLock;
+        }
+        return left != null && right != null;
+    }
+
+    // Posune ghost tak, aby se jeho nejbližší zámek dotkl zámku zdi nebo brány.
+    private void SnapBuildingToNearbyLock(Building ghostBuilding)
+    {
+        if (!TryGetLocks(ghostBuilding, out Transform ghostLeft, out Transform ghostRight)) return;
+
+        Collider[] nearby = Physics.OverlapSphere(ghostBuilding.transform.position, wallSearchRadius, wallLayerMask);
+        float bestDistance = float.MaxValue;
+        Vector3 move = Vector3.zero;
+
+        foreach (Collider col in nearby)
+        {
+            Building other = col.GetComponentInParent<Building>();
+            if (other == null || other == ghostBuilding || !TryGetLocks(other, out Transform otherLeft, out Transform otherRight)) continue;
+
+            Transform[] ghostLocks = { ghostLeft, ghostRight };
+            Transform[] otherLocks = { otherLeft, otherRight };
+            foreach (Transform ghostLock in ghostLocks)
+            foreach (Transform otherLock in otherLocks)
+            {
+                float distance = Vector3.Distance(ghostLock.position, otherLock.position);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    move = otherLock.position - ghostLock.position;
+                }
+            }
+        }
+
+        if (bestDistance < wallSearchRadius)
+        {
+            ghostBuilding.transform.position += move;
+            if (_ghostInstance != null && ghostBuilding.gameObject == _ghostInstance)
+                _currentPlacementPosition = _ghostInstance.transform.position;
+        }
+    }
+
+    // Vytvoří náhled dalších zdí podél směru od prvního bodu ke kurzoru.
+    private void UpdateWallLine(Wall wall)
+    {
+        Vector3 direction = _currentPlacementPosition - _wallLineStart;
+        direction.y = 0f;
+        float length = direction.magnitude;
+        if (length < 0.1f || _wallPieceLength < 0.1f)
+        {
+            _wallLinePieceCount = 1;
+            _ghostInstance.SetActive(false);
+            ClearWallLineGhosts();
+            return;
+        }
+        direction.Normalize();
+        _wallLineAnchorGhost.transform.rotation = Quaternion.Euler(0f, _wallLineRotation, 0f);
+
+        _wallLinePieceCount = 1 + Mathf.FloorToInt(length / _wallPieceLength);
+        int extraPieces = _wallLinePieceCount - 1;
+        SetWallLineGhostCount(Mathf.Max(0, extraPieces - 1));
+        _ghostInstance.SetActive(extraPieces > 0);
+
+        Wall previousWall = _wallLineAnchorGhost.GetComponent<Wall>();
+        for (int i = 0; i < extraPieces; i++)
+        {
+            GameObject piece = i < _wallLineGhosts.Count ? _wallLineGhosts[i] : _ghostInstance;
+            Vector3 pos = _wallLineStart + direction * _wallPieceLength * (i + 1);
+            pos.y = _wallLineStart.y;
+            piece.transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, _wallLineRotation, 0f));
+            Wall pieceWall = piece.GetComponent<Wall>();
+            SnapWallLocksTogether(previousWall, pieceWall);
+            UpdateGhostColor(IsPositionValid(piece.transform.position), piece);
+            previousWall = pieceWall;
+        }
+
+    }
+
+    // Posune další zeď tak, aby se její nejbližší zámek dotkl zámku předchozí zdi.
+    private void SnapWallLocksTogether(Wall previousWall, Wall nextWall)
+    {
+        if (previousWall == null || nextWall == null || nextWall.leftLock == null || nextWall.rightLock == null ||
+            previousWall.leftLock == null || previousWall.rightLock == null) return;
+
+        Transform[] previousLocks = { previousWall.leftLock, previousWall.rightLock };
+        Transform[] nextLocks = { nextWall.leftLock, nextWall.rightLock };
+        float closestDistance = float.MaxValue;
+        Vector3 move = Vector3.zero;
+
+        foreach (Transform previousLock in previousLocks)
+        foreach (Transform nextLock in nextLocks)
+        {
+            float distance = Vector3.Distance(previousLock.position, nextLock.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                move = previousLock.position - nextLock.position;
+            }
+        }
+
+        nextWall.transform.position += move;
+    }
+
+    private void SetWallLineGhostCount(int count)
+    {
+        while (_wallLineGhosts.Count < count)
+        {
+            GameObject piece = Instantiate(buildablePrefabs[_selectedPrefabIndex]);
+            PrepareGhostVisual(piece);
+            _wallLineGhosts.Add(piece);
+        }
+        while (_wallLineGhosts.Count > count)
+        {
+            int last = _wallLineGhosts.Count - 1;
+            Destroy(_wallLineGhosts[last]);
+            _wallLineGhosts.RemoveAt(last);
+        }
+    }
+
+    private void PlaceWallLine()
+    {
+        int rotation = Mathf.RoundToInt(_wallLineRotation);
+        troopManager.Build(_wallLineStart, _selectedPrefabIndex, Building.BuildingType.Wall, rotation);
+        foreach (GameObject piece in _wallLineGhosts)
+            troopManager.Build(piece.transform.position, _selectedPrefabIndex, Building.BuildingType.Wall, rotation);
+        if (_wallLinePieceCount > 1)
+            troopManager.Build(_ghostInstance.transform.position, _selectedPrefabIndex, Building.BuildingType.Wall, rotation);
+    }
+
+    private void ClearWallLineGhosts()
+    {
+        foreach (GameObject piece in _wallLineGhosts)
+            if (piece != null) Destroy(piece);
+        _wallLineGhosts.Clear();
+    }
+
+    private void ClearWallLinePreviews()
+    {
+        ClearWallLineGhosts();
+        if (_wallLineAnchorGhost != null)
+        {
+            Destroy(_wallLineAnchorGhost);
+            _wallLineAnchorGhost = null;
+        }
+    }
+
     private void CancelPlacement()
     {
         _isPlacing = false;
         _selectedPrefabIndex = -1;
+        _wallLineMode = false;
+        _wallLineStarted = false;
+        _wallLinePieceCount = 0;
+        ClearWallLinePreviews();
         if (_ghostInstance != null)
         {
             Destroy(_ghostInstance);
