@@ -56,8 +56,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 5.0632286, y: 1.5929189, z: 5.187607}
-  m_Center: {x: 0.062469482, y: -0.09230387, z: -0.03191805}
+  m_Size: {x: 7.93754, y: 3.013389, z: 8.210614}
+  m_Center: {x: -0.20653296, y: -0.027741373, z: -0.0045638084}
 --- !u!114 &3231191921428354711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,7 +70,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3235918571
+  GlobalObjectIdHash: 3757069463
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -94,7 +94,7 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 2.6, y: 0.99, z: 2.44}
+  m_Extents: {x: 3.74, y: 1.495, z: 4.04}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
@@ -121,6 +121,7 @@ MonoBehaviour:
   EnergyConsumption: 0
   CoriumProduction: 0
   EnergyProduction: 0
+  Level: 0
   Damage: 0
   AttackRange: 0
   AttackSpeed: 0
@@ -176,27 +177,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
       propertyPath: m_LocalScale.x
-      value: 231.4
+      value: 435.07578
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
       propertyPath: m_LocalScale.y
-      value: 231.4
+      value: 435.07578
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
       propertyPath: m_LocalScale.z
-      value: 231.4
+      value: 435.07578
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.00015585
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.001985
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.018919
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
       propertyPath: m_LocalRotation.w

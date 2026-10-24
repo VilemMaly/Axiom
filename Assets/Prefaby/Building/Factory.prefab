@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 6703560690980254401}
   - component: {fileID: 3711565089451226387}
   - component: {fileID: 5408266601216768570}
+  - component: {fileID: 1786262741244162207}
   m_Layer: 9
   m_Name: Factory
   m_TagString: Untagged
@@ -134,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2121915754
+  GlobalObjectIdHash: 3729421117
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -198,7 +199,7 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   model1: {fileID: 5060006503997136946}
-  model2: {fileID: 0}
+  model2: {fileID: 4068400834894737825}
 --- !u!208 &8572740672014378770
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -262,7 +263,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44628c7971b15c745afb198d7a118358, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingModelSpawn
+  ShowTopMostFoldoutHeaderGroup: 1
   model: {fileID: 5060006503997136946}
+  red: {fileID: 2100000, guid: 4d33ef34442e0bc4cae14b58c310bde2, type: 2}
+  green: {fileID: 2100000, guid: 979a419f7baf1624fbbcad9683866d3f, type: 2}
+  orange: {fileID: 2100000, guid: 5eec81575883b8f48b5ea6d884ec3923, type: 2}
+  blue: {fileID: 2100000, guid: ca943117fab8afa4492469f5012ef029, type: 2}
+--- !u!114 &1786262741244162207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740923664320254884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44628c7971b15c745afb198d7a118358, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingModelSpawn
+  ShowTopMostFoldoutHeaderGroup: 1
+  model: {fileID: 4068400834894737825}
   red: {fileID: 2100000, guid: 4d33ef34442e0bc4cae14b58c310bde2, type: 2}
   green: {fileID: 2100000, guid: 979a419f7baf1624fbbcad9683866d3f, type: 2}
   orange: {fileID: 2100000, guid: 5eec81575883b8f48b5ea6d884ec3923, type: 2}
@@ -579,6 +599,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 768e6dbeb06249c40b25164e0255c5f6, type: 3}
+--- !u!1 &4068400834894737825 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000012968667414, guid: 768e6dbeb06249c40b25164e0255c5f6, type: 3}
+  m_PrefabInstance: {fileID: 4068527826981689527}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4069113854354552939 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000012050981084, guid: 768e6dbeb06249c40b25164e0255c5f6, type: 3}

@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class BuildingMaterial : MonoBehaviour
+public class BuildingMaterial : NetworkBehaviour
 {
     // zelená = AI, modrá = lokální hráč,
     // červená = protihráč, žlutá = další hráč
@@ -12,6 +13,11 @@ public class BuildingMaterial : MonoBehaviour
     [SerializeField] Material blue;
 
     private Renderer[] modelRenderers;
+
+    public override void OnNetworkSpawn()
+    {
+        ApplyMaterial(IsOwner, (int)OwnerClientId);
+    }
 
     void Start()
     {
@@ -31,7 +37,8 @@ public class BuildingMaterial : MonoBehaviour
         }
     }
 
-    public void changeMaterial(bool isOwner, int id)
+    // Ghost není síťový objekt, proto ho inicializuje placement controller přímo.
+    public void ApplyMaterial(bool isOwner, int id)
     {
         if (model == null)
         {

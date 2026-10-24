@@ -17,7 +17,7 @@ MonoBehaviour:
   troopType: 0
   buildingType: 0
   icon: {fileID: 0}
-  displayName: The Core
+  displayName: Core
   description: "Core slou\u017E\xED jako hlavn\xED j\xE1dro AI, kter\xE9 ovl\xE1d\xE1
     ka\u017Edou jednotku a budovu.\nP\u0159i zni\u010Den\xED nebo nefunk\u010Dnosti
     hr\xE1\u010D automaticky prohr\xE1l."

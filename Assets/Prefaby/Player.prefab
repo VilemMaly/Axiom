@@ -15683,6 +15683,7 @@ MonoBehaviour:
     m_Bits: 256
   maxRaycastDistance: 200
   inspector: {fileID: 4048288837588009954}
+  inspectorHoverUpdateInterval: 0.18
 --- !u!114 &8782758606969523537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15896,6 +15897,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b36b9a0bcad80f48a72321f478d4f23, type: 2}
   - {fileID: 11400000, guid: c7bbb75f9832ae24d8ba393b7659aff1, type: 2}
   - {fileID: 11400000, guid: 3adfb4b3ec4fb6e4db6b4222cf140ca4, type: 2}
+  starttechnology:
+  - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
+  - {fileID: 11400000, guid: ecaa4c8ca1d05b8488354ee8ca519588, type: 2}
 --- !u!114 &6098216747275359234
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,5 +17,5 @@ MonoBehaviour:
   troopType: 0
   buildingType: 5
   icon: {fileID: 0}
-  displayName: Laser
+  displayName: Wall
   description: "Nech\xE1 z\xE1kladnu pod ochranou"

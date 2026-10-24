@@ -9,8 +9,9 @@ using UnityEngine;
 /// Použití: vytvoř objekt (nebo [SerializeField] pole) a zavolej Explode(gameObject).
 /// Běží POUZE na serveru (na klientech se nic nestane).
 /// </summary>
-[Serializable]
-public class Boom : MonoBehaviour
+/// 
+
+public class Boom : NetworkBehaviour
 {
     [Header("Poloměr výbuchu.")]
     [Tooltip("Poloměr výbuchu.")]
@@ -29,6 +30,13 @@ public class Boom : MonoBehaviour
     public float buildingDamageMultiplier = 1f;
     [Tooltip("Násobič damage proti jednotkám.")]
     public float troopDamageMultiplier = 1f;
+    [Tooltip("Particle effect a action event")]
+    [SerializeField] private ParticleSystem particleEffect;
+    // Event, který se vyvolá po dokončení efektu.
+    public event Action OnEffectFinished;
+
+    // zvuk
+    [SerializeField] private AudioSource exploze;
 
     // Výsledky posledního výbuchu
     public readonly List<Troop> TroopsHit = new();
@@ -44,6 +52,31 @@ public class Boom : MonoBehaviour
         this.maxDamage = maxDamage;
         troopLayerMask = troopMask;
         buildingLayerMask = buildingMask;
+
+        if (particleEffect != null)
+        {
+            var main = particleEffect.main;
+            main.stopAction = ParticleSystemStopAction.Callback;
+
+            // Efekt se nespustí automaticky při startu.
+            particleEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+    [ClientRpc]
+    private void ParticlePlayClientRpc()
+    {
+        if(!IsServer)
+            exploze.PlayOneShot(exploze.clip);
+        if(particleEffect.isPlaying)
+            return;
+        particleEffect.Play();
+    }
+
+    // Unity zavolá tuto metodu po dokončení všech částic.
+    public void OnParticleSystemStopped()
+    {
+        OnEffectFinished?.Invoke();
+        Debug.Log("Particle efekt dokončen!");
     }
 
     // ---------- Veřejné overloady ----------
@@ -83,6 +116,8 @@ public class Boom : MonoBehaviour
 
         Scan(center, ignoreClientId);
         ApplyDamage(center);
+        particleEffect.Play();
+        ParticlePlayClientRpc();
     }
 
     private void Scan(Vector3 center, ulong? ignoreClientId)

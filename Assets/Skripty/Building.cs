@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(BuildingMaterial))]
 public abstract class Building : NetworkBehaviour
 {
     [Header("Stats – nastav v Inspectoru na prefabu")]
@@ -141,8 +142,6 @@ public abstract class Building : NetworkBehaviour
         // Inicializace IsConstructionComplete podle StoredCorium.
         ReceiveCorium(0);
         
-        GetComponent<BuildingMaterial>().changeMaterial(IsOwner, (int)OwnerClientId);
-
         Debug.Log(
             $"[Building] {Type} spawned for client {OwnerClientId}. " +
             $"IsOperational={IsOperational}, " +
@@ -154,9 +153,14 @@ public abstract class Building : NetworkBehaviour
     {
         onDestroy();
         IsOperational = false;
-        if (IsOwner || IsServer)
+        // OnNetworkDespawn can run as part of disconnect cleanup, after the
+        // owning client has already been removed from ConnectedClients.
+        NetworkManager networkManager = NetworkManager.Singleton;
+        if ((IsOwner || IsServer) && networkManager != null &&
+            networkManager.ConnectedClients.TryGetValue(OwnerClientId, out var ownerClient) &&
+            ownerClient.PlayerObject != null)
         {
-            BuildingInteractor interactor = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<BuildingInteractor>();
+            BuildingInteractor interactor = ownerClient.PlayerObject.GetComponent<BuildingInteractor>();
             if (interactor != null)
                 interactor.UnregisterBuilding(this);
             else

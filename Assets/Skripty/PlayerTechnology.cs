@@ -29,6 +29,7 @@ public class PlayerTechnology : NetworkBehaviour
 
     [Header("Technology Data")]
     [SerializeField] private DoctrineDefinition[] doctrines;
+    [SerializeField] private List<ResearchDefinition> starttechnology = new List<ResearchDefinition>();
 
     private PlayerResources playerResources;
 
@@ -68,6 +69,8 @@ public class PlayerTechnology : NetworkBehaviour
 
         if (IsServer)
         {
+            AddStartTechnologies();
+
             // Normalizace staršího/null stavu. Výchozí hodnota nové instance
             // je už DoctrineType.None a prázdné ResearchId.
             if (selectedResearchId.Value == null)
@@ -89,6 +92,21 @@ public class PlayerTechnology : NetworkBehaviour
 
         selectedResearchId.OnValueChanged -= HandleSelectedResearchValueChanged;
         selectedResearchId.OnValueChanged += HandleSelectedResearchValueChanged;
+    }
+
+    private void AddStartTechnologies()
+    {
+        if (starttechnology == null)
+            return;
+
+        foreach (ResearchDefinition research in starttechnology)
+        {
+            if (research == null || IsResearchUnlocked(research.ResearchId))
+                continue;
+
+            unlockedResearches.Add(research);
+            AddResearchClientRpc(research.ResearchId);
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -514,8 +532,31 @@ public class PlayerTechnology : NetworkBehaviour
     {
         if(!IsOwner)
             return;
-        unlockedResearches.Add(GetResearch(researchId));
+
+        ResearchDefinition research = FindResearch(researchId);
+        if (research != null && !IsResearchUnlocked(researchId))
+            unlockedResearches.Add(research);
         Debug.Log("Výzkum přidán na klientu");
+    }
+
+    private ResearchDefinition FindResearch(int researchId)
+    {
+        if (doctrines == null)
+            return null;
+
+        foreach (DoctrineDefinition doctrine in doctrines)
+        {
+            if (doctrine == null || doctrine.Researches == null)
+                continue;
+
+            foreach (ResearchDefinition research in doctrine.Researches)
+            {
+                if (research != null && research.ResearchId == researchId)
+                    return research;
+            }
+        }
+
+        return null;
     }
 
     private void AbortActiveResearch(string reason)

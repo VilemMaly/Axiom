@@ -1,4 +1,5 @@
 using Unity.Netcode;
+using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 
 /// <summary>
@@ -27,6 +28,7 @@ public class Mine : Building
     [Tooltip("Pokud je zapnuto, mina se odpojí (zruší odpočet), když nepřátelé odejdou z radiusu před výbuchem.")]
     [SerializeField] private bool cancelFuseIfTargetsLeave = false;
     [SerializeField] private Boom boom;
+    [SerializeField] private MeshRenderer visual;
 
     // Serverový stav
     private float nextScanTime;
@@ -47,10 +49,15 @@ public class Mine : Building
         // Pokud není owner, renderer miny se vypne aby se neukazovala cizím hráčům (nebo AI).
         if (!IsOwner)
         {
-            GetComponent<Renderer>().enabled = false;
+            visual.enabled = false;
         }
     }
 
+    [ClientRpc]
+    private void HideMineClientRpc()
+    {
+        visual.enabled = false;
+    }
     /// <summary>
     /// Volá se z Building.Update() pouze na serveru a jen když je budova dostavěná a funkční.
     /// </summary>
@@ -134,6 +141,8 @@ public class Mine : Building
 
         if (boom != null)
         {
+            HideMineClientRpc();
+            boom.OnEffectFinished += DestroyBuilding;
             // Nepoškodí jednotky ani budovy hráče, který minu vlastní.
             boom.Explode(transform.position, OwnerClientId);
         }
@@ -144,7 +153,12 @@ public class Mine : Building
 
         // Mina se po výbuchu odstraní (DestroyBuilding kontroluje IsSpawned,
         // takže je bezpečné i když už byla zničena dominem).
-        DestroyBuilding();
+    }
+
+    protected override void DestroyBuilding()
+    {
+        boom.OnEffectFinished -= DestroyBuilding;
+        base.DestroyBuilding();
     }
 
 #if UNITY_EDITOR

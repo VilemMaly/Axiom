@@ -29,9 +29,13 @@ public class Selector : NetworkBehaviour
 
     [Header("Inspector")]
     [SerializeField] private Inspector inspector;
+    [SerializeField, Min(0f)] private float inspectorHoverUpdateInterval = 0.5f;
 
     private Building selectedBuilding;
     private Troop selectedTroop;
+    private Building hoveredBuilding;
+    private Troop hoveredTroop;
+    private float inspectorHoverUpdateTimer;
 
     public Building SelectedBuilding => selectedBuilding;
     public Troop SelectedTroop => selectedTroop;
@@ -372,10 +376,48 @@ private void Update()
     if (!IsOwner)
         return;
 
+    inspectorHoverUpdateTimer += Time.deltaTime;
+    if (inspectorHoverUpdateTimer >= inspectorHoverUpdateInterval)
+    {
+        inspectorHoverUpdateTimer = 0f;
+        UpdateInspectorHover();
+    }
+
     if (boxState == TroopBoxState.FirstPointSet && TryGetGroundPoint(out Vector3 currentPoint))
     {
         UpdateSelectionBoxVisual(boxFirstPoint, currentPoint);
     }
+}
+
+private void UpdateInspectorHover()
+{
+    // Kliknutá budova má přednost před hoverem až do dalšího kliknutí.
+    if (selectedBuilding != null || boxState != TroopBoxState.None || IsPointerOverUI())
+        return;
+
+    Building building = null;
+    Troop troop = null;
+    if (Physics.Raycast(GetMouseRay(), out RaycastHit hit, maxRaycastDistance, buildingLayer | troopLayer))
+    {
+        building = hit.collider.GetComponentInParent<Building>();
+        if (building == null)
+            troop = hit.collider.GetComponentInParent<Troop>();
+    }
+
+    if (building == hoveredBuilding && troop == hoveredTroop)
+        return;
+
+    hoveredBuilding = building;
+    hoveredTroop = troop;
+    if (inspector == null)
+        return;
+
+    if (building != null)
+        inspector.ShowInspector(building);
+    else if (troop != null)
+        inspector.ShowInspector(troop);
+    else
+        inspector.ClearInspector();
 }
 
 private bool TryGetGroundPoint(out Vector3 point)
@@ -403,6 +445,8 @@ private bool TryGetGroundPoint(out Vector3 point)
 
         selectedTroop = null;
         selectedBuilding = building;
+        hoveredBuilding = building;
+        hoveredTroop = null;
         if (inspector != null)
             inspector.ShowInspector(building);
     }
@@ -419,6 +463,8 @@ private bool TryGetGroundPoint(out Vector3 point)
 
         selectedBuilding = null;
         selectedTroop = troop;
+        hoveredBuilding = null;
+        hoveredTroop = troop;
         if (inspector != null)
             inspector.ShowInspector(troop);
     }
@@ -429,6 +475,8 @@ private bool TryGetGroundPoint(out Vector3 point)
     {
         selectedBuilding = null;
         selectedTroop = null;
+        hoveredBuilding = null;
+        hoveredTroop = null;
         if (inspector != null)
             inspector.ClearInspector();
     }

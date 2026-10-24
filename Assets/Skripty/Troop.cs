@@ -14,7 +14,6 @@ public enum TroopType
 }
 
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(StatusBar))]
 public abstract class Troop : NetworkBehaviour
@@ -61,13 +60,10 @@ public abstract class Troop : NetworkBehaviour
 
     [Header("Pohyb - klient-side detekce chůze")]
     [Tooltip("Nad touto rychlostí Agenta se jednotka považuje za 'pohybující se' (pro walk animaci).")]
-    [SerializeField] private float movingVelocityThreshold = 0.05f;
-
-    [Tooltip("Jméno stavu (State) ve vlastním Animator Controlleru tohoto troopa, které se přehraje při chůzi.")]
-    [SerializeField] private string walkAnimationStateName = "Walk";
-
-    [Tooltip("Nepovinné - jméno stavu, na které se přepne po zastavení.")]
-    [SerializeField] private string idleAnimationStateName;
+    [SerializeField] private float movingVelocityThreshold = 0.01f;
+    [Tooltip("AudioSource s chůzovým zvukem; při lokálně detekované chůzi se přehrává ve smyčce.")]
+    [SerializeField] private AudioSource walkAudioSource;
+    private static readonly int IsWalkingHash = Animator.StringToHash("isWalking");
 
     private bool isMoving;
 
@@ -170,6 +166,12 @@ public abstract class Troop : NetworkBehaviour
 
         audioSource = GetComponent<AudioSource>();
         Animator = GetComponent<Animator>();
+
+        if (walkAudioSource != null)
+        {
+            walkAudioSource.loop = true;
+            walkAudioSource.Stop();
+        }
 
         if (!Agent.isOnNavMesh)
         {
@@ -570,37 +572,39 @@ public abstract class Troop : NetworkBehaviour
         }
     }
 
+    public void SetWalking(bool walking)
+    {
+        Animator.SetBool(IsWalkingHash, walking);
+    }
+
     private void UpdateMovementState()
     {
-        if (Agent == null ||
-            !Agent.enabled ||
-            !Agent.isOnNavMesh)
+        bool walking = Agent != null &&
+                       Agent.enabled &&
+                       Agent.isOnNavMesh &&
+                       Agent.velocity.sqrMagnitude > movingVelocityThreshold;
+
+        if (walking == isMoving)
             return;
 
-        bool moving =
-            Agent.velocity.sqrMagnitude >
-            movingVelocityThreshold * movingVelocityThreshold;
+        isMoving = walking;
+        SetWalking(walking);
 
-        if (moving != isMoving)
+        if (walkAudioSource != null)
         {
-            isMoving = moving;
-
-            if (Animator != null)
+            if (walking)
             {
-                if (isMoving &&
-                    !string.IsNullOrEmpty(walkAnimationStateName))
-                {
-                    Animator.Play(walkAnimationStateName);
-                }
-                else if (!isMoving &&
-                         !string.IsNullOrEmpty(idleAnimationStateName))
-                {
-                    Animator.Play(idleAnimationStateName);
-                }
+                if (!walkAudioSource.isPlaying)
+                    walkAudioSource.Play();
             }
-
-            OnMovingStateChanged(isMoving);
+            else
+            {
+                walkAudioSource.Stop();
+            }
         }
+
+        OnMovingStateChanged(isMoving);
+        
     }
 
     protected virtual void OnMovingStateChanged(bool isMoving) { }
