@@ -164,9 +164,9 @@ MonoBehaviour:
   Type: 0
   MaxHealth: 20
   Cost: 100
-  SightRange: 5
+  SightRange: 10.44
   BuildCoriumPerSecond: 100
-  WorkRange: 6.9
+  WorkRange: 10.13
   RepairCoriumPerSecond: 0
   HarvestCoriumPerSecond: 15
   MaxCargo: 100
@@ -181,6 +181,7 @@ MonoBehaviour:
   navMeshSampleRadius: 6.06
   formationSpacing: 1.5
   positionSyncInterval: 1
+  positionSyncTolerance: 2
   buildingLayerMask:
     serializedVersion: 2
     m_Bits: 512
@@ -189,8 +190,7 @@ MonoBehaviour:
   hitParticle: {fileID: 1270573561896096239}
   hitSfx: {fileID: 8300000, guid: 3de5a2277595dd248a90b195eca4aa2d, type: 3}
   movingVelocityThreshold: 0.05
-  walkAnimationStateName: Walk
-  idleAnimationStateName: 
+  walkAudioSource: {fileID: 0}
   framePerUpdate: 10
   Kompenzace: 1
   MaxTroopAmount: 1

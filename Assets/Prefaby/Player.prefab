@@ -6280,7 +6280,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3784349941469290368
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8079,7 +8079,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7435181844864161700
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10090,7 +10090,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8083903602806434803
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15632,6 +15632,8 @@ MonoBehaviour:
   - {fileID: 1740923664320254884, guid: db60ffff65aae874dad1fb769d70e407, type: 3}
   - {fileID: 1740923664320254884, guid: 284510a0ddce680489fd04e8a22586a9, type: 3}
   - {fileID: 1740923664320254884, guid: 964222afd95ef754ea3274c5e9c66b91, type: 3}
+  - {fileID: 1740923664320254884, guid: 2bd2102b1b454214aaea5d3fa69387ba, type: 3}
+  - {fileID: 1740923664320254884, guid: 4beb3ee61776f2f4ab0f8a5233fa4bd1, type: 3}
   ghostValidMaterial: {fileID: 2100000, guid: 23e4c454fc32dfb4c9da834293f87904, type: 2}
   ghostInvalidMaterial: {fileID: 2100000, guid: 1b9735f11c2a68743a1c1e4586f366c8, type: 2}
   groundLayerMask:
@@ -15981,6 +15983,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6653e352d0a3cbf4a873a74593969ad1, type: 2}
   - {fileID: 11400000, guid: 53c78657ed91613498e9b8bfb5603cce, type: 2}
   - {fileID: 11400000, guid: 97385c09b2342474d848de6036769933, type: 2}
+  - {fileID: 11400000, guid: 546c3b568e9590348807f1e78c386013, type: 2}
+  - {fileID: 11400000, guid: 3d6e3f8e0bd107849a58667bf8042ead, type: 2}
 --- !u!1 &8744124395040183519
 GameObject:
   m_ObjectHideFlags: 0

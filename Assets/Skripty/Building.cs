@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(BuildingMaterial))]
-public abstract class Building : NetworkBehaviour
+public abstract class Building : NetworkBehaviour, IDamageable
 {
     [Header("Stats – nastav v Inspectoru na prefabu")]
     public int MaxHealth;
@@ -37,6 +37,8 @@ public abstract class Building : NetworkBehaviour
         Gate,
         Storage,
         connector,
+        RoboFactory,
+        AirPort
     }
 
     public abstract BuildingType Type { get; }

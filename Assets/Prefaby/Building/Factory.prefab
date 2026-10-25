@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3729421117
+  GlobalObjectIdHash: 2121915754
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -231,7 +231,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   coriumPerSecond: 20
   troopLoading: {fileID: 3711565089451226387}
-  allowedTroopTypes: 0100000002000000
+  allowedTroopTypes: 0000000002000000
   spawnPoint: {fileID: 4726850294659891581}
   rallyPoint: {fileID: 729943065520405650}
 --- !u!114 &3711565089451226387

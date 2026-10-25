@@ -14,9 +14,8 @@ public enum TroopType
 }
 
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(StatusBar))]
-public abstract class Troop : NetworkBehaviour
+public abstract class Troop : NetworkBehaviour, IDamageable
 {
     [Header("Typ")]
     public TroopType Type;
@@ -70,7 +69,7 @@ public abstract class Troop : NetworkBehaviour
 
     public bool IsMoving => isMoving;
 
-    protected Animator Animator { get; private set; }
+    [SerializeField] public Animator Animator;
 
     public int framePerUpdate = 10;
 
@@ -166,7 +165,6 @@ public abstract class Troop : NetworkBehaviour
         Agent.enabled = true;
 
         audioSource = GetComponent<AudioSource>();
-        Animator = GetComponent<Animator>();
 
         if (walkAudioSource != null)
         {
