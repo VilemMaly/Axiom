@@ -24,6 +24,7 @@ public class TechResolver : NetworkBehaviour
                     upgrade.TroopType != troop.Type)
                     continue;
 
+                Debug.Log($"Aplikuji {GetUpgradeName(upgrade)}", troop);
                 HandleTroopUpgrade(troop, upgrade);
             }
         }
@@ -121,6 +122,7 @@ public class TechResolver : NetworkBehaviour
                     upgrade.BuildingType != building.Type)
                     continue;
 
+                Debug.Log($"Aplikuji {GetUpgradeName(upgrade)}", building);
                 if (upgrade.BuildingTierUpgrade)
                     building.UpgradeBuilding(upgrade.BuildingUpgradeTier);
                 HandleBuildingUpgrade(building, upgrade);
@@ -170,6 +172,13 @@ public class TechResolver : NetworkBehaviour
                     : building.SightRange * (1f + value);
                 break;
         }
+    }
+
+    private static string GetUpgradeName(UpgradeDefinition upgrade)
+    {
+        return string.IsNullOrWhiteSpace(upgrade.DisplayName)
+            ? upgrade.name
+            : upgrade.DisplayName;
     }
 
 }

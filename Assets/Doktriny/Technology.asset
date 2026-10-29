@@ -19,6 +19,8 @@ MonoBehaviour:
   targetType: 0
   troopType: 1
   buildingType: 0
+  buildingTierUpgrade: 0
+  buildingUpgradeTier: 1
   statType: 3
-  value: 1000
+  value: 100000
   valueType: 1

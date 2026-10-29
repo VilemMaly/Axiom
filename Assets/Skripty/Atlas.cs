@@ -38,6 +38,7 @@ public class Atlas : Troop
     [SerializeField] private int BuildingIndex;
     private int BuildingRotation;
     [SerializeField] private List<PendingBuildRequest> pendingBuildQueue = new List<PendingBuildRequest>();
+    public bool HasPendingBuildOrders => GoingToBuilding || pendingBuildQueue.Count > 0;
     
     public NetworkVariable<bool> IsBuilding = new(writePerm: NetworkVariableWritePermission.Server);
     public NetworkVariable<bool> IsRepairing = new(writePerm: NetworkVariableWritePermission.Server);
@@ -252,7 +253,7 @@ public class Atlas : Troop
         RepairBuilding(building);
     }
 
-    public void RequestMoveToBuild(Vector3 position, int buildingIndex, int rotation)
+    public virtual void RequestMoveToBuild(Vector3 position, int buildingIndex, int rotation)
     {
         if(GoingToBuilding || IsBuilding.Value)
         {

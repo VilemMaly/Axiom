@@ -4,17 +4,24 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 
-// Zatím jen Atlas, další typy (bojové jednotky apod.) se přidají sem časem -
+// Další typy (bojové jednotky apod.) se přidají sem časem -
 // stejný princip jako BuildingType u budov.
 public enum TroopType
 {
-    Atlas,
-    Photon,
-    Harvester,
+    Cargo,
+    Mouse,
+    Knight,
+    Rocket,
+    Tank,
+    Medium,
+    Bird,
+    Radar,
+    
 }
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(StatusBar))]
+[RequireComponent(typeof(TroopMaterial))]
 public abstract class Troop : NetworkBehaviour, IDamageable
 {
     [Header("Typ")]

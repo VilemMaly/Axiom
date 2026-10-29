@@ -24,6 +24,8 @@ public sealed class GenericAttacker : NetworkBehaviour
 
     [Header("Attack")]
     [SerializeField] private Transform firePoint;
+    [SerializeField] private bool alternateFirePoints;
+    [SerializeField] private Transform alternateFirePoint;
     [SerializeField] private ParticleSystem shotParticle;
     [SerializeField] private AudioClip fireSfx;
     [Tooltip("AudioSource whose spatial settings determine where the shot is heard in 3D.")]
@@ -34,6 +36,8 @@ public sealed class GenericAttacker : NetworkBehaviour
     [SerializeField, Min(0.02f)] private float scanInterval = 0.25f;
     [Tooltip("Optional cooldown override. Zero uses the Building/Troop attack stat.")]
     [SerializeField, Min(0f)] private float cooldownOverride;
+    [Tooltip("Duration in seconds of one fire animation loop at multiplier 1. The animation multiplier is calculated so the loop matches the shot cooldown.")]
+    [SerializeField, Min(0.02f)] private float fireAnimationLoopDuration = 1f;
 
     private readonly Collider[] results = new Collider[32];
     private Building sourceBuilding;
@@ -43,6 +47,7 @@ public sealed class GenericAttacker : NetworkBehaviour
     private Transform particleOriginalParent;
     private float nextScanTime;
     private float nextFireTime;
+    private bool useAlternateFirePoint;
 
     public IDamageable CurrentTarget => lockedTarget;
     public Transform FirePoint => firePoint;
@@ -86,6 +91,8 @@ public sealed class GenericAttacker : NetworkBehaviour
             ParticleSystem.MainModule particleMain = shotParticle.main;
             particleMain.simulationSpace = ParticleSystemSimulationSpace.World;
         }
+        if(alternateFirePoints)
+            fireAnimationLoopDuration = fireAnimationLoopDuration / 2;
 
         callbacks?.OnAttackTargetChanged(animator, null);
     }
@@ -241,12 +248,12 @@ public sealed class GenericAttacker : NetworkBehaviour
 
         float cooldown;
         if (sourceBuilding != null)
-            cooldown = sourceBuilding.AttackCooldown > 0f ? sourceBuilding.AttackCooldown : 1f;
+            cooldown = sourceBuilding.AttackCooldown > 0f ? 1/sourceBuilding.AttackCooldown : 1f;
         else
-            cooldown = sourceTroop.AttackSpeed > 0f ? sourceTroop.AttackSpeed : 1f;
+            cooldown = sourceTroop.AttackSpeed > 0f ? 1/sourceTroop.AttackSpeed : 1f;
 
         if (callbacks != null)
-            cooldown = callbacks.GetAttackCooldown(cooldown);
+            cooldown = 1 / callbacks.GetAttackCooldown(cooldown);
 
         return Mathf.Max(0.02f, cooldown);
     }
@@ -270,8 +277,19 @@ public sealed class GenericAttacker : NetworkBehaviour
 
         target.TakeDamage(GetDamage());
 
-        Vector3 origin = firePoint != null ? firePoint.position : transform.position;
+        Transform selectedFirePoint = GetNextFirePoint();
+        Vector3 origin = selectedFirePoint != null ? selectedFirePoint.position : transform.position;
         PlayShotClientRpc(origin, fireSpeed);
+    }
+
+    private Transform GetNextFirePoint()
+    {
+        if (!alternateFirePoints || alternateFirePoint == null)
+            return firePoint;
+
+        Transform selected = useAlternateFirePoint ? alternateFirePoint : firePoint;
+        useAlternateFirePoint = !useAlternateFirePoint;
+        return selected;
     }
 
     [ClientRpc]
@@ -309,11 +327,12 @@ public sealed class GenericAttacker : NetworkBehaviour
         if (animator == null)
             return;
 
-        // fireCooldown/fireSpeed are in seconds. Use fireAnimationSpeed as the state speed multiplier.
+        // Match one animation loop (at its authored duration) to the time between shots.
         float safeCooldown = Mathf.Max(0.02f, cooldown);
         animator.SetFloat(FireCooldownHash, safeCooldown);
         animator.SetFloat(FireSpeedHash, safeCooldown);
-        animator.SetFloat(FireAnimationSpeedHash, 1f / safeCooldown);
+        float safeAnimationDuration = Mathf.Max(0.02f, fireAnimationLoopDuration);
+        animator.SetFloat(FireAnimationSpeedHash, safeAnimationDuration / safeCooldown);
     }
 
     private void OnDrawGizmosSelected()

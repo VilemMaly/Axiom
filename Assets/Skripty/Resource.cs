@@ -14,11 +14,11 @@ public abstract class Resource : NetworkBehaviour
 
     /// <summary>
     /// Server-side metoda (NENÍ to Rpc) - volá ji server sám za sebe
-    /// z Harvester.UpdateTroop, poté co si už dřív přes
+    /// z Cargo.UpdateTroop, poté co si už dřív přes
     /// RequestHarvestTargetServerRpc ověřil, že daná jednotka smí tento
     /// resource těžit. Nejde o síťové volání, které by překračovalo hranici
     /// klient/server, takže žádnou RpcParams/ownership kontrolu tu řešit
-    /// nemusíme - tu už udělal Harvester při přijetí cíle.
+    /// nemusíme - tu už udělalo Cargo při přijetí cíle.
     /// </summary>
     public override void OnNetworkSpawn()
     {
@@ -27,7 +27,7 @@ public abstract class Resource : NetworkBehaviour
             CoriumAmount.Value = SpawnAmount; // Příklad: výchozí množství coria
         }
     }
-    public virtual void DepleteResource(Harvester harvester, int amount)
+    public virtual void DepleteResource(Troop harvester, int amount)
     {
     }
 

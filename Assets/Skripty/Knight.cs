@@ -2,11 +2,10 @@ using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(GenericAttacker))]
-public class Photon : Troop, IGenericAttackerCallbacks
+public class Knight : Troop, IGenericAttackerCallbacks
 {
     [Header("Photon – útok")]
     [SerializeField] private string shootingAnimationBool = "isShooting";
-    [SerializeField, Min(0.02f)] private float fireInterval = 1f;
 
     private GenericAttacker attacker;
 
@@ -15,7 +14,7 @@ public class Photon : Troop, IGenericAttackerCallbacks
         attacker = GetComponent<GenericAttacker>();
     }
 
-    public float GetAttackCooldown(float defaultCooldown) => fireInterval;
+    public float GetAttackCooldown(float defaultCooldown) => AttackSpeed;
 
     public void OnAttackTargetChanged(Animator attackAnimator, IDamageable target)
     {

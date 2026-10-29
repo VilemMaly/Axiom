@@ -19,7 +19,6 @@ public class TroopInteractor : NetworkBehaviour
     private Vector3 BuildPosition;
     private int BuildRotation;
 
-    private Atlas selectedAtlas;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -97,9 +96,9 @@ public class TroopInteractor : NetworkBehaviour
     /// <summary>
     /// Zavolej s pozicí, kam hráč chce postavit budovu, a indexem budovy podle listu
     /// v Build.cs. Core se dá postavit rovnou (bootstrap na začátku hry, kdy hráč
-    /// ještě žádného Atlase nemá) - u všech ostatních budov pošleme příkaz "jeď a
-    /// postav" všem vlastním Atlasům; ten, kdo tam dorazí první, sám pošle serveru
-    /// žádost přes Build.RequestBuildServerRpc (viz Atlas.RequestMoveToBuild).
+    /// ještě žádného Cargo nemá) - u všech ostatních budov pošleme příkaz "jeď a
+    /// postav" všem vlastním Cargo jednotkám; ta, která dorazí první, požádá server
+    /// o vytvoření budovy.
     /// </summary>
     public void Build(Vector3 position, int buildingIndex, Building.BuildingType buildingType, int rotation)
     {
@@ -111,39 +110,38 @@ public class TroopInteractor : NetworkBehaviour
 
         if (buildingType == Building.BuildingType.Core)
         {
-            Debug.Log("[TroopInteractor] Core se staví rovnou, bez potřeby Atlasu.");
+            Debug.Log("[TroopInteractor] Core se staví rovnou, bez potřeby Cargo.");
             build.RequestBuildServerRpc(buildingIndex, position, rotation, default);
             return;
         }
 
-        bool anyAtlasFound = false;
+        bool anyCargoFound = false;
 
         foreach (Troop troop in myTroops)
         {
-            if (troop is Atlas atlas)
+            if (troop is Cargo cargo)
             {
                 BuildIndex = buildingIndex;
                 BuildPosition = position;
                 BuildRotation = rotation;
-                selectedAtlas = troop as Atlas;
-                Debug.Log($"[TroopInteractor] Posílám příkaz Atlasu {troop.name} (typ {troop.Type}) k postavení budovy {buildingType.ToString()} na pozici {position} s rotací {rotation}.");
-                anyAtlasFound = true;
-                atlas.NearBuilding += BuildSubscribeEvent;
-                atlas.RequestMoveToBuild(position, buildingIndex, rotation);
+                Debug.Log($"[TroopInteractor] Posílám příkaz Cargu {troop.name} (typ {troop.Type}) k postavení budovy {buildingType.ToString()} na pozici {position} s rotací {rotation}.");
+                anyCargoFound = true;
+                cargo.NearBuilding += BuildSubscribeEvent;
+                cargo.RequestMoveToBuild(position, buildingIndex, rotation);
             }
         }
 
-        if (!anyAtlasFound)
-            Debug.Log("[TroopInteractor] Žádný vlastní Atlas k dispozici, stavbu nemá kdo provést.");
+        if (!anyCargoFound)
+            Debug.Log("[TroopInteractor] Žádné vlastní Cargo k dispozici, stavbu nemá kdo provést.");
     }
 
-    private void BuildSubscribeEvent(Atlas atlas, int index, Vector3 position, int rotation, int BuildingLeft)
+    private void BuildSubscribeEvent(Cargo cargo, int index, Vector3 position, int rotation, int BuildingLeft)
     {
-        build.RequestBuildServerRpc(index, position, rotation, selectedAtlas.NetworkObject);
+        build.RequestBuildServerRpc(index, position, rotation, cargo.NetworkObject);
         if (BuildingLeft <= 0)
         {
-            atlas.NearBuilding -= BuildSubscribeEvent;
-            Debug.Log($"[TroopInteractor] Atlas dostavil všechny budovy.");
+            cargo.NearBuilding -= BuildSubscribeEvent;
+            Debug.Log($"[TroopInteractor] Cargo dokončilo všechny příkazy ke stavbě.");
         }
     }
 
@@ -214,7 +212,7 @@ public class TroopInteractor : NetworkBehaviour
 
     public void ChangeAutoState()
     {
-        Harvester troop = selector.SelectedTroop as Harvester;
+        Cargo troop = selector.SelectedTroop as Cargo;
         if (troop == null)
         {
             Debug.Log("No troop selected for interaction.");

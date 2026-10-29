@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 8516928400112771441}
   - component: {fileID: 3433831457990976303}
   m_Layer: 10
-  m_Name: Helium
+  m_Name: Bird
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

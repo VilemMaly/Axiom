@@ -13,14 +13,14 @@ public class TroopStatus : MonoBehaviour
         if (healthText != null)
             healthText.text = $"{troop.Health.Value} / {troop.MaxHealth}";
 
-        // Atlas-specific hodnoty - jednoduše zkusíme sáhnout na Atlase, pokud tam je
-        Atlas atlas = troop as Atlas;
-        if (atlas != null)
+        // Stavěcí hodnoty nové jednotky Cargo.
+        Cargo cargo = troop as Cargo;
+        if (cargo != null)
         {
             if (buildPowerText != null)
-                buildPowerText.text = atlas.BuildCoriumPerSecond.ToString("0.0");
+                buildPowerText.text = cargo.BuildCoriumPerSecond.ToString("0.0");
             if (repairPowerText != null)
-                repairPowerText.text = atlas.RepairCoriumPerSecond.ToString("0.0");
+                repairPowerText.text = cargo.RepairCoriumPerSecond.ToString("0.0");
         }
     }
 }

@@ -15,6 +15,7 @@ public class MainUI : NetworkBehaviour
     public bool isResearchVisible = false;
     public bool BuildingOn = false;
     private ResearchUiController researchUiController;
+    private InputSystem_Actions controls;
 
     [SerializeField] private GameObject buildingsPanel;
 
@@ -22,7 +23,7 @@ public class MainUI : NetworkBehaviour
     [SerializeField] private GameObject troopPanel;
     public bool TroopOn = false;
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
         // Nastavení počáteční viditelnosti UI panelů.
         SetUIVisibility(isVisible);
@@ -34,10 +35,33 @@ public class MainUI : NetworkBehaviour
         if (troopPanel != null)
             troopPanel.SetActive(TroopOn);
 
+
         if (!IsOwner)
             return;
 
         researchUiController = GetComponent<ResearchUiController>();
+        StartCoroutine(WaitForInputManager());
+    }
+
+    private IEnumerator WaitForInputManager()
+    {
+        yield return new WaitUntil(() => InputManager.StaticClass != null);
+        if (InputManager.StaticClass != null && InputManager.StaticClass.Controls != null)
+        {
+            controls = InputManager.StaticClass.Controls;
+            controls.UI.Exit.performed += OnExitPerformed;
+        }
+    }
+    private void OnDestroy()
+    {
+        if (controls != null)
+            controls.UI.Exit.performed -= OnExitPerformed;
+    }
+
+    private void OnExitPerformed(InputAction.CallbackContext context)
+    {
+        if (isResearchVisible)
+            ToggleResearchVisibility();
     }
 
     // Zapne nebo vypne World UI panel podle bool hodnoty.

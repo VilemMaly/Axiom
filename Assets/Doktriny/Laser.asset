@@ -15,7 +15,7 @@ MonoBehaviour:
   researchId: 9
   displayName: Laser
   description: Tohle odemkne laser technologie
-  icon: {fileID: 437919363, guid: 5f4b5718b0afad9439b33e960af5cf29, type: 3}
+  icon: {fileID: 21300000, guid: eebceee33e66fa44b87910ed81019072, type: 3}
   coriumCost: 100
   researchTime: 30
   energyPerSecond: 5

@@ -5,9 +5,9 @@ public class Corium : Resource
 {
     public Material depletedMat;
     public Renderer visual;
-    public override void DepleteResource(Harvester harvester, int amount)
+    public override void DepleteResource(Troop harvester, int amount)
     {
-        if (!IsServer || Depleted || amount <= 0 || harvester == null)
+        if (!IsServer || Depleted || amount <= 0 || harvester is not Cargo cargo)
             return;
 
         int actualAmount = Mathf.Min(amount, CoriumAmount.Value);
@@ -15,7 +15,7 @@ public class Corium : Resource
             return;
 
         CoriumAmount.Value -= actualAmount;
-        harvester.AddToCargo(actualAmount);
+        cargo.AddToCargo(actualAmount);
 
         if (CoriumAmount.Value <= 0)
         {

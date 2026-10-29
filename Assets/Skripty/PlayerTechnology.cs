@@ -24,6 +24,9 @@ public class PlayerTechnology : NetworkBehaviour
             NetworkVariableWritePermission.Server
         );
 
+    private readonly NetworkVariable<float> researchProgressPercent =
+        new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     public readonly List<ResearchDefinition> unlockedResearches =
         new List<ResearchDefinition>();
 
@@ -46,6 +49,7 @@ public class PlayerTechnology : NetworkBehaviour
 
     /// <summary>Aktuální ID běžícího výzkumu, případně prázdný řetězec. Pouze pro čtení.</summary>
     public int CurrentSelectedResearchId => selectedResearchId.Value;
+    public float CurrentResearchProgressPercent => researchProgressPercent.Value;
 
     /// <summary>Datový katalog doktrín používaný controllerem UI.</summary>
     public IReadOnlyList<DoctrineDefinition> Doctrines =>
@@ -166,6 +170,9 @@ public class PlayerTechnology : NetworkBehaviour
             }
 
             researchProgressSeconds += 1f;
+            researchProgressPercent.Value = activeResearch.ResearchTime <= 0f
+                ? 0f
+                : Mathf.Clamp01(researchProgressSeconds / activeResearch.ResearchTime) * 100f;
 
             if (researchProgressSeconds >= activeResearch.ResearchTime)
             {
@@ -361,6 +368,7 @@ public class PlayerTechnology : NetworkBehaviour
         isResearchInProgress = true;
         lastTimeSpent = 0f;
         researchProgressSeconds = 0f;
+        researchProgressPercent.Value = 0f;
         energyCostPerSecond = Mathf.CeilToInt(research.EnergyPerSecond);
         selectedResearchId.Value = research.ResearchId;
 
@@ -435,7 +443,7 @@ public class PlayerTechnology : NetworkBehaviour
         return true;
     }
 
-    private bool IsResearchUnlocked(int researchId)
+    public bool IsResearchUnlocked(int researchId)
     {
         for (int i = 0; i < unlockedResearches.Count; i++)
         {
@@ -469,6 +477,7 @@ public class PlayerTechnology : NetworkBehaviour
         energyCostPerSecond = 0;
         lastTimeSpent = 0f;
         researchProgressSeconds = 0f;
+        researchProgressPercent.Value = 0f;
         selectedResearchId.Value = -1;
 
         Debug.Log($"[{nameof(PlayerTechnology)}] Výzkum '{completedResearch.DisplayName}' byl dokončen.", this);
@@ -571,6 +580,7 @@ public class PlayerTechnology : NetworkBehaviour
         energyCostPerSecond = 0;
         lastTimeSpent = 0f;
         researchProgressSeconds = 0f;
+        researchProgressPercent.Value = 0f;
         selectedResearchId.Value = -1;
 
         Debug.LogWarning(

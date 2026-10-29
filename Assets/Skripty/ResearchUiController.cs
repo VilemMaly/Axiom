@@ -26,6 +26,7 @@ public class ResearchUiController : NetworkBehaviour
 
         SpawnDoctrinePrefabs();
         inspectorUI.SetPlayerTechnology(playerTechnology);
+
     }
 
 

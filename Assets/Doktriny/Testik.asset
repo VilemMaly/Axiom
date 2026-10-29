@@ -15,7 +15,7 @@ MonoBehaviour:
   researchId: 1
   displayName: Wow
   description: Tohle je test research
-  icon: {fileID: 2059781966, guid: 9d17eabcb353bcf48ab7ba7171378d75, type: 3}
+  icon: {fileID: 21300000, guid: 4b8a5dcee185e7a408dda14f44f82e2f, type: 3}
   coriumCost: 100000
   researchTime: 30000
   energyPerSecond: 50000

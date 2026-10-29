@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,6 +13,19 @@ public class ResearchInspectorUI : MonoBehaviour
     [SerializeField] private TMP_Text Name;
     [SerializeField] private TMP_Text Description;
     [SerializeField] private Image iconImage;
+
+    [Header("Doctrine and requirements")]
+    [SerializeField] private TMP_Text doctrineTypeText;
+    [SerializeField] private Image requiredResearchImage;
+    [SerializeField] private TMP_Text requiredResearchText;
+    [SerializeField] private Image requiredResearchCompletedImage;
+    [SerializeField] private Sprite checkmarkGreen;
+    [SerializeField] private Sprite crossRed;
+
+    [Header("Status (reserved)")]
+    [SerializeField] private Image statusImage;
+    [SerializeField] private TMP_Text statusText;
+    [SerializeField] private Sprite researchInProgressSprite;
 
     [Header("Research")]
     [SerializeField] private TMP_Text CoriumCost;
@@ -51,6 +65,19 @@ public class ResearchInspectorUI : MonoBehaviour
     private SelectedDefinition selected = SelectedDefinition.None;
     private bool selectionLocked;
     private InputSystem_Actions controls;
+
+    private void Update()
+    {
+        if (selected == SelectedDefinition.Research && currentResearch != null)
+        {
+            RefreshResearchStatus(currentResearch);
+            ResearchDefinition required = currentResearch.RequiredResearches != null &&
+                currentResearch.RequiredResearches.Count > 0
+                    ? currentResearch.RequiredResearches[0]
+                    : null;
+            SetRequiredResearchCompleted(required);
+        }
+    }
 
     private void Start()
     {
@@ -115,10 +142,15 @@ public class ResearchInspectorUI : MonoBehaviour
         selected = SelectedDefinition.Doctrine;
 
         SetCommon(
-            doctrine.DisplayName,
+            $"{doctrine.DisplayName} ({doctrine.DoctrineType})",
             doctrine.Description,
             doctrine.Icon
         );
+
+        SetText(doctrineTypeText, "");
+        SetRequiredResearch(null);
+        SetRequiredResearchCompleted(null);
+        SetResearchStatus("", null);
 
         SetResearchInfo(false);
         SetActive(ExtraInfoRoot, false);
@@ -164,11 +196,24 @@ public class ResearchInspectorUI : MonoBehaviour
             research.Icon
         );
 
+        SetText(doctrineTypeText, playerTech != null &&
+            playerTech.SelectedDoctrineValue != DoctrineType.None
+                ? playerTech.SelectedDoctrineValue.ToString()
+                : "");
+        ResearchDefinition firstRequirement = research.RequiredResearches != null &&
+            research.RequiredResearches.Count > 0
+                ? research.RequiredResearches[0]
+                : null;
+        SetRequiredResearch(firstRequirement);
+        SetRequiredResearchCompleted(firstRequirement);
+        RefreshResearchStatus(research);
+
         SetResearchInfo(true);
 
         SetText(CoriumCost, research.CoriumCost.ToString());
-        SetText(EnergyPerSecond, $"{research.EnergyPerSecond:0.##}/s");
-        SetText(TimeSeconds, $"{research.ResearchTime:0.##} s");
+        SetText(EnergyPerSecond, $"{research.EnergyPerSecond:0.##}");
+        TimeSpan researchDuration = TimeSpan.FromSeconds(research.ResearchTime);
+        SetText(TimeSeconds, $"{(int)researchDuration.TotalHours:00}:{researchDuration.Minutes:00}:{researchDuration.Seconds:00}");
 
         SetActive(ExtraInfoRoot, false);
 
@@ -205,6 +250,11 @@ public class ResearchInspectorUI : MonoBehaviour
             upgrade.Description,
             upgrade.Icon
         );
+
+        SetText(doctrineTypeText, "");
+        SetRequiredResearch(null);
+        SetRequiredResearchCompleted(null);
+        SetResearchStatus("", null);
 
         SetResearchInfo(false);
 
@@ -292,6 +342,12 @@ public class ResearchInspectorUI : MonoBehaviour
         SetText(ExtraInfo, "");
 
         SetImage(null);
+        SetText(doctrineTypeText, "");
+        SetRequiredResearch(null);
+        SetRequiredResearchCompleted(null);
+        SetImage(requiredResearchImage, null);
+        SetImage(statusImage, null);
+        SetText(statusText, "");
 
         SetResearchInfo(false);
         SetActive(ExtraInfoRoot, false);
@@ -331,6 +387,70 @@ public class ResearchInspectorUI : MonoBehaviour
 
         iconImage.sprite = sprite;
         iconImage.enabled = sprite != null;
+    }
+
+    private void SetRequiredResearch(ResearchDefinition research)
+    {
+        SetImage(requiredResearchImage, research != null ? research.Icon : null);
+        SetText(requiredResearchText, research != null ? research.DisplayName : "");
+    }
+
+    private void SetRequiredResearchCompleted(ResearchDefinition research)
+    {
+        if (research == null)
+        {
+            SetImage(requiredResearchCompletedImage, null);
+            return;
+        }
+
+        bool completed = playerTech != null && playerTech.IsResearchUnlocked(research.ResearchId);
+        SetImage(requiredResearchCompletedImage, completed ? checkmarkGreen : crossRed);
+    }
+
+    private void RefreshResearchStatus(ResearchDefinition research)
+    {
+        if (research == null || playerTech == null)
+        {
+            SetResearchStatus("Nevyzkoumáno", crossRed);
+            return;
+        }
+
+        if (playerTech.IsResearchUnlocked(research.ResearchId))
+        {
+            SetResearchStatus("Vyzkoumáno", checkmarkGreen);
+            return;
+        }
+
+        if (playerTech.CurrentSelectedResearchId == research.ResearchId)
+        {
+            SetResearchStatus($"Probíhá výzkum: {playerTech.CurrentResearchProgressPercent:0}%", researchInProgressSprite);
+            return;
+        }
+
+        PlayerResources resources = playerTech.GetComponent<PlayerResources>();
+        if (resources != null && resources.Corium.Value < research.CoriumCost)
+        {
+            SetResearchStatus("Nedostatečný zdroje", crossRed);
+            return;
+        }
+
+        SetResearchStatus("Nevyzkoumáno", crossRed);
+    }
+
+    private void SetResearchStatus(string value, Sprite sprite)
+    {
+        SetText(statusText, value);
+        SetImage(statusImage, sprite);
+    }
+
+    private void SetImage(Image target, Sprite sprite)
+    {
+        if (target == null)
+            return;
+
+        target.sprite = sprite;
+        target.enabled = sprite != null;
+        target.gameObject.SetActive(sprite != null);
     }
 
     private void SetText(TMP_Text text, string value)

@@ -13,13 +13,13 @@ GameObject:
   - component: {fileID: 4355229593959428844}
   - component: {fileID: 1425491476330724532}
   - component: {fileID: 3231191921428354711}
-  - component: {fileID: 7730108301202829778}
   - component: {fileID: 7092912595857245109}
   - component: {fileID: 3957469851242578175}
-  - component: {fileID: 5061675084607982942}
+  - component: {fileID: 3592106699107930014}
   - component: {fileID: 3433831457990976303}
+  - component: {fileID: 1835959705864612313}
   m_Layer: 10
-  m_Name: Atlas
+  m_Name: Cargo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -148,71 +148,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &7730108301202829778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740923664320254884}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2e5a7c38c8d7a344baa43ea1f0d444e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Atlas
-  ShowTopMostFoldoutHeaderGroup: 1
-  Type: 0
-  MaxHealth: 20
-  Cost: 100
-  SightRange: 10.44
-  BuildCoriumPerSecond: 100
-  WorkRange: 10.13
-  RepairCoriumPerSecond: 0
-  HarvestCoriumPerSecond: 15
-  MaxCargo: 100
-  DepositCoriumPerSecond: 20
-  Damage: 0
-  AttackRange: 0
-  AttackSpeed: 0
-  currentVisibility: {fileID: 7171919104003583362}
-  groundLayerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  navMeshSampleRadius: 6.06
-  formationSpacing: 1.5
-  positionSyncInterval: 1
-  positionSyncTolerance: 2
-  buildingLayerMask:
-    serializedVersion: 2
-    m_Bits: 512
-  buildingDetectionRadius: 5
-  buildingDetectionInterval: 0.5
-  hitParticle: {fileID: 1270573561896096239}
-  hitSfx: {fileID: 8300000, guid: 3de5a2277595dd248a90b195eca4aa2d, type: 3}
-  movingVelocityThreshold: 0.05
-  walkAudioSource: {fileID: 0}
-  framePerUpdate: 10
-  Kompenzace: 1
-  MaxTroopAmount: 1
-  Health:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  GoingToBuilding: 0
-  BuildingPosition: {x: 0, y: 0, z: 0}
-  BuildingIndex: 0
-  pendingBuildQueue: []
-  IsBuilding:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  IsRepairing:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
 --- !u!195 &7092912595857245109
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -332,28 +267,91 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!95 &5061675084607982942
-Animator:
-  serializedVersion: 7
+--- !u!114 &3592106699107930014
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1740923664320254884}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73e63e98078e94941a605c0a9b789535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Cargo
+  ShowTopMostFoldoutHeaderGroup: 1
+  Type: 0
+  MaxHealth: 51
+  Cost: 50
+  SightRange: 10.86
+  BuildCoriumPerSecond: 51
+  WorkRange: 10.65
+  RepairCoriumPerSecond: 42
+  HarvestCoriumPerSecond: 15
+  MaxCargo: 100
+  DepositCoriumPerSecond: 20
+  Damage: 0
+  AttackRange: 0
+  AttackSpeed: 0
+  currentVisibility: {fileID: 7171919104003583362}
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  navMeshSampleRadius: 3
+  formationSpacing: 1.5
+  positionSyncInterval: 0.4
+  positionSyncTolerance: 2
+  buildingLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
+  buildingDetectionRadius: 10.41
+  buildingDetectionInterval: 0.5
+  hitParticle: {fileID: 1270573561896096239}
+  hitSfx: {fileID: 8300000, guid: 2cf451b9087e4604c83e5d2b105e10bc, type: 3}
+  movingVelocityThreshold: 0.01
+  walkAudioSource: {fileID: 3957469851242578175}
+  Animator: {fileID: 8065265518634701480}
+  framePerUpdate: 10
+  Kompenzace: 1
+  MaxTroopAmount: 5
+  Health:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  GoingToBuilding: 0
+  BuildingPosition: {x: 0, y: 0, z: 0}
+  pendingBuildQueue: []
+  IsBuilding:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  IsRepairing:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  ResourceLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  resourceDetectionInterval: 0.5
+  IsHarvesting:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  IsDepositing:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  currentBase: {fileID: 0}
+  CoriumCargo:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!114 &3433831457990976303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,6 +369,24 @@ MonoBehaviour:
   hideWhenFull: 0
   fullColor: {r: 0, g: 1, b: 0, a: 1}
   emptyColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &1835959705864612313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740923664320254884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28bdb55e80c7bc944ac9d32b250d69d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TroopMaterial
+  ShowTopMostFoldoutHeaderGroup: 1
+  model: {fileID: 6186619246334414661}
+  red: {fileID: 2100000, guid: 89c914c83d33c454da1b95375d8ad44f, type: 2}
+  green: {fileID: 2100000, guid: ac3f4ada37c3aad4e8edaee0a1e99d2f, type: 2}
+  orange: {fileID: 2100000, guid: 5c016549f6d11b24b9fce93cd96386c6, type: 2}
+  blue: {fileID: 2100000, guid: b07093ac681304444a862d618221c3e2, type: 2}
 --- !u!1 &4370076250647648349
 GameObject:
   m_ObjectHideFlags: 0
@@ -10291,5 +10307,15 @@ PrefabInstance:
 --- !u!4 &6185396196942779357 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000012008116756, guid: 528af406eaf082244ae68b755f89d3d3, type: 3}
+  m_PrefabInstance: {fileID: 6185910608618373577}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6186619246334414661 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000013297569420, guid: 528af406eaf082244ae68b755f89d3d3, type: 3}
+  m_PrefabInstance: {fileID: 6185910608618373577}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8065265518634701480 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4194347333643228001, guid: 528af406eaf082244ae68b755f89d3d3, type: 3}
   m_PrefabInstance: {fileID: 6185910608618373577}
   m_PrefabAsset: {fileID: 0}

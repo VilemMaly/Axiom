@@ -9,12 +9,12 @@ using UnityEngine;
 /// Kdo smí zavolat žádost:
 /// - Core: TroopInteractor.Build() volá RequestBuildServerRpc rovnou, bez Atlasu
 ///   (bootstrap na začátku hry, kdy hráč ještě žádného Atlase nemá).
-/// - Cokoliv jiného: žádost posílá až samotný Atlas (viz Atlas.RequestMoveToBuild),
+/// - Cokoliv jiného: žádost o stavbu pošle jednotka Cargo po příjezdu,
 ///   jakmile fyzicky dorazí do WorkRange od cílové pozice. Server si to znovu ověří.
 ///
 /// Po úspěšném spawnu budova začíná nedostavěná (StoredCorium = 0,
 /// IsConstructionComplete = false - viz Building.OnNetworkSpawn/ReceiveCorium(0)).
-/// Samotné dostavění pak už řeší existující flow: Atlas.SearchForConstructionTarget
+/// Samotné dostavění pak řeší Cargo.UpdateConstruction
 /// najde budovu v BuildingsInRange a začne do ní posílat corium.
 /// </summary>
 public class Build : NetworkBehaviour
@@ -108,76 +108,76 @@ public class Build : NetworkBehaviour
             $"Prefab='{entry.prefab.name}'"
         );
 
-        // Core lze postavit bez Atlasu (bootstrap) - u všeho ostatního musí žádost
-        // reálně přijít od vlastního Atlasu, který je fyzicky u místa stavby.
+        // Core lze postavit bez Cargo (bootstrap) - u všeho ostatního musí žádost
+        // reálně přijít od vlastního Cargo, které je fyzicky u místa stavby.
         if (entry.type != Building.BuildingType.Core)
         {
             Debug.Log(
-                $"[Build] Kontrola Atlasu | " +
+                $"[Build] Kontrola Cargo | " +
                 $"Budova='{entry.buildingName}' | " +
                 $"Player={requestingClientId}"
             );
 
-            if (!atlasRef.TryGet(out NetworkObject atlasNetObj))
+            if (!atlasRef.TryGet(out NetworkObject cargoNetObj))
             {
                 Debug.LogWarning(
                     $"[Build] STAVBA NEDOKONČENA | " +
                     $"Player={requestingClientId} | " +
                     $"Budova='{entry.buildingName}' | " +
-                    $"Důvod: Atlas reference je neplatná."
+                    $"Důvod: Cargo reference je neplatná."
                 );
 
                 return;
             }
 
-            Atlas atlas = atlasNetObj.GetComponent<Atlas>();
+            Cargo cargo = cargoNetObj.GetComponent<Cargo>();
 
-            if (atlas == null || atlas.OwnerClientId != requestingClientId)
+            if (cargo == null || cargo.OwnerClientId != requestingClientId)
             {
                 Debug.LogWarning(
                     $"[Build] STAVBA NEDOKONČENA | " +
                     $"Player={requestingClientId} | " +
                     $"Budova='{entry.buildingName}' | " +
-                    $"Důvod: Atlas je null nebo patří jinému hráči. " +
-                    $"AtlasOwner={(atlas != null ? atlas.OwnerClientId.ToString() : "NULL")}"
+                    $"Důvod: Cargo chybí nebo patří jinému hráči. " +
+                    $"CargoOwner={(cargo != null ? cargo.OwnerClientId.ToString() : "NULL")}"
                 );
 
                 return;
             }
 
-            float distance = Vector3.Distance(atlas.transform.position, position);
+            float distance = Vector3.Distance(cargo.transform.position, position);
 
             Debug.Log(
-                $"[Build] Kontrola vzdálenosti Atlase | " +
+                $"[Build] Kontrola vzdálenosti Cargo | " +
                 $"Budova='{entry.buildingName}' | " +
-                $"AtlasPosition={atlas.transform.position} | " +
+                $"CargoPosition={cargo.transform.position} | " +
                 $"BuildPosition={position} | " +
                 $"Distance={distance:F2} | " +
-                $"SightRange={atlas.SightRange:F2}"
+                $"SightRange={cargo.SightRange:F2}"
             );
 
-            if (distance > atlas.SightRange)
+            if (distance > cargo.SightRange)
             {
                 Debug.LogWarning(
                     $"[Build] STAVBA NEDOKONČENA | " +
                     $"Player={requestingClientId} | " +
                     $"Budova='{entry.buildingName}' | " +
-                    $"Důvod: Atlas je příliš daleko. " +
-                    $"Distance={distance:F2} > SightRange={atlas.SightRange:F2}"
+                    $"Důvod: Cargo je příliš daleko. " +
+                    $"Distance={distance:F2} > SightRange={cargo.SightRange:F2}"
                 );
 
                 return;
             }
 
             Debug.Log(
-                $"[Build] Atlas je v povolené vzdálenosti | " +
+                $"[Build] Cargo je v povolené vzdálenosti | " +
                 $"Budova='{entry.buildingName}'"
             );
         }
         else
         {
             Debug.Log(
-                $"[Build] Budova '{entry.buildingName}' je Core -> Atlas se nekontroluje."
+                $"[Build] Budova '{entry.buildingName}' je Core -> Cargo se nekontroluje."
             );
         }
 

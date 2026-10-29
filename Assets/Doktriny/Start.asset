@@ -15,7 +15,7 @@ MonoBehaviour:
   researchId: 1
   displayName: Start
   description: "Tohle odemkne v\u0161echny z\xE1kladn\xED prvky hry"
-  icon: {fileID: 1038277060, guid: 0388fcf9df2addf4a9b0a98d9d5a9c66, type: 3}
+  icon: {fileID: 21300000, guid: 1b232357c0ffc0d4db4408a67fb3a0bb, type: 3}
   coriumCost: 0
   researchTime: 5
   energyPerSecond: 5

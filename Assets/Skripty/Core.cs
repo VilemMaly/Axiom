@@ -19,8 +19,7 @@ public class Core : Building
 
     public void CoriumReserve(int amount, Troop transporter)
     {
-        Harvester harvester = transporter as Harvester;
-        if(harvester == null)
+        if (transporter is not Cargo)
             return;
         OwnerResources.Add(amount, 0); // pouze server volá tuhle funkci aby hráč nemohl podvádět
         OpenAndCloseClientRpc();

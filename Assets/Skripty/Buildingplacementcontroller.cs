@@ -341,7 +341,11 @@ public class BuildingPlacementController : NetworkBehaviour
             return;
         }
 
-        if (!_isCurrentPositionValid) return; // klient si to lokálně "ověří", server má finální slovo
+        if (!_isCurrentPositionValid)
+        {
+            Debug.LogWarning($"[BuildingPlacementController] Umístění odmítnuto klientem: pozice {_currentPlacementPosition} není platná (kolize nebo Core mimo povolený dosah spawnu).");
+            return; // klient si to lokálně "ověří", server má finální slovo
+        }
 
 
         // Samotné umístění (validace + spawn) řeší server přes Build.cs / TroopInteractor -
