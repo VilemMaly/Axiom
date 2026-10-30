@@ -1,16 +1,38 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class Tank : MonoBehaviour
+[RequireComponent(typeof(RocketAttacker))]
+public class Tank : Troop, IGenericAttackerCallbacks
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("Photon – útok")]
+    [SerializeField] private string shootingAnimationBool = "isShooting";
+
+    private GenericAttacker attacker;
+
+    public override void OnSpawned()
     {
-        
+        attacker = GetComponent<GenericAttacker>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public float GetAttackCooldown(float defaultCooldown) => AttackSpeed;
+
+    public void OnAttackTargetChanged(Animator attackAnimator, IDamageable target)
     {
-        
+        if (attackAnimator != null && !string.IsNullOrWhiteSpace(shootingAnimationBool))
+            attackAnimator.SetBool(shootingAnimationBool, target != null);
+    }
+
+    public void OnAttackAnimation(Animator attackAnimator, IDamageable target)
+    {
+        // Bool is controlled by the current target, not by the delayed shot effect RPC.
+    }
+
+    [ServerRpc]
+    public void RequestForceAttackServerRpc(ServerRpcParams rpcParams = default)
+    {
+        if (rpcParams.Receive.SenderClientId != OwnerClientId || attacker == null)
+            return;
+
+        attacker.TryAcquireTargetServer();
     }
 }

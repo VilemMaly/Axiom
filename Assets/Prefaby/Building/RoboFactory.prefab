@@ -179,6 +179,9 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   coriumPerSecond: 20
   troopLoading: {fileID: 3711565089451226387}
+  completionAudioSource: {fileID: 1218882903016857048}
+  completionSound: {fileID: 8300000, guid: f54b358f6ddb5f8418ead22af1f179bd, type: 3}
+  completionAnimator: {fileID: 7956487396808456390}
   allowedTroopTypes: 010000000200000003000000
   spawnPoint: {fileID: 4726850294659891581}
   rallyPoint: {fileID: 729943065520405650}
@@ -665,6 +668,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5e749116560e1a642a1f4f7336ce0ce1, type: 3}
+--- !u!82 &1218882903016857048 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 82892054214493460, guid: 5e749116560e1a642a1f4f7336ce0ce1, type: 3}
+  m_PrefabInstance: {fileID: 1282446622461368524}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1279944527381697710 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4341613492898914, guid: 5e749116560e1a642a1f4f7336ce0ce1, type: 3}
@@ -673,5 +681,10 @@ Transform:
 --- !u!1 &1281764337574034468 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1574188022801640, guid: 5e749116560e1a642a1f4f7336ce0ce1, type: 3}
+  m_PrefabInstance: {fileID: 1282446622461368524}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &7956487396808456390 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9198379353146548234, guid: 5e749116560e1a642a1f4f7336ce0ce1, type: 3}
   m_PrefabInstance: {fileID: 1282446622461368524}
   m_PrefabAsset: {fileID: 0}

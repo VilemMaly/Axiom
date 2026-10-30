@@ -23,5 +23,5 @@ MonoBehaviour:
   requiredResearches:
   - {fileID: 11400000, guid: ecaa4c8ca1d05b8488354ee8ca519588, type: 2}
   upgrades: []
-  unlockedTroops: 020000000100000003000000
-  unlockedBuildings: 0b0000000c000000
+  unlockedTroops: 02000000010000000300000004000000
+  unlockedBuildings: 0b0000000c00000004000000

@@ -231,7 +231,10 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   coriumPerSecond: 20
   troopLoading: {fileID: 3711565089451226387}
-  allowedTroopTypes: 0000000002000000
+  completionAudioSource: {fileID: 5122881590106324312}
+  completionSound: {fileID: 8300000, guid: 9117c4f0aac9c3e47a7252b50cf45924, type: 3}
+  completionAnimator: {fileID: 0}
+  allowedTroopTypes: 000000000400000007000000
   spawnPoint: {fileID: 4726850294659891581}
   rallyPoint: {fileID: 729943065520405650}
 --- !u!114 &3711565089451226387
@@ -678,5 +681,10 @@ Transform:
 --- !u!1 &5060006503997136946 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1000010528928412, guid: 51e04e2cd6220044cb8ef8e0c0df277e, type: 3}
+  m_PrefabInstance: {fileID: 5060722831389840046}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &5122881590106324312 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 82029287575629814, guid: 51e04e2cd6220044cb8ef8e0c0df277e, type: 3}
   m_PrefabInstance: {fileID: 5060722831389840046}
   m_PrefabAsset: {fileID: 0}

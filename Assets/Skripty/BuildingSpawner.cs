@@ -8,6 +8,13 @@ public class BuildingSpawner : NetworkBehaviour
     public int coriumPerSecond = 1;
     public StatusBar troopLoading;
 
+    [Header("Efekty při dokončení jednotky")]
+    [SerializeField] private AudioSource completionAudioSource;
+    [SerializeField] private AudioClip completionSound;
+    [SerializeField] private Animator completionAnimator;
+
+    private static readonly int IsFinishedTrigger = Animator.StringToHash("isFinished");
+
     [Header("Povolené typy jednotek")]
     [SerializeField] private List<TroopType> allowedTroopTypes = new List<TroopType>();
 
@@ -145,12 +152,23 @@ public class BuildingSpawner : NetworkBehaviour
         }
 
         loadingFinished?.Invoke(completedTroopIndex, currentBuilding);
+        PlayCompletionEffectsClientRpc();
 
         if (currentBuilding.Type == Building.BuildingType.Core && currentBuilding is Core core)
             core.OpenAndCloseClientRpc();
 
         if (!hasNextTroop)
             ClearQueue();
+    }
+
+    [ClientRpc]
+    private void PlayCompletionEffectsClientRpc()
+    {
+        if (completionAudioSource != null && completionSound != null)
+            completionAudioSource.PlayOneShot(completionSound);
+
+        if (completionAnimator != null)
+            completionAnimator.SetTrigger(IsFinishedTrigger);
     }
 
     private void ClearQueue()
