@@ -19,6 +19,20 @@ public enum TroopType
     
 }
 
+public enum DamageType
+{
+    BigAutomaticGun,
+    SmallAutomaticGun,
+    Gauss,
+    SmallGreenLaser,
+    BlueBigPlasma,
+    BlueSmallPlasma,
+    EPC,
+    RedMiddlePlasma,
+    VioletBigPlasma,
+    Explosion
+}
+
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(StatusBar))]
 [RequireComponent(typeof(TroopMaterial))]
@@ -30,15 +44,17 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     [Header("Stats")]
     public int MaxHealth;
     public int Cost;
+    [Tooltip("Dosah, na který jednotka vidí budovy ore a odhaluje mlhu")]
     public float SightRange;
     protected bool IsBusy;
-    public int BuildCoriumPerSecond = 15;
-    public float WorkRange = 2.5f;
+    public int BuildCoriumPerSecond = 0;
+    public float WorkRange = 0f;
     public int RepairCoriumPerSecond = 0;
-    public int HarvestCoriumPerSecond = 15;
-    public int MaxCargo = 100;
-    public int DepositCoriumPerSecond = 20;
+    public int HarvestCoriumPerSecond = 0;
+    public int MaxCargo = 0;
+    public int DepositCoriumPerSecond = 0;
     public int Damage;
+    [Tooltip("Dosah, na který jednotka útočí")]
     public float AttackRange;
     public float AttackSpeed;
 
@@ -58,12 +74,8 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     [SerializeField] private float buildingDetectionRadius = 5f;
     [SerializeField] private float buildingDetectionInterval = 0.5f;
 
-    [Header("Bojové efekty - hit")]
-    [Tooltip("Particle system, který se přehraje, když jednotka utrží damage (child prefab pod troopem).")]
-    [SerializeField] protected ParticleSystem hitParticle;
-    [SerializeField] protected AudioClip hitSfx;
-
-    protected AudioSource audioSource;
+    [Header("Bojové efekty")]
+    [SerializeField] private DamageHitRelay damageHitRelay;
 
     [Header("Pohyb - klient-side detekce chůze")]
     [Tooltip("Nad touto rychlostí Agenta se jednotka považuje za 'pohybující se' (pro walk animaci).")]
@@ -73,6 +85,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     private static readonly int IsWalkingHash = Animator.StringToHash("isWalking");
 
     private bool isMoving;
+    private bool combatMovementPaused;
 
     public bool IsMoving => isMoving;
 
@@ -170,8 +183,10 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
         Agent = GetComponent<NavMeshAgent>();
         Agent.enabled = true;
+        Agent.isStopped = combatMovementPaused;
 
-        audioSource = GetComponent<AudioSource>();
+        if (damageHitRelay == null)
+            damageHitRelay = GetComponent<DamageHitRelay>();
 
         if (walkAudioSource != null)
         {
@@ -228,17 +243,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     {
         statusBar.SetValue(newValue, MaxHealth);
 
-        if (newValue < previousValue)
-            PlayHitEffect();
-    }
-
-    private void PlayHitEffect()
-    {
-        if (hitParticle != null)
-            hitParticle.Play();
-
-        if (audioSource != null && hitSfx != null)
-            audioSource.PlayOneShot(hitSfx);
     }
 
     private void ScanBuildings()
@@ -529,8 +533,16 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
     public virtual void TakeDamage(int damage)
     {
-        if (!IsServer || !IsOperational)
+        TakeDamage(damage, DamageType.BigAutomaticGun);
+    }
+
+    public virtual void TakeDamage(int damage, DamageType damageType)
+    {
+        if (!IsServer || !IsOperational || damage <= 0 || Health.Value <= 0)
             return;
+
+        if (damageHitRelay != null)
+            damageHitRelay.PlayHit(damageType);
 
         if ((Health.Value - damage) <= 0)
             Die();
@@ -586,6 +598,19 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     public void SetWalking(bool walking)
     {
         Animator.SetBool(IsWalkingHash, walking);
+    }
+
+    /// <summary>
+    /// Pauses/resumes the current NavMesh path while this troop is engaged in combat.
+    /// Setting isStopped preserves the path so the agent continues toward its existing
+    /// destination when combat ends.
+    /// </summary>
+    public void SetCombatMovementPaused(bool paused)
+    {
+        combatMovementPaused = paused;
+
+        if (Agent != null && Agent.enabled && Agent.isOnNavMesh)
+            Agent.isStopped = paused;
     }
 
     private void UpdateMovementState()

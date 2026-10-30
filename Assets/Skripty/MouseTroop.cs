@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(GenericAttacker))]
 public class MouseTroop : Troop, IGenericAttackerCallbacks
 {
-    [Header("Photon – útok")]
+    [Header("Mouse – útok")]
     [SerializeField] private string shootingAnimationBool = "isShooting";
 
     private GenericAttacker attacker;

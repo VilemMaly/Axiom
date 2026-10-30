@@ -19,6 +19,10 @@ public class Boom : NetworkBehaviour
     public LayerMask troopLayerMask;
     public LayerMask buildingLayerMask;
 
+    [Header("Poloha výbuchu")]
+    [Tooltip("Volitelný transform středu výbuchu. Pokud není nastaven, použije se pozice předaného GameObjectu.")]
+    [SerializeField] private Transform explosionPosition;
+
     [Header("Damage")]
     [Tooltip("Damage ve středu výbuchu.")]
     public int maxDamage = 100;
@@ -46,6 +50,10 @@ public class Boom : NetworkBehaviour
 
     public Boom() { }
 
+    public void setExplosionPosition(Transform position)
+    {
+        explosionPosition = position;
+    }
     public Boom(float radius, int maxDamage, LayerMask troopMask, LayerMask buildingMask)
     {
         this.radius = radius;
@@ -63,12 +71,17 @@ public class Boom : NetworkBehaviour
         }
     }
     [ClientRpc]
-    private void ParticlePlayClientRpc()
+    private void ParticlePlayClientRpc(Vector3 center)
     {
-        if(!IsServer)
+        if (exploze != null && exploze.clip != null)
             exploze.PlayOneShot(exploze.clip);
-        if(particleEffect.isPlaying)
+        if (particleEffect == null || particleEffect.isPlaying)
             return;
+
+        // Efekt bývá potomkem robota. Odpoj ho před spuštěním, aby se během
+        // přehrávání nepřenášela jeho rotace ani pohyb z robota.
+        particleEffect.transform.SetParent(null, true);
+        particleEffect.transform.position = center;
         particleEffect.Play();
     }
 
@@ -85,14 +98,19 @@ public class Boom : NetworkBehaviour
     public void Explode(GameObject source)
     {
         if (source == null) return;
-        ExplodeInternal(source.transform.position, null);
+        ExplodeInternal(GetExplosionPosition(source), null);
     }
 
     /// <summary>Výbuch na pozici GameObjectu, ignoruje jednotky a budovy hráče ignoreClientId.</summary>
     public void Explode(GameObject source, ulong ignoreClientId)
     {
         if (source == null) return;
-        ExplodeInternal(source.transform.position, ignoreClientId);
+        ExplodeInternal(GetExplosionPosition(source), ignoreClientId);
+    }
+
+    private Vector3 GetExplosionPosition(GameObject source)
+    {
+        return explosionPosition != null ? explosionPosition.position : source.transform.position;
     }
 
     /// <summary>Výbuch na dané pozici, ublíží všem.</summary>
@@ -116,8 +134,7 @@ public class Boom : NetworkBehaviour
 
         Scan(center, ignoreClientId);
         ApplyDamage(center);
-        particleEffect.Play();
-        ParticlePlayClientRpc();
+        ParticlePlayClientRpc(center);
     }
 
     private void Scan(Vector3 center, ulong? ignoreClientId)
@@ -162,7 +179,7 @@ public class Boom : NetworkBehaviour
 
             int damage = CalculateDamage(center, troop.gameObject, troopDamageMultiplier);
             if (damage > 0)
-                troop.TakeDamage(damage);
+                troop.TakeDamage(damage, DamageType.Explosion);
         }
 
         for (int i = BuildingsHit.Count - 1; i >= 0; i--)

@@ -16,13 +16,14 @@ public interface IGenericAttackerCallbacks
 /// Server-authoritative, reusable attack behaviour for a Building or Troop.
 /// Add this component beside the owning Building/Troop.
 /// </summary>
-public sealed class GenericAttacker : NetworkBehaviour
+public class GenericAttacker : NetworkBehaviour
 {
     private static readonly int FireSpeedHash = Animator.StringToHash("fireSpeed");
     private static readonly int FireAnimationSpeedHash = Animator.StringToHash("fireAnimationSpeed");
     private static readonly int FireCooldownHash = Animator.StringToHash("fireCooldown");
 
     [Header("Attack")]
+    [SerializeField] private DamageType damageType = DamageType.BigAutomaticGun;
     [SerializeField] private Transform firePoint;
     [SerializeField] private bool alternateFirePoints;
     [SerializeField] private Transform alternateFirePoint;
@@ -191,7 +192,7 @@ public sealed class GenericAttacker : NetworkBehaviour
         SetTarget(nearest);
     }
 
-    private bool IsValidTarget(IDamageable candidate)
+    protected bool IsValidTarget(IDamageable candidate)
     {
         Component candidateComponent = candidate as Component;
         if (candidateComponent == null ||
@@ -236,7 +237,7 @@ public sealed class GenericAttacker : NetworkBehaviour
         return sourceBuilding != null ? sourceBuilding.AttackRange : sourceTroop.AttackRange;
     }
 
-    private int GetDamage()
+    protected int GetDamage()
     {
         return sourceBuilding != null ? sourceBuilding.Damage : sourceTroop.Damage;
     }
@@ -264,10 +265,47 @@ public sealed class GenericAttacker : NetworkBehaviour
             return;
 
         lockedTarget = target;
+        SetTroopMovementPaused(target != null);
         callbacks?.OnAttackTargetChanged(animator, target);
+        if (IsServer)
+            SetAttackTargetClientRpc(target != null);
     }
 
-    private void FireAt(IDamageable target, float fireSpeed)
+    [ClientRpc]
+    private void SetAttackTargetClientRpc(bool hasTarget)
+    {
+        if (IsServer)
+            return;
+
+        // The server's locked target is not replicated as an object reference. The
+        // current callbacks only need to know whether a target exists to drive the
+        // shooting bool, so pass the attacker itself as a non-null sentinel.
+        IDamageable targetState = hasTarget
+            ? (IDamageable)sourceTroop ?? sourceBuilding
+            : null;
+        callbacks?.OnAttackTargetChanged(animator, targetState);
+    }
+
+    private void SetTroopMovementPaused(bool paused)
+    {
+        if (sourceTroop == null)
+            return;
+
+        sourceTroop.SetCombatMovementPaused(paused);
+        if (IsServer)
+            SetTroopMovementPausedClientRpc(paused);
+    }
+
+    [ClientRpc]
+    private void SetTroopMovementPausedClientRpc(bool paused)
+    {
+        if (IsServer || sourceTroop == null)
+            return;
+
+        sourceTroop.SetCombatMovementPaused(paused);
+    }
+
+    protected virtual void FireAt(IDamageable target, float fireSpeed)
     {
         if (!IsValidTarget(target))
         {
@@ -275,7 +313,16 @@ public sealed class GenericAttacker : NetworkBehaviour
             return;
         }
 
-        target.TakeDamage(GetDamage());
+        if (target is Troop troopTarget)
+            troopTarget.TakeDamage(GetDamage(), damageType);
+        else
+            target.TakeDamage(GetDamage());
+
+        PlayAttackEffect(target, fireSpeed);
+    }
+
+    protected void PlayAttackEffect(IDamageable target, float fireSpeed)
+    {
 
         Transform selectedFirePoint = GetNextFirePoint();
         Vector3 origin = selectedFirePoint != null ? selectedFirePoint.position : transform.position;
