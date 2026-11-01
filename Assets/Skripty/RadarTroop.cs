@@ -1,16 +1,11 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class RadarTroop : MonoBehaviour
+[RequireComponent(typeof(GenericAttacker))]
+public class RadarTroop : Troop
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override void OnSpawned()
     {
-        
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // Asi bude odhalovat miny a skenovat okolí pravidelnýnma pingama
 }

@@ -3,13 +3,13 @@ using UnityEngine;
 [RequireComponent(typeof(Boom))]
 public class RocketAttacker : GenericAttacker
 {
-    private Rocket rocket;
+    private Troop rocketTroop;
     private Boom boom;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        rocket = GetComponent<Rocket>();
+        rocketTroop = GetComponent<Troop>();
         boom = GetComponent<Boom>();
     }
 
@@ -18,14 +18,14 @@ public class RocketAttacker : GenericAttacker
         if (!IsValidTarget(target))
             return;
 
-        if (boom == null || rocket == null)
+        if (boom == null)
         {
-            Debug.LogError($"{nameof(RocketAttacker)} on {name} requires Rocket and Boom components on the same object.", this);
+            Debug.LogError($"{nameof(RocketAttacker)} on {name} requires Boom component on the same object.", this);
             return;
         }
 
         Component targetComponent = target as Component;
-        boom.maxDamage = rocket.Damage;
+        boom.maxDamage = rocketTroop.Damage;
         boom.setExplosionPosition(targetComponent.transform);
         boom.Explode(gameObject, OwnerClientId);
 
