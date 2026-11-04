@@ -10,18 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
-  m_Name: Testik
+  m_Name: Air
   m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
-  researchId: 1
-  displayName: Wow
-  description: Tohle je test research
-  icon: {fileID: 21300000, guid: 4b8a5dcee185e7a408dda14f44f82e2f, type: 3}
-  coriumCost: 100000
-  researchTime: 30000
-  energyPerSecond: 50000
+  researchId: 15
+  displayName: "Vzdu\u0161n\xE9 jednotky"
+  description: "Odemkne nov\xE9 leteck\xE9 jednotky a jejich tov\xE1rnu"
+  icon: {fileID: 21300000, guid: 5cca7de0cf629f34abad4e325d3ee570, type: 3}
+  coriumCost: 29
+  researchTime: 2
+  energyPerSecond: 5
   requiredResearches:
-  - {fileID: 11400000, guid: fd48ff958a67421478c66fb0e649e202, type: 2}
-  upgrades:
-  - {fileID: 11400000, guid: 3a9b8e0becad1be49a02a1694c6d941e, type: 2}
-  unlockedTroops: 
-  unlockedBuildings: 
+  - {fileID: 11400000, guid: 977df4cc9f625b04b9dfafb5508fe68f, type: 2}
+  upgrades: []
+  unlockedTroops: 0600000005000000
+  unlockedBuildings: 0c000000

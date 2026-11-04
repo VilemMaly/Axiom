@@ -597,6 +597,8 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
     public void SetWalking(bool walking)
     {
+        if(Animator == null)
+            return;
         Animator.SetBool(IsWalkingHash, walking);
     }
 

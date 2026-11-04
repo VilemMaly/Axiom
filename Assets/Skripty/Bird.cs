@@ -1,16 +1,9 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class Bird : MonoBehaviour
+public class Bird : Troop
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override void OnSpawned()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
