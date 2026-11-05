@@ -98,8 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnergyPlant
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 50
-  Cost: 50
-  RequiredCorium: 0
+  RequiredCorium: 20
   MaxBuildingAmount: 3
   CoriumConsumption: 20
   EnergyConsumption: 0

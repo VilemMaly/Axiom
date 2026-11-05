@@ -63,8 +63,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 11.209398, y: 4.0385113, z: 6.323471}
-  m_Center: {x: -0.09723282, y: 1.8838769, z: -0.7170887}
+  m_Size: {x: 11.209398, y: 4.0385113, z: 5.8498964}
+  m_Center: {x: -0.09723282, y: 1.8838768, z: -0.953876}
 --- !u!114 &3231191921428354711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,7 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2121915754
+  GlobalObjectIdHash: 3729421117
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -105,7 +105,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Barracks
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 80
-  Cost: 70
   RequiredCorium: 60
   MaxBuildingAmount: 4
   CoriumConsumption: 0
@@ -117,7 +116,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 0
+  SightRange: 20
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1
@@ -177,8 +176,8 @@ MonoBehaviour:
   completionAudioSource: {fileID: 6914616134248722800}
   completionSound: {fileID: 8300000, guid: 9117c4f0aac9c3e47a7252b50cf45924, type: 3}
   completionAnimator: {fileID: 9032911157290921064}
-  startAudioSource: {fileID: 0}
-  startSound: {fileID: 0}
+  startAudioSource: {fileID: 6914616134248722800}
+  startSound: {fileID: 8300000, guid: 540fe21cea449d6438caf5c1c73a35e8, type: 3}
   allowedTroopTypes: 000000000400000007000000
   spawnPoint: {fileID: 4726850294659891581}
   rallyPoint: {fileID: 729943065520405650}
@@ -475,7 +474,7 @@ Transform:
   m_GameObject: {fileID: 5334317355653257217}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.06, y: 0.76, z: 3.42}
+  m_LocalPosition: {x: 2.06, y: 0.76, z: 2.81}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

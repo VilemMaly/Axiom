@@ -19196,7 +19196,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CableManager
   ShowTopMostFoldoutHeaderGroup: 1
-  cableMaterial: {fileID: 2100000, guid: 3aeee840818ee004fafa9efd4f5ab2ca, type: 2}
+  cableMaterial: {fileID: 2100000, guid: 1ce24b54a01695a47bf59b0e8c4510c7, type: 2}
+  energyShortageCableMaterial: {fileID: 2100000, guid: 0111b10fccac7404abaec0abf6488dd1, type: 2}
   cableWidth: 1.11
 --- !u!114 &6895607523308573822
 MonoBehaviour:

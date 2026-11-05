@@ -1,13 +1,16 @@
 using System.Collections.Generic;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(BuildingMaterial))]
 public abstract class Building : NetworkBehaviour, IDamageable
 {
+    /// <summary>Raised on the server when this building enters or leaves an energy shortage.</summary>
+    public event Action<Building, bool> EnergyShortageChanged;
+    public bool LacksEnergy { get; private set; }
     [Header("Stats – nastav v Inspectoru na prefabu")]
     public int MaxHealth;
-    public int Cost;
     public int RequiredCorium;
     public int MaxBuildingAmount;
     public int CoriumConsumption;
@@ -191,14 +194,12 @@ public abstract class Building : NetworkBehaviour, IDamageable
     {
         if (!IsServer)
             return;
-        // pokud nepožaduje elektřinu, tak se nemusí připojovat k síti budov
-        if (IsEnergyConsumer == false)
-        {
-            IsConnected.Value = true;
-            return;
-        }
-        // pokud je zdroj energie tak je automaticky připojený k síti budov
         IsConnected.Value = true;
+        // Zdroj musí hledat spotřebitele i v případě, že sám energii
+        // nespotřebovává. Ostatní nespotřebitelské budovy (např. zdi)
+        // ale nejsou součástí energetické sítě a nesmí ji přeposílat.
+        if (!IsPowerSource && !IsEnergyConsumer)
+            return;
         // vyhledá budovy v okolí, které nejsou připojené k síti budov a připojí je k sobě, pokud jsou v dosahu.
 
             // vytvoří sphere collider s lehkou pamětí, aby se našly všechny budovy v dosahu s určitým layer maskem (např. "Building").
@@ -211,8 +212,9 @@ public abstract class Building : NetworkBehaviour, IDamageable
             // pro každou budovu, která je v dosahu a není připojená k síti budov, se zavolá metoda searchForEnergyConnections (rekurzivně).
             foreach (var hitCollider in hitColliders)
             {
-                Building building = hitCollider.GetComponent<Building>();
-                if (building != null && !building.IsConnected.Value && building.IsEnergyConsumer)
+                    Building building = hitCollider.GetComponentInParent<Building>();
+                if (building != null && building != this &&
+                    building.IsEnergyConsumer && !building.IsConnected.Value)
                 {
                     building.IsConnected.Value = true;
                     building.searchForEnergyConnections();
@@ -222,7 +224,8 @@ public abstract class Building : NetworkBehaviour, IDamageable
                     {
                         cableManager.CreateCableClientRpc(
                             transform.position,
-                            building.transform.position
+                            building.transform.position,
+                            building.LacksEnergy
                         );
                     }
                     else
@@ -349,6 +352,8 @@ public abstract class Building : NetworkBehaviour, IDamageable
         // ZAPLACENÍ PROVOZU
         // ------------------------------------------------------------
 
+        SetEnergyShortage(OwnerResources.Energy.Value < actualEnergyConsumption);
+
         if (!OwnerResources.TrySpend(
             actualCoriumConsumption,
             actualEnergyConsumption))
@@ -385,6 +390,15 @@ public abstract class Building : NetworkBehaviour, IDamageable
         );*/
 
         UpdateProduction();
+    }
+
+    private void SetEnergyShortage(bool lacksEnergy)
+    {
+        if (LacksEnergy == lacksEnergy)
+            return;
+
+        LacksEnergy = lacksEnergy;
+        EnergyShortageChanged?.Invoke(this, lacksEnergy);
     }
 
     // Zavolá se, když se úspěšně zaplatí provoz budovy

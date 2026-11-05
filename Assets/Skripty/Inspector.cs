@@ -136,7 +136,7 @@ public class Inspector : MonoBehaviour
         {
             health = selectedBuilding.Health.Value;
             maxHealth = selectedBuilding.MaxHealth;
-            cost = selectedBuilding.Cost;
+            cost = selectedBuilding.RequiredCorium;
         }
         else
         {

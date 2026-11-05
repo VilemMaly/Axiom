@@ -87,6 +87,7 @@ void Update()
             return false;
 
         myBuildings.Add(building);
+        building.EnergyShortageChanged += HandleEnergyShortageChanged;
         if(building.Type == Building.BuildingType.Core)
         {
             Core core = building as Core;
@@ -95,6 +96,15 @@ void Update()
         ResetEnergySources();
         Debug.Log($"[BuildingInteractor] Zaregistrována budova {building.name} (typ {building.Type}). Celkem: {myBuildings.Count} Stav Sítě: {(building.IsConnected.Value ? "Připojeno" : "Nepřipojeno")}");
         return CheckBuildingRules(building, OwnerClientId);
+    }
+
+    private void HandleEnergyShortageChanged(Building building, bool lacksEnergy)
+    {
+        if (!IsServer || building == null || !myBuildings.Contains(building))
+            return;
+
+        Debug.Log($"[BuildingInteractor] {building.name}: {(lacksEnergy ? "nedostatek" : "dostatek") } energie. Obnovuji energetickou síť.");
+        ResetEnergySources();
     }
     public bool CheckBuildingRules(Building building, ulong clientId)
     {
@@ -134,7 +144,10 @@ void Update()
             return false;
 
         if (myBuildings.Remove(building))
+        {
+            building.EnergyShortageChanged -= HandleEnergyShortageChanged;
             Debug.Log($"[BuildingInteractor] Odregistrována budova {building.name} (typ {building.Type}). Celkem: {myBuildings.Count}");
+        }
         ResetEnergySources();
         return true;
     }

@@ -111,7 +111,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 0
+  SightRange: 20
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1

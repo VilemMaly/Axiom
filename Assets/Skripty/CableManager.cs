@@ -6,12 +6,12 @@ public class CableManager : NetworkBehaviour
 {
     [Header("Cable Settings")]
     [SerializeField] private Material cableMaterial;
+    [SerializeField] private Material energyShortageCableMaterial;
     [SerializeField] private float cableWidth = 0.05f;
-
     private List<GameObject> cables = new List<GameObject>();
 
     [ClientRpc]
-    public void CreateCableClientRpc(Vector3 position1, Vector3 position2)
+    public void CreateCableClientRpc(Vector3 position1, Vector3 position2, bool destinationLacksEnergy)
     {
         Debug.Log($"[CableManager] Creating cable from {position1} to {position2}");
         GameObject cableObject = new GameObject("Cable");
@@ -27,12 +27,15 @@ public class CableManager : NetworkBehaviour
         line.startWidth = cableWidth;
         line.endWidth = cableWidth;
 
-        line.material = cableMaterial;
+        Material selectedCableMaterial = destinationLacksEnergy && energyShortageCableMaterial != null
+            ? energyShortageCableMaterial
+            : cableMaterial;
+        line.material = selectedCableMaterial;
 
         line.useWorldSpace = true;
 
         // Černá čára
-        if (cableMaterial == null)
+        if (selectedCableMaterial == null)
         {
             line.material = new Material(Shader.Find("Sprites/Default"));
             line.startColor = Color.black;

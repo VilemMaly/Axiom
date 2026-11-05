@@ -72,7 +72,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1943700601
+  GlobalObjectIdHash: 794770812
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -116,8 +116,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Battery
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 100
-  Cost: 50
-  RequiredCorium: 0
+  RequiredCorium: 30
   MaxBuildingAmount: 10
   CoriumConsumption: 0
   EnergyConsumption: 0
@@ -128,7 +127,8 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 0
+  SightRange: 20
+  CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1
   Health:
@@ -173,6 +173,7 @@ MonoBehaviour:
   buildingLayerMask:
     serializedVersion: 2
     m_Bits: 512
+  explosionPosition: {fileID: 0}
   maxDamage: 79
   minDamage: 0
   falloff:

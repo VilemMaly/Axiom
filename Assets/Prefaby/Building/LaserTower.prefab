@@ -100,8 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LaserTower
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 100
-  Cost: 60
-  RequiredCorium: 0
+  RequiredCorium: 30
   MaxBuildingAmount: 8
   CoriumConsumption: 0
   EnergyConsumption: 0

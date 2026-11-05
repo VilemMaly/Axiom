@@ -31,6 +31,10 @@ public class Cargo : Troop
     private int BuildingIndex;
     private int BuildingRotation;
     [SerializeField] private List<PendingBuildRequest> pendingBuildQueue = new();
+    [Header("Otáčení věže")]
+    [Tooltip("Věž se otáčí pouze na klientovi, který vlastní toto Cargo.")]
+    [SerializeField] private Transform turretTransform;
+    [SerializeField, Min(0f)] private float turretTurnSpeed = 360f;
     public bool HasPendingBuildOrders => GoingToBuilding || pendingBuildQueue.Count > 0;
     public NetworkVariable<bool> IsBuilding = new(writePerm: NetworkVariableWritePermission.Server);
     public NetworkVariable<bool> IsRepairing = new(writePerm: NetworkVariableWritePermission.Server);
@@ -49,6 +53,16 @@ public class Cargo : Troop
     private float nextHarvestTick;
     private float nextDebugLog; // jen pro diagnostiku, neovlivňuje logiku
 
+    [Header("Efekty těžby a předání coria")]
+    [Tooltip("ParticleSystem připojený v editoru; při spuštění se odpojí od Cargo.")]
+    [SerializeField] private ParticleSystem transferParticle;
+    [Tooltip("Pozice a směr, odkud efekt vyletí.")]
+    [SerializeField] private Transform transferOrigin;
+    [SerializeField] private AudioClip transferSound;
+    [Tooltip("AudioSource pro prostorové přehrání zvuku.")]
+    [SerializeField] private AudioSource transferAudioSource;
+    private Transform transferParticleOriginalParent;
+
     public NetworkVariable<bool> IsHarvesting = new(writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<bool> IsDepositing = new(writePerm: NetworkVariableWritePermission.Server);
@@ -66,9 +80,27 @@ public class Cargo : Troop
 
     public override void OnSpawned()
     {
+        if (transferParticle != null)
+        {
+            transferParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            transferParticleOriginalParent = transferParticle.transform.parent;
+            if (transferParticle.transform != transform && transferParticle.transform.IsChildOf(transform))
+                transferParticle.transform.SetParent(null, true);
+        }
         if (IsServer)
             playerResources = NetworkManager.Singleton.ConnectedClients[OwnerClientId]
                 .PlayerObject.GetComponent<PlayerResources>();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        if (transferParticle == null)
+            return;
+
+        transferParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        if (transferParticleOriginalParent != null)
+            transferParticle.transform.SetParent(transferParticleOriginalParent, true);
     }
 
     public override void BuildBuilding(Building building)
@@ -147,8 +179,47 @@ public class Cargo : Troop
     public override void UpdateTroop()
     {
         UpdateConstruction();
+        UpdateTurretAim();
         if (IsBuilding.Value || HasPendingBuildOrders) return;
         UpdateHarvesting();
+    }
+
+    private void UpdateTurretAim()
+    {
+        if (!IsOwner || turretTransform == null)
+            return;
+
+        Transform target = null;
+
+        // Budova se vybírá stejně jako v klientské části UpdateConstruction.
+        // Serverová currentBuildTarget není dostupná klientům, proto ji zde nehledáme.
+        foreach (Building building in BuildingsInRange)
+        {
+            if (building == null || building.IsConstructionComplete.Value)
+                continue;
+
+            target = building.transform;
+            break;
+        }
+
+        // Když není poblíž stavba, věž míří na zvolený zdroj coria.
+        if (target == null && CoriumCargo.Value < MaxCargo && selectedResource != null &&
+            !selectedResource.Depleted && selectedResource.CoriumAmount.Value > 0)
+            target = selectedResource.transform;
+
+        if (target == null)
+            return;
+
+        Vector3 direction = target.position - turretTransform.position;
+        direction.y = 0f;
+        if (direction.sqrMagnitude < 0.0001f)
+            return;
+
+        Quaternion desiredRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        turretTransform.rotation = Quaternion.RotateTowards(
+            turretTransform.rotation,
+            desiredRotation,
+            turretTurnSpeed * Time.deltaTime);
     }
 
     private void UpdateConstruction()
@@ -184,7 +255,10 @@ public class Cargo : Troop
             {
                 nextBuildSendTime = Time.time + 1f;
                 if (playerResources != null && playerResources.TrySpend(BuildCoriumPerSecond, 0))
+                {
                     currentBuildTarget.ReceiveCorium(BuildCoriumPerSecond);
+                    PlayTransferEffect(currentBuildTarget.transform.position);
+                }
             }
         }
     }
@@ -368,6 +442,7 @@ public class Cargo : Troop
                     // žijí ve stejném procesu na serveru.
                     currentCore.CoriumReserve(amount, this);
                     CoriumCargo.Value -= amount;
+                    PlayTransferEffect(currentCore.transform.position);
                 }
             }
         }
@@ -592,7 +667,38 @@ public class Cargo : Troop
         if (!IsServer || amount <= 0)
             return;
 
-        CoriumCargo.Value = Mathf.Min(CoriumCargo.Value + amount, MaxCargo);
+        int added = Mathf.Min(amount, MaxCargo - CoriumCargo.Value);
+        if (added <= 0)
+            return;
+        CoriumCargo.Value += added;
+        if (currentTarget != null)
+            PlayTransferEffect(currentTarget.transform.position);
+    }
+
+    private void PlayTransferEffect(Vector3 destination)
+    {
+        if (!IsServer)
+            return;
+        Vector3 origin = transferOrigin != null ? transferOrigin.position : transform.position;
+        PlayTransferEffectClientRpc(origin, destination);
+    }
+
+    [ClientRpc]
+    private void PlayTransferEffectClientRpc(Vector3 origin, Vector3 destination)
+    {
+        if (transferParticle != null)
+        {
+            transferParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            Vector3 direction = destination - origin;
+            Quaternion rotation = direction.sqrMagnitude > 0.0001f
+                ? Quaternion.LookRotation(direction.normalized, Vector3.up)
+                : transferParticle.transform.rotation;
+            transferParticle.transform.SetPositionAndRotation(origin, rotation);
+            transferParticle.Play();
+        }
+
+        if (transferAudioSource != null && transferSound != null)
+            transferAudioSource.PlayOneShot(transferSound);
     }
 
     [ServerRpc]

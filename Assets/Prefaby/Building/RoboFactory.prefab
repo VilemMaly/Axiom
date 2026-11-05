@@ -62,8 +62,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 11.209398, y: 4.0385113, z: 6.323471}
-  m_Center: {x: -0.09723282, y: 1.8838769, z: -0.7170887}
+  m_Size: {x: 9.768625, y: 4.0385113, z: 5.9160333}
+  m_Center: {x: -0.16722107, y: 1.8838768, z: -0.9208076}
 --- !u!114 &3231191921428354711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,7 +100,7 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 5.65, y: 2, z: 3.145}
+  m_Extents: {x: 4.8, y: 2.18, z: 2.83}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
@@ -178,7 +178,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoboFactory
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 100
-  Cost: 50
   RequiredCorium: 50
   MaxBuildingAmount: 5
   CoriumConsumption: 0
@@ -190,7 +189,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 0
+  SightRange: 20
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1
@@ -454,7 +453,7 @@ Transform:
   m_GameObject: {fileID: 5334317355653257217}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.06, y: 0, z: 5.45}
+  m_LocalPosition: {x: 1.69, y: 1.6, z: 3.93}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -609,7 +608,7 @@ Transform:
   m_GameObject: {fileID: 8222216447271948391}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.06, y: 0, z: 8.92}
+  m_LocalPosition: {x: 1.62, y: 0.83, z: 8.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

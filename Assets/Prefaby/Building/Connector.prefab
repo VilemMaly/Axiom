@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3231191921428354711}
   - component: {fileID: 8503789327469019592}
   - component: {fileID: 4466921304261930108}
+  - component: {fileID: 1987118274265572383}
   m_Layer: 9
   m_Name: Connector
   m_TagString: Untagged
@@ -120,11 +121,13 @@ MonoBehaviour:
   EnergyConsumption: 0
   CoriumProduction: 0
   EnergyProduction: 0
+  Level: 0
   Damage: 0
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 0
+  SightRange: 20
+  CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1
   Health:
@@ -147,6 +150,24 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &1987118274265572383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740923664320254884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44628c7971b15c745afb198d7a118358, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingMaterial
+  ShowTopMostFoldoutHeaderGroup: 1
+  model: {fileID: 0}
+  red: {fileID: 0}
+  green: {fileID: 0}
+  orange: {fileID: 0}
+  blue: {fileID: 0}
 --- !u!1001 &7749083783422291809
 PrefabInstance:
   m_ObjectHideFlags: 0
