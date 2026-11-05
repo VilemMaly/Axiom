@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c3b2d14f81daadd459e9a32642a907fe, type: 3}
-  m_Name: Harvester
+  m_Name: Cargo
   m_EditorClassIdentifier: Assembly-CSharp::InspectorData
   troop: 1
   budova: 0
-  troopType: 2
+  troopType: 0
   buildingType: 0
   icon: {fileID: 0}
   displayName: Cargo
-  description: "P\u0159ev\xE1\u017E\xED su\u0165 a krystaly"
+  description: "D\u016Fle\u017Eit\xE1 jednotka pro stavbu ka\u017Ed\xE9 budovy"

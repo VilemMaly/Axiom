@@ -132,7 +132,7 @@ NavMeshAgent:
   m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 1.27
-  m_Speed: 2
+  m_Speed: 1.74
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -356,7 +356,7 @@ MonoBehaviour:
   damageHitRelay: {fileID: 2062175952072203610}
   movingVelocityThreshold: 0.01
   walkAudioSource: {fileID: 2456197998453532924}
-  Animator: {fileID: 0}
+  Animator: {fileID: 9181553466280237344}
   framePerUpdate: 10
   Kompenzace: 1
   MaxTroopAmount: 5
@@ -751,6 +751,11 @@ Transform:
 --- !u!1 &2537260911325032614 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1684966057986020, guid: c7d67b7cfce88ec45878de0bd60d8791, type: 3}
+  m_PrefabInstance: {fileID: 2536605402802124610}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &9181553466280237344 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 6654274160836521570, guid: c7d67b7cfce88ec45878de0bd60d8791, type: 3}
   m_PrefabInstance: {fileID: 2536605402802124610}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2740631747193230432

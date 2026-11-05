@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8588969681708020915}
-  - component: {fileID: 49990100835604090}
   - component: {fileID: 1425491476330724532}
   - component: {fileID: 3231191921428354711}
   - component: {fileID: 4593604729516585186}
@@ -39,14 +38,6 @@ Transform:
   - {fileID: 3954927118543843577}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &49990100835604090
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740923664320254884}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!65 &1425491476330724532
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -115,11 +106,13 @@ MonoBehaviour:
   EnergyConsumption: 0
   CoriumProduction: 0
   EnergyProduction: 0
+  Level: 0
   Damage: 0
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
   SightRange: 0
+  CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1
   Health:
@@ -171,6 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44628c7971b15c745afb198d7a118358, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingModelSpawn
+  ShowTopMostFoldoutHeaderGroup: 1
   model: {fileID: 3105485929552301443}
   red: {fileID: 2100000, guid: 904b8e39656cd1c42bab45a7a5b75a51, type: 2}
   green: {fileID: 2100000, guid: b4059b9cae144c8458f538f77c9340bd, type: 2}

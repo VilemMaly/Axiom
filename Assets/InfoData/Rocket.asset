@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c3b2d14f81daadd459e9a32642a907fe, type: 3}
-  m_Name: Atlas
+  m_Name: Rocket
   m_EditorClassIdentifier: Assembly-CSharp::InspectorData
   troop: 1
   budova: 0
-  troopType: 0
+  troopType: 3
   buildingType: 0
   icon: {fileID: 0}
-  displayName: Atlas
-  description: "D\u016Fle\u017Eit\xE1 jednotka pro stavbu ka\u017Ed\xE9 budovy"
+  displayName: Rocket
+  description: "Velk\xFD robot, kter\xFD st\u0159\xEDl\xED exploduj\xEDc\xED rakety."

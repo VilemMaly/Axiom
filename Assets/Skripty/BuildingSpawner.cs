@@ -13,7 +13,12 @@ public class BuildingSpawner : NetworkBehaviour
     [SerializeField] private AudioClip completionSound;
     [SerializeField] private Animator completionAnimator;
 
+    [Header("Efekty při začátku výroby")]
+    [SerializeField] private AudioSource startAudioSource;
+    [SerializeField] private AudioClip startSound;
+
     private static readonly int IsFinishedTrigger = Animator.StringToHash("isFinished");
+    private static readonly int IsStartingTrigger = Animator.StringToHash("isStarting");
 
     [Header("Povolené typy jednotek")]
     [SerializeField] private List<TroopType> allowedTroopTypes = new List<TroopType>();
@@ -132,6 +137,7 @@ public class BuildingSpawner : NetworkBehaviour
         troopCostMax = troop.Cost;
         time = 0f;
         UpdateLoadingStatus();
+        PlayStartEffectsClientRpc();
     }
 
     private void CompleteCurrentTroop()
@@ -169,6 +175,16 @@ public class BuildingSpawner : NetworkBehaviour
 
         if (completionAnimator != null)
             completionAnimator.SetTrigger(IsFinishedTrigger);
+    }
+
+    [ClientRpc]
+    private void PlayStartEffectsClientRpc()
+    {
+        if (startAudioSource != null && startSound != null)
+            startAudioSource.PlayOneShot(startSound);
+
+        if (completionAnimator != null)
+            completionAnimator.SetTrigger(IsStartingTrigger);
     }
 
     private void ClearQueue()

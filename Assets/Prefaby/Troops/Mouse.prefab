@@ -157,7 +157,7 @@ MonoBehaviour:
   damageHitRelay: {fileID: 7130658775300763379}
   movingVelocityThreshold: 1
   walkAudioSource: {fileID: 1051422525435791624}
-  Animator: {fileID: 0}
+  Animator: {fileID: 8153713631428722016}
   framePerUpdate: 10
   Kompenzace: 1
   MaxTroopAmount: 10
@@ -653,6 +653,11 @@ Transform:
 --- !u!4 &1133666950083924886 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4375926571151170, guid: 1eeb4281da7d1dd4ba49395f59dd5311, type: 3}
+  m_PrefabInstance: {fileID: 1131551346706382036}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8153713631428722016 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9120876304199958964, guid: 1eeb4281da7d1dd4ba49395f59dd5311, type: 3}
   m_PrefabInstance: {fileID: 1131551346706382036}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1695709089353423143
