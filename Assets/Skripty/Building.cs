@@ -20,6 +20,9 @@ public abstract class Building : NetworkBehaviour, IDamageable
     public float AttackSpeed;
     public float AttackCooldown;
     public float SightRange;
+    [Header("Air combat")]
+    [Tooltip("Can this building attack air units?")]
+    public bool CanAttackAir;
     public bool IsPowerSource;
     public bool IsEnergyConsumer;
     private bool IsDestroyed = false;

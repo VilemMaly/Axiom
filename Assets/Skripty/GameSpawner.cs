@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class GameSpawner : NetworkBehaviour
 {
+    private bool gameEnding;
+
     public GameObject playerPrefab;
 
     public Transform spawn1;
@@ -116,13 +118,18 @@ public class GameSpawner : NetworkBehaviour
 
     public void endGame(ulong lostPlayerId)
     {
-        NetworkManager.Singleton.SceneManager.LoadScene(
-            "Menu",
-            LoadSceneMode.Single
-        );
-        if (NetworkManager.Singleton != null)
-    {
-        NetworkManager.Singleton.Shutdown();
-    }
+        NetworkManager networkManager = NetworkManager.Singleton;
+
+        // Core se také zničí při zavírání hry nebo vypínání NetworkManageru.
+        // V tom případě už nemá smysl spouštět další načítání scény.
+        if (gameEnding || networkManager == null || !networkManager.IsListening)
+            return;
+
+        // Scénu může přes Netcode načíst pouze server.
+        if (!networkManager.IsServer)
+            return;
+
+        gameEnding = true;
+        networkManager.SceneManager.LoadScene("Menu", LoadSceneMode.Single);
     }
 }

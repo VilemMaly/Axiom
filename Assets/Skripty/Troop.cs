@@ -57,6 +57,11 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     [Tooltip("Dosah, na který jednotka útočí")]
     public float AttackRange;
     public float AttackSpeed;
+    [Header("Air combat")]
+    [Tooltip("Can this troop attack air units?")]
+    public bool CanAttackAir;
+    [Tooltip("Is this troop an air unit?")]
+    public bool IsAirUnit;
 
     [Header("Pohyb - NavMesh")]
     [SerializeField] private SpriteRenderer currentVisibility;

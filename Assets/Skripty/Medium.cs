@@ -1,16 +1,28 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class Medium : MonoBehaviour
+[RequireComponent(typeof(RocketAttacker))]
+public class Medium : Troop, IGenericAttackerCallbacks
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("Photon – útok")]
+    [SerializeField] private string shootingAnimationBool = "isShooting";
+
+    private GenericAttacker attacker;
+
+    public override void OnSpawned()
     {
-        
+        attacker = GetComponent<GenericAttacker>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public float GetAttackCooldown(float defaultCooldown) => AttackSpeed;
+
+    public void OnAttackTargetChanged(Animator attackAnimator, IDamageable target)
     {
-        
     }
+
+    public void OnAttackAnimation(Animator attackAnimator, IDamageable target)
+    {
+        // Bool is controlled by the current target, not by the delayed shot effect RPC.
+    }
+
 }

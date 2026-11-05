@@ -269,8 +269,10 @@ MonoBehaviour:
   MaxCargo: 0
   DepositCoriumPerSecond: 0
   Damage: 1
-  AttackRange: 10.51
+  AttackRange: 30.11
   AttackSpeed: 4.13
+  CanAttackAir: 1
+  IsAirUnit: 1
   currentVisibility: {fileID: 365583955660702408}
   groundLayerMask:
     serializedVersion: 2
@@ -290,7 +292,7 @@ MonoBehaviour:
   Animator: {fileID: 0}
   framePerUpdate: 10
   Kompenzace: 1
-  MaxTroopAmount: 0
+  MaxTroopAmount: 5
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

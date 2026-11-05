@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 3433831457990976303}
   - component: {fileID: 1835959705864612313}
   - component: {fileID: 6044300145176212260}
-  - component: {fileID: 6471142187812639460}
   m_Layer: 10
   m_Name: Radar
   m_TagString: Untagged
@@ -76,7 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1866855886
+  GlobalObjectIdHash: 3241621686
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -289,39 +288,12 @@ MonoBehaviour:
   Animator: {fileID: 0}
   framePerUpdate: 10
   Kompenzace: 1
-  MaxTroopAmount: 0
+  MaxTroopAmount: 5
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
---- !u!114 &6471142187812639460
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740923664320254884}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3a63c4f0a954a48af2199f14f880c3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GenericAttacker
-  ShowTopMostFoldoutHeaderGroup: 1
-  damageType: 0
-  firePoint: {fileID: 0}
-  alternateFirePoints: 0
-  alternateFirePoint: {fileID: 0}
-  shotParticle: {fileID: 0}
-  fireSfx: {fileID: 0}
-  audioSource: {fileID: 0}
-  animator: {fileID: 0}
-  targetLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  scanInterval: 0.25
-  cooldownOverride: 0
-  fireAnimationLoopDuration: 1
 --- !u!1 &3900622497212662512
 GameObject:
   m_ObjectHideFlags: 0

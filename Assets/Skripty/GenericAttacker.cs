@@ -209,7 +209,9 @@ public class GenericAttacker : NetworkBehaviour
             return false;
 
         if (candidateComponent is Troop troop)
-            return troop.OwnerClientId != OwnerClientId && troop.Health.Value > 0;
+            return troop.OwnerClientId != OwnerClientId &&
+                   troop.Health.Value > 0 &&
+                   (!troop.IsAirUnit || CanAttackAir());
 
         if (candidateComponent is Building building)
         {
@@ -219,6 +221,11 @@ public class GenericAttacker : NetworkBehaviour
         }
 
         return false;
+    }
+
+    private bool CanAttackAir()
+    {
+        return sourceTroop != null ? sourceTroop.CanAttackAir : sourceBuilding != null && sourceBuilding.CanAttackAir;
     }
 
     private bool SourceIsAlive()
