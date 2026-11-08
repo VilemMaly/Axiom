@@ -66,6 +66,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     [Header("Pohyb - NavMesh")]
     [SerializeField] private SpriteRenderer currentVisibility;
     [SerializeField] private LayerMask groundLayerMask;
+    public int groupSpriteIndex;
     private float mapaHranice = 300f;
     [SerializeField] private float navMeshSampleRadius = 3f;
     [SerializeField] private float formationSpacing = 1.5f;
@@ -109,6 +110,8 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     public int Kompenzace = 1;
 
     public int MaxTroopAmount;
+    public TroopGroup Group { get; internal set; }
+    public NetworkVariable<int> TroopGroupId = new(-1, writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> Health = new NetworkVariable<int>(
         writePerm: NetworkVariableWritePermission.Server);
@@ -127,6 +130,14 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
     public virtual void StopCurrentTask()
     {
+        if (IsOwner) RequestStopServerRpc();
+    }
+
+    [ServerRpc]
+    private void RequestStopServerRpc(ServerRpcParams rpcParams = default)
+    {
+        if (rpcParams.Receive.SenderClientId != OwnerClientId || Agent == null) return;
+        Agent.isStopped = true;
     }
 
     public virtual void OnSelectBuilding(Building building)
@@ -173,7 +184,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
                 .PlayerObject.GetComponent<TroopInteractor>();
 
             if (interactor != null)
-                interactor.RegisterTroop(this);
+                interactor.RegisterTroop(this, Group);
             else
                 Debug.LogWarning(
                     $"[Troop-DIAG] {name} nenašel TroopInteractor na vlastním PlayerObjectu.");
@@ -228,6 +239,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     {
         IsOperational = false;
         Health.OnValueChanged -= OnHealthChanged;
+        if (Group != null) Group.RemoveUnit(this);
 
         if (IsOwner &&
             NetworkManager.Singleton != null &&
@@ -247,6 +259,18 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     private void OnHealthChanged(int previousValue, int newValue)
     {
         statusBar.SetValue(newValue, MaxHealth);
+        if (newValue < previousValue && IsOwner && Group != null)
+        {
+            Troop attacker = null;
+            float nearest = float.MaxValue;
+            foreach (Troop candidate in FindObjectsByType<Troop>(FindObjectsSortMode.None))
+            {
+                if (candidate == this || candidate.OwnerClientId == OwnerClientId || candidate.Health.Value <= 0) continue;
+                float distance = (candidate.transform.position - transform.position).sqrMagnitude;
+                if (distance < nearest) { nearest = distance; attacker = candidate; }
+            }
+            Group.MarkAttacked(attacker);
+        }
 
     }
 
@@ -354,6 +378,8 @@ public abstract class Troop : NetworkBehaviour, IDamageable
                 $"pro cíl {destination}");
             return;
         }
+
+        Agent.isStopped = false;
 
         Debug.Log(
             $"[Troop-DIAG] {name} [SERVER] SetDestination -> " +

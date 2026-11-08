@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,6 +9,8 @@ using UnityEngine;
 /// </summary>
 public class TroopSpawner : NetworkBehaviour
 {
+    public event Action<int, int> SpawnRequestRejected;
+
     [System.Serializable]
     public class TroopEntry
     {
@@ -38,9 +41,28 @@ public class TroopSpawner : NetworkBehaviour
     [Header("Seznam jednotek (pořadí = index)")]
     [SerializeField] private List<TroopEntry> troopPrefabs = new List<TroopEntry>();
 
+    [Header("Předem vytvořené skupiny")]
+    [Tooltip("Přiřaď sem TroopGroup komponenty používané tlačítky skupin. Pořadí není důležité; ID musí být na každém klientovi stejné.")]
+    [SerializeField] private List<TroopGroup> troopGroups = new List<TroopGroup>();
+
     private readonly HashSet<BuildingSpawner> subscribedBuildingSpawners = new HashSet<BuildingSpawner>();
 
     private Transform SpawnCenter => spawnCenter != null ? spawnCenter : transform;
+
+    public override void OnNetworkSpawn()
+    {
+        TroopInteractor interactor = GetComponent<TroopInteractor>();
+        if (interactor != null)
+            interactor.RegisterGroups(troopGroups);
+    }
+
+    public void RegisterTroopGroup(TroopGroup group)
+    {
+        if (group == null) return;
+        if (!troopGroups.Contains(group)) troopGroups.Add(group);
+        TroopInteractor interactor = GetComponent<TroopInteractor>();
+        if (interactor != null) interactor.RegisterGroups(new[] { group });
+    }
 
     // ============================================================
     //  VEŘEJNÉ API – tohle voláš z tlačítek v UI
@@ -50,21 +72,33 @@ public class TroopSpawner : NetworkBehaviour
     /// Zavolej z tlačítka a předej index jednotky z listu (0, 1, 2...).
     /// V Unity Button OnClick() lze index rovnou nastavit jako parametr.
     /// </summary>
-    public void RequestSpawnTroop(int troopIndex)
-{
-    if (!IsOwner) return;
+    public void RequestSpawnTroop(int troopIndex, TroopGroup group, int spriteIndex)
+    {
+        if (!IsOwner || group == null) return;
 
-    Debug.Log($"[TroopSpawner] Hráč {OwnerClientId} žádá o spawn jednotky index {troopIndex}.");
-    RequestSpawnTroopServerRpc(troopIndex);
-}
+        Debug.Log($"[TroopSpawner] Hráč {OwnerClientId} žádá o spawn jednotky index {troopIndex} do skupiny {group.GroupId}.");
+        RequestSpawnTroopServerRpc(troopIndex, group.GroupId, spriteIndex);
+    }
+
+    public void RequestSpawnTroopOfType(TroopType type, TroopGroup group, int spriteIndex)
+    {
+        if (!IsOwner || group == null) return;
+        for (int i = 0; i < troopPrefabs.Count; i++)
+        {
+            Troop troop = troopPrefabs[i]?.prefab != null ? troopPrefabs[i].prefab.GetComponent<Troop>() : null;
+            if (troop != null && troop.Type == type && group != null) { RequestSpawnTroop(i, group, spriteIndex); return; }
+        }
+        Debug.LogWarning($"[TroopSpawner] Není nastaven prefab pro refill jednotky {type}.");
+    }
 
     [ServerRpc]
-    private void RequestSpawnTroopServerRpc(int troopIndex, ServerRpcParams rpcParams = default)
+    private void RequestSpawnTroopServerRpc(int troopIndex, int groupId, int spriteIndex, ServerRpcParams rpcParams = default)
     {
         ulong requestingClientId = rpcParams.Receive.SenderClientId;
         if (troopIndex < 0 || troopIndex >= troopPrefabs.Count)
         {
             Debug.LogWarning($"[TroopSpawner] Neplatný index jednotky: {troopIndex}");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
 
@@ -73,18 +107,33 @@ public class TroopSpawner : NetworkBehaviour
         if (troop == null)
         {
             Debug.LogWarning($"[TroopSpawner] Pro index {troopIndex} není přiřazen prefab s komponentou Troop.");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
 
-        if (!gameObject.GetComponent<TroopInteractor>().isAllowedToSpawn(troop))
+        TroopInteractor interactor = GetComponent<TroopInteractor>();
+        // TroopGroup is a local MonoBehaviour and cannot be sent through NGO.
+        // Both the owner and server address the same logical group by its ID.
+        TroopGroup targetGroup = FindConfiguredGroup(groupId);
+        if (targetGroup == null && interactor != null)
+            targetGroup = interactor.FindGroupById(groupId);
+        if (targetGroup == null || targetGroup.Units.Count + CountQueuedForGroup(groupId) >= targetGroup.MaxUnits)
+        {
+            Debug.LogWarning($"[TroopSpawner] Neplatná skupina {groupId} nebo nedostatek místa.");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
+            return;
+        }
+        if (!interactor.isAllowedToSpawn(troop))
         {
             Debug.Log("Hráč to nemůže spawnout, protože by překročil limit jednotek pro hráče");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
 
         if (!GetComponent<PlayerTechnology>().CheckTroopResearched(troop))
         {
             Debug.Log("Klient nemá vyzkoumanou tu jednotku, nemůže ji spawnout");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
 
@@ -92,6 +141,7 @@ public class TroopSpawner : NetworkBehaviour
             client.PlayerObject == null)
         {
             Debug.LogWarning($"[TroopSpawner] Nelze najít hráče {requestingClientId}.");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
 
@@ -100,6 +150,7 @@ public class TroopSpawner : NetworkBehaviour
         if (buildingSpawner == null)
         {
             Debug.LogWarning($"[TroopSpawner] Hráč {requestingClientId} nemá vhodnou budovu pro jednotku {troop.Type}.");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
 
@@ -108,6 +159,7 @@ public class TroopSpawner : NetworkBehaviour
             !building.IsOperational || !buildingSpawner.CanSpawn(troop.Type))
         {
             Debug.LogWarning($"[TroopSpawner] Vybraný spawner pro jednotku {troop.Type} není způsobilý.");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
 
@@ -118,12 +170,54 @@ public class TroopSpawner : NetworkBehaviour
         if (addedListener)
             buildingSpawner.loadingFinished += TrySpawnTroopServerSide;
 
-        if (!buildingSpawner.EnqueueTroop(troopIndex, troop) && addedListener)
+        if (!buildingSpawner.EnqueueTroop(troopIndex, troop, groupId, spriteIndex))
         {
-            subscribedBuildingSpawners.Remove(buildingSpawner);
-            buildingSpawner.loadingFinished -= TrySpawnTroopServerSide;
+            if (addedListener)
+            {
+                subscribedBuildingSpawners.Remove(buildingSpawner);
+                buildingSpawner.loadingFinished -= TrySpawnTroopServerSide;
+            }
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
         }
-        
+    }
+
+    private TroopGroup FindConfiguredGroup(int groupId)
+    {
+        if (troopGroups == null) return null;
+        foreach (TroopGroup group in troopGroups)
+            if (group != null && group.GroupId == groupId) return group;
+        return null;
+    }
+
+    private void NotifySpawnRequestRejected(ulong requestingClientId, int groupId, int spriteIndex)
+    {
+        SpawnRequestRejectedClientRpc(groupId, spriteIndex, new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new[] { requestingClientId }
+            }
+        });
+    }
+
+    [ClientRpc]
+    private void SpawnRequestRejectedClientRpc(int groupId, int spriteIndex, ClientRpcParams rpcParams = default)
+    {
+        if (IsOwner)
+            SpawnRequestRejected?.Invoke(groupId, spriteIndex);
+    }
+
+    private int CountQueuedForGroup(int groupId)
+    {
+        int count = 0;
+        BuildingInteractor buildings = GetComponent<BuildingInteractor>();
+        if (buildings == null) return count;
+        foreach (Building building in buildings.MyBuildings)
+        {
+            BuildingSpawner spawner = building != null ? building.GetComponent<BuildingSpawner>() : null;
+            if (spawner != null) count += spawner.CountQueuedTroopsForGroup(groupId);
+        }
+        return count;
     }
 
     // ============================================================
@@ -134,10 +228,10 @@ public class TroopSpawner : NetworkBehaviour
     //  SERVEROVÁ LOGIKA (jediné místo, kde se reálně spawnuje)
     // ============================================================
 
-    private void TrySpawnTroopServerSide(int troopIndex, Building building)
+    private void TrySpawnTroopServerSide(int troopIndex, Building building, int groupId, int spriteIndex)
     {
         if (IsServer && building != null)
-            SpawnCompletedTroop(troopIndex, building);
+            SpawnCompletedTroop(troopIndex, building, groupId, spriteIndex);
 
         BuildingSpawner buildingSpawner = building != null ? building.GetComponent<BuildingSpawner>() : null;
         if (buildingSpawner != null && !buildingSpawner.HasQueuedTroops &&
@@ -147,7 +241,7 @@ public class TroopSpawner : NetworkBehaviour
         }
     }
 
-    private void SpawnCompletedTroop(int troopIndex, Building building)
+    private void SpawnCompletedTroop(int troopIndex, Building building, int groupId, int spriteIndex)
     {
         if (troopIndex < 0 || troopIndex >= troopPrefabs.Count)
         {
@@ -181,7 +275,7 @@ public class TroopSpawner : NetworkBehaviour
             return;
         }
         
-        Troop spawnedTroop = SpawnTroopAt(entry.prefab, spawnPos, ownerClientId);
+        Troop spawnedTroop = SpawnTroopAt(entry.prefab, spawnPos, ownerClientId, groupId, spriteIndex);
         if (spawnedTroop == null)
         {
             Debug.Log("Spawnutá jednotka neexistuje.");
@@ -211,7 +305,7 @@ public class TroopSpawner : NetworkBehaviour
         for (int i = 0; i < maxSpawnAttempts; i++)
         {
             // 1) Náhodný bod v kruhu, pohled shora (jen X/Z)
-            Vector2 randomCircle = Random.insideUnitCircle * spawnAreaRadius;
+            Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * spawnAreaRadius;
             Vector3 xzPoint = SpawnCenter.position + new Vector3(randomCircle.x, 0f, randomCircle.y);
 
             // 2) Raycast shora dolů na layer země – stejný princip jako u budov
@@ -236,7 +330,7 @@ public class TroopSpawner : NetworkBehaviour
         return false;
     }
 
-    private Troop SpawnTroopAt(GameObject prefab, Vector3 position, ulong ownerClientId)
+    private Troop SpawnTroopAt(GameObject prefab, Vector3 position, ulong ownerClientId, int groupId, int spriteIndex)
     {
         GameObject instance = Instantiate(prefab, position, Quaternion.identity);
         NetworkObject netObj = instance.GetComponent<NetworkObject>();
@@ -251,8 +345,12 @@ public class TroopSpawner : NetworkBehaviour
 
         // Jednotka bude patřit hráči, který o ni požádal.
         // Pokud má být jednotka vlastněná serverem (ne hráčem), použij: netObj.Spawn();
+        Troop troop = instance.GetComponent<Troop>();
+        if (troop == null) { Destroy(instance); return null; }
+        troop.groupSpriteIndex = spriteIndex;
+        troop.TroopGroupId.Value = groupId;
         netObj.SpawnWithOwnership(ownerClientId);
-        return instance.GetComponent<Troop>();
+        return troop;
     }
 
     // ============================================================

@@ -24,9 +24,10 @@ public class BuildingSpawner : NetworkBehaviour
     [SerializeField] private List<TroopType> allowedTroopTypes = new List<TroopType>();
 
     /// <summary>Raised once for each unit completed by this building.</summary>
-    public event Action<int, Building> loadingFinished;
+    public event Action<int, Building, int, int> loadingFinished;
 
-    private readonly Queue<int> troopQueue = new Queue<int>();
+    private struct QueuedTroop { public int Index; public int GroupId; public int SpriteIndex; public QueuedTroop(int index, int groupId, int spriteIndex) { Index = index; GroupId = groupId; SpriteIndex = spriteIndex; } }
+    private readonly Queue<QueuedTroop> troopQueue = new Queue<QueuedTroop>();
     private readonly Dictionary<int, Troop> troopDefinitions = new Dictionary<int, Troop>();
     [SerializeField] public Transform spawnPoint;
     [SerializeField] public Transform rallyPoint;
@@ -43,15 +44,22 @@ public class BuildingSpawner : NetworkBehaviour
     public int CountQueuedTroopsOfType(TroopType troopType)
     {
         int count = 0;
-        foreach (int troopIndex in troopQueue)
+        foreach (QueuedTroop queued in troopQueue)
         {
-            if (troopDefinitions.TryGetValue(troopIndex, out Troop troop) &&
+            if (troopDefinitions.TryGetValue(queued.Index, out Troop troop) &&
                 troop != null && troop.Type == troopType)
             {
                 count++;
             }
         }
 
+        return count;
+    }
+
+    public int CountQueuedTroopsForGroup(int groupId)
+    {
+        int count = 0;
+        foreach (QueuedTroop queued in troopQueue) if (queued.GroupId == groupId) count++;
         return count;
     }
 
@@ -102,13 +110,13 @@ public class BuildingSpawner : NetworkBehaviour
     }
 
     /// <summary>Adds an indexed troop request to this building's production queue.</summary>
-    public bool EnqueueTroop(int troopIndex, Troop troop)
+    public bool EnqueueTroop(int troopIndex, Troop troop, int groupId, int spriteIndex)
     {
         if (!IsServer || troopIndex < 0 || troop == null || !CanSpawn(troop.Type) || coriumPerSecond <= 0 || troop.Cost < 0)
             return false;
 
         troopDefinitions[troopIndex] = troop;
-        troopQueue.Enqueue(troopIndex);
+        troopQueue.Enqueue(new QueuedTroop(troopIndex, groupId, spriteIndex));
 
         if (troopQueue.Count == 1)
             BeginCurrentTroop();
@@ -121,7 +129,7 @@ public class BuildingSpawner : NetworkBehaviour
         if (troopQueue.Count == 0)
             return;
 
-        int troopIndex = troopQueue.Peek();
+        int troopIndex = troopQueue.Peek().Index;
         if (!troopDefinitions.TryGetValue(troopIndex, out Troop troop) || troop == null)
         {
             Debug.LogError($"[BuildingSpawner] Chybí definice jednotky pro index {troopIndex}.", this);
@@ -145,7 +153,8 @@ public class BuildingSpawner : NetworkBehaviour
         if (troopQueue.Count == 0)
             return;
 
-        int completedTroopIndex = troopQueue.Dequeue();
+        QueuedTroop completed = troopQueue.Dequeue();
+        int completedTroopIndex = completed.Index;
         bool hasNextTroop = troopQueue.Count > 0;
 
         if (hasNextTroop)
@@ -157,7 +166,7 @@ public class BuildingSpawner : NetworkBehaviour
             time = 0f;
         }
 
-        loadingFinished?.Invoke(completedTroopIndex, currentBuilding);
+        loadingFinished?.Invoke(completedTroopIndex, currentBuilding, completed.GroupId, completed.SpriteIndex);
         PlayCompletionEffectsClientRpc();
 
         if (currentBuilding.Type == Building.BuildingType.Core && currentBuilding is Core core)

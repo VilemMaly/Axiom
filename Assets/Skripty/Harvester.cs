@@ -61,6 +61,7 @@ public class Harvester : Troop
         Debug.Log("change auto state");
         AutoHarvestEnabled = !AutoHarvestEnabled;
     }
+    public void SetAutoHarvestEnabled(bool enabled) { AutoHarvestEnabled = enabled; }
     public override void UpdateTroop()
     {
         // Detekce resources kolem sebe běží na všech instancích stejně jako

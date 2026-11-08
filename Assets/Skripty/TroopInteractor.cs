@@ -9,11 +9,11 @@ public class TroopInteractor : NetworkBehaviour
     [Tooltip("Komponenta Build - stejný GameObject jako Selector/TroopSpawner (Player NetworkObject).")]
     private Build build;
 
-    // Seznam vlastních troopů hráče. Naplňuje se automaticky - každý Troop se sem
-    // sám zaregistruje ve svém OnNetworkSpawn/OnNetworkDespawn (viz Troop.cs),
-    // pokud je jeho vlastníkem tenhle klient.
-    private readonly List<Troop> myTroops = new List<Troop>();
-    public IReadOnlyList<Troop> MyTroops => myTroops;
+    // Skupiny vlastních jednotek tohoto hráče; jednotky se zařazují při network spawnu.
+    private readonly List<TroopGroup> myGroups = new List<TroopGroup>();
+    private readonly Dictionary<TroopGroup, List<TroopType>> replacementRequests = new Dictionary<TroopGroup, List<TroopType>>();
+    private int nextGroupId;
+    public IReadOnlyList<TroopGroup> MyGroups => myGroups;
 
     private int BuildIndex;
     private Vector3 BuildPosition;
@@ -27,6 +27,103 @@ public class TroopInteractor : NetworkBehaviour
         build = GetComponent<Build>();
     }
 
+    public TroopGroup CreateGroup()
+    {
+        if (!IsOwner && !IsServer) return null;
+        TroopGroup group = CreateGroupLocal(nextGroupId++);
+        if (IsOwner && !IsServer) CreateGroupServerRpc(group.GroupId);
+        return group;
+    }
+
+    private TroopGroup CreateGroupLocal(int id)
+    {
+        GameObject groupObject = new GameObject($"Troop Group {myGroups.Count + 1}");
+        groupObject.transform.SetParent(transform, false);
+        TroopGroup group = groupObject.AddComponent<TroopGroup>();
+        group.SetGroupId(id);
+        group.SetOwner(this);
+        myGroups.Add(group);
+        nextGroupId = Mathf.Max(nextGroupId, id + 1);
+        return group;
+    }
+
+    public void RegisterGroups(IEnumerable<TroopGroup> groups)
+    {
+        if (groups == null) return;
+        foreach (TroopGroup group in groups)
+        {
+            if (group == null) continue;
+            if (group.GroupId < 0)
+                group.SetGroupId(nextGroupId);
+            else if (FindGroupById(group.GroupId) != null && FindGroupById(group.GroupId) != group)
+            {
+                Debug.LogError($"[TroopInteractor] Duplicitní TroopGroup ID {group.GroupId}.", group);
+                continue;
+            }
+
+            group.SetOwner(this);
+            if (!myGroups.Contains(group)) myGroups.Add(group);
+            nextGroupId = Mathf.Max(nextGroupId, group.GroupId + 1);
+        }
+    }
+
+    [ServerRpc]
+    private void CreateGroupServerRpc(int groupId, ServerRpcParams rpcParams = default)
+    {
+        if (rpcParams.Receive.SenderClientId != OwnerClientId) return;
+        EnsureServerGroup(groupId);
+    }
+
+    // TroopGroup is intentionally a local MonoBehaviour, so RPCs carry only its
+    // stable per-player ID. This also handles a spawn request arriving before
+    // the separate group-creation RPC has been processed.
+    internal TroopGroup EnsureServerGroup(int groupId)
+    {
+        if (!IsServer || groupId < 0 || groupId > 1000) return null;
+        TroopGroup existing = FindGroupById(groupId);
+        if (existing != null) return existing;
+        if (groupId != nextGroupId) return null;
+        return CreateGroupLocal(groupId);
+    }
+
+    public TroopGroup FindGroupById(int groupId)
+    {
+        foreach (TroopGroup group in myGroups) if (group != null && group.GroupId == groupId) return group;
+        return null;
+    }
+
+    public void MoveGroup(TroopGroup group, Vector3 destination) { if (myGroups.Contains(group)) group.MoveOrder(destination); }
+    public void AttackGroup(TroopGroup group, TroopGroup enemyGroup)
+    {
+        if (group == null || enemyGroup == null || !myGroups.Contains(group)) return;
+        Troop target = null;
+        float best = float.MaxValue;
+        foreach (Troop enemy in enemyGroup.Units)
+        {
+            if (enemy == null) continue;
+            float strength = enemy.Health.Value + enemy.Damage * Mathf.Max(1f, enemy.AttackRange);
+            if (strength < best) { best = strength; target = enemy; }
+        }
+        if (target != null) group.Attack(target);
+    }
+    public void AttackEnemyGroup(TroopGroup group, Troop enemyMember)
+    {
+        if (group == null || enemyMember == null || !myGroups.Contains(group)) return;
+        List<Troop> members = TroopGroup.GetUnitsInSameGroup(enemyMember);
+        Troop target = null;
+        float weakest = float.MaxValue;
+        foreach (Troop member in members)
+        {
+            if (member == null) continue;
+            float strength = member.Health.Value + member.Damage * Mathf.Max(1f, member.AttackRange);
+            if (strength < weakest) { weakest = strength; target = member; }
+        }
+        if (target != null) group.Attack(target);
+    }
+    public void AttackBuilding(TroopGroup group, Building target) { if (group != null && myGroups.Contains(group)) group.Attack(target); }
+    public void Defend(TroopGroup group, Vector3 position) { if (group != null && myGroups.Contains(group)) group.SetTask(TroopGroupTask.Defend, position); }
+    public void Harvest(TroopGroup group, Resource resource = null) { if (group != null && myGroups.Contains(group)) group.Harvest(resource); }
+
     // Update is called once per frame
     void Update()
     {
@@ -37,13 +134,19 @@ public class TroopInteractor : NetworkBehaviour
     //  Seznam vlastních troopů
     // ============================================================
 
-    public void RegisterTroop(Troop troop)
+    public void RegisterTroop(Troop troop, TroopGroup group = null)
     {
-        if (troop == null || myTroops.Contains(troop))
+        if (troop == null || troop.Group != null)
             return;
-
-        myTroops.Add(troop);
-        Debug.Log($"[TroopInteractor] Zaregistrována jednotka {troop.name} (typ {troop.Type}). Celkem: {myTroops.Count}");
+        TroopGroup targetGroup = null;
+        if (targetGroup == null) targetGroup = FindGroupById(troop.TroopGroupId.Value);
+        if (targetGroup == null) { Debug.LogError($"[TroopInteractor] Chybí skupina s ID {troop.TroopGroupId.Value} pro jednotku {troop.name}."); return; }
+        targetGroup.AddUnit(troop);
+        if (replacementRequests.TryGetValue(targetGroup, out List<TroopType> requests))
+        {
+            requests.Remove(troop.Type);
+            if (requests.Count == 0) replacementRequests.Remove(targetGroup);
+        }
     }
 
     public bool isAllowedToSpawn(Troop troopToSpawn)
@@ -52,12 +155,10 @@ public class TroopInteractor : NetworkBehaviour
             return false;
         
         int troopCount = 0;
-        foreach (Troop spawnedTroops in myTroops)
+        foreach (TroopGroup group in myGroups)
         {
-            if (spawnedTroops != null && troopToSpawn.Type == spawnedTroops.Type)
-            {
-                troopCount++;
-            }
+            if (group != null) foreach (Troop spawnedTroops in group.Units)
+                if (spawnedTroops != null && troopToSpawn.Type == spawnedTroops.Type) troopCount++;
         }
 
         BuildingInteractor buildingInteractor = GetComponent<BuildingInteractor>();
@@ -85,9 +186,22 @@ public class TroopInteractor : NetworkBehaviour
         if (troop == null)
             return;
 
-        if (myTroops.Remove(troop))
-            Debug.Log($"[TroopInteractor] Odregistrována jednotka {troop.name} (typ {troop.Type}). Celkem: {myTroops.Count}");
+        if (troop.Group != null) troop.Group.RemoveUnit(troop);
     }
+
+    internal void RequestReplacementFor(TroopGroup group, TroopType type, int spriteIndex)
+    {
+        if (!refillAllowed(group)) return;
+        if (!replacementRequests.TryGetValue(group, out List<TroopType> requests))
+        {
+            requests = new List<TroopType>();
+            replacementRequests.Add(group, requests);
+        }
+        requests.Add(type);
+        TroopSpawner spawner = GetComponent<TroopSpawner>();
+        if (spawner != null) spawner.RequestSpawnTroopOfType(type, group, spriteIndex);
+    }
+    private bool refillAllowed(TroopGroup group) => group != null && group.RefillUnits && group.Units.Count < group.MaxUnits;
 
     // ============================================================
     //  Stavba budov
@@ -117,7 +231,8 @@ public class TroopInteractor : NetworkBehaviour
 
         bool anyCargoFound = false;
 
-        foreach (Troop troop in myTroops)
+        foreach (TroopGroup group in myGroups)
+        foreach (Troop troop in group.Units)
         {
             if (troop is Cargo cargo)
             {
@@ -210,17 +325,10 @@ public class TroopInteractor : NetworkBehaviour
         }));
     }
 
-    public void ChangeAutoState()
+    public void OrderSelectedGroupToHarvest()
     {
-        Cargo troop = selector.SelectedTroop as Cargo;
-        if (troop == null)
-        {
-            Debug.Log("No troop selected for interaction.");
-            return;
-        }
-    
-
-        troop.changeAutoState();
+        Troop troop = selector.SelectedTroop;
+        if (troop != null && troop.Group != null) troop.Group.Harvest();
     }
 
 }

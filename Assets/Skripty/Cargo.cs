@@ -51,7 +51,6 @@ public class Cargo : Troop
 
     private Resource currentTarget;
     private float nextHarvestTick;
-    private float nextDebugLog; // jen pro diagnostiku, neovlivňuje logiku
 
     [Header("Efekty těžby a předání coria")]
     [Tooltip("ParticleSystem připojený v editoru; při spuštění se odpojí od Cargo.")]
@@ -69,11 +68,10 @@ public class Cargo : Troop
     private Core currentCore;
     private float nextDepositTick;
 
-    public bool AutoHarvestEnabled { get; set; } = false;
     public Building currentBase;
     private Resource selectedResource;
-    private bool moveToBase = false;
-    private bool moveToResource = false;
+    private Resource aiMoveResource;
+    private Core aiMoveCore;
 
     /// <summary>Kolik coria už tahle jednotka nasbírala a veze v sobě.</summary>
     public NetworkVariable<int> CoriumCargo = new(writePerm: NetworkVariableWritePermission.Server);
@@ -120,6 +118,12 @@ public class Cargo : Troop
         IsBuilding.Value = false;
     }
 
+    public override void StopCurrentTask()
+    {
+        base.StopCurrentTask();
+        if (IsOwner) CancelHarvestingForBuildServerRpc();
+    }
+
     public override void OnSelectResource(Resource resource)
     {
         base.OnSelectResource(resource);
@@ -140,10 +144,45 @@ public class Cargo : Troop
         
     }
 
-    public void changeAutoState()
+    public bool IsCargoFull => CoriumCargo.Value >= MaxCargo;
+    public bool HasCargo => CoriumCargo.Value > 0;
+
+    /// <summary>AI command: move to a resource and begin harvesting when in work range.</summary>
+    public void OrderHarvest(Resource resource)
     {
-        Debug.Log("change auto state");
-        AutoHarvestEnabled = !AutoHarvestEnabled;
+        if (!IsOwner || resource == null || resource.Depleted || IsCargoFull || IsHarvesting.Value) return;
+        selectedResource = resource;
+        if (IsNearEnough(resource.transform.position, transform.position))
+        {
+            aiMoveResource = null;
+            RequestHarvestTargetServerRpc(resource.NetworkObject);
+            return;
+        }
+        if (aiMoveResource != resource)
+        {
+            aiMoveResource = resource;
+            aiMoveCore = null;
+            RequestMove(resource.transform.position);
+        }
+    }
+
+    /// <summary>AI command: carry corium to a friendly Core and deposit it.</summary>
+    public void OrderDeposit(Core core)
+    {
+        if (!IsOwner || core == null || !HasCargo || IsDepositing.Value) return;
+        currentBase = core;
+        if (IsNearEnough(core.transform.position, transform.position))
+        {
+            aiMoveCore = null;
+            RequestDepositCoriumServerRpc(core.NetworkObject);
+            return;
+        }
+        if (aiMoveCore != core)
+        {
+            aiMoveCore = core;
+            aiMoveResource = null;
+            RequestMove(core.transform.position);
+        }
     }
 
     public void RequestMoveToBuild(Vector3 position, int buildingIndex, int rotation)
@@ -344,57 +383,6 @@ public class Cargo : Troop
         if (CoriumCargo.Value < MaxCargo)
             ScanForResources();
 
-        // Hledání proběhne
-        // jen tehdy, když jednotka nemá platný cíl. Pokud currentBase/selectedResource
-        // už ukazují na platnou budovu/resource, metoda se rovnou vrátí a nic neprohledává.
-        if (IsOwner)
-        {
-            AutoDetectCore();
-            AutoDetectResource();
-        }
-
-        if (IsOwner && !IsHarvesting.Value && CoriumCargo.Value < MaxCargo)
-        {
-            SearchForHarvestingTarget();
-        }
-
-        if (IsOwner && !IsDepositing.Value && CoriumCargo.Value >= MaxCargo)
-        {
-            isNearCore();
-        }
-
-        if (Time.time >= nextDebugLog)
-        {
-            nextDebugLog = Time.time + 1f;
-            /*Debug.Log($"[Cargo-DIAG] {name} stav: IsOwner={IsOwner} IsServer={IsServer} AutoHarvestEnabled={AutoHarvestEnabled} " +
-                      $"IsHarvesting={IsHarvesting.Value} CoriumCargo={CoriumCargo.Value}/{MaxCargo} " +
-                      $"selectedResource={(selectedResource != null ? selectedResource.name : "null")} currentBase={(currentBase != null ? currentBase.name : "null")} " +
-                      $"| podmínka(IsOwner&&AutoHarvestEnabled&&!IsHarvesting&&!IsServer)={(IsOwner && AutoHarvestEnabled && !IsHarvesting.Value && !IsServer)}");
-        */
-        }
-
-        if (IsOwner && AutoHarvestEnabled && !IsHarvesting.Value && !IsDepositing.Value)
-        {
-            if (CoriumCargo.Value >= MaxCargo)
-            {
-                if (currentBase != null && !moveToBase){
-                    MoveToBase();
-                    moveToBase = true;
-                    moveToResource = false;
-                    }
-                    
-            }
-            else
-            {
-                if (selectedResource != null && !moveToResource){
-                    MoveToTargetResource();
-                    moveToResource = true;
-                    moveToBase = false;
-                    }
-                    
-            }
-        }
-
         if (!IsServer)
             return;
 
@@ -449,20 +437,6 @@ public class Cargo : Troop
     }
 
 
-    private void MoveToTargetResource()
-    {
-        Debug.Log($"[Cargo-DIAG] {name} MoveToTargetResource voláno, selectedResource={(selectedResource != null ? selectedResource.name : "null")}");
-        if(selectedResource != null)
-            RequestMove(selectedResource.GameObject().transform.position);
-    }
-
-    private void MoveToBase()
-    {
-        Debug.Log($"[Cargo-DIAG] {name} MoveToBase voláno, currentBase={(currentBase != null ? currentBase.name : "null")}");
-        if(currentBase != null && currentBase.Type == Building.BuildingType.Core && currentBase.IsOwner)
-            RequestMove(currentBase.GameObject().transform.position);
-    }
-
     private void ScanForResources()
     {
         if (selectedResource != null && !selectedResource.Depleted && selectedResource.CoriumAmount.Value > 0)
@@ -511,86 +485,6 @@ public class Cargo : Troop
                 resourcesInRange.RemoveAt(i);
             }
         }
-    }
-
-    private void SearchForHarvestingTarget()
-    {
-        foreach (Resource resource in resourcesInRange)
-        {
-            if (resource == null || resource.Depleted)
-                continue;
-            if (!IsNearEnough(resource.GameObject().transform.position, this))
-                return;
-
-            Debug.Log($"[Cargo] {name} našel resource {resource.name} k sběru.");
-            RequestHarvestTargetServerRpc(resource.NetworkObject);
-            break;
-        }
-    }
-
-    private void isNearCore()
-    {
-        if(Vector3.Distance(currentBase.GameObject().transform.position, this.GameObject().transform.position) < SightRange + 1)
-        {
-            Debug.Log("Deposituji corium");
-            RequestDepositCoriumServerRpc(currentBase.NetworkObject);
-        }
-    }
-
-    /// <summary>
-    /// Automatická obdoba Atlasova SearchForConstructionTarget - hledá kolem sebe
-    /// vlastní Core (stejně jako SearchForCore prochází BuildingsInRange), ale
-    /// jen pokud currentBase ještě neukazuje na platnou budovu. Používá se pro
-    /// auto-harvest chození tam a zpátky (MoveToBase), takže si tu žádnou zprávu
-    /// server neposílá - jen si klient lokálně zapamatuje cíl.
-    /// </summary>
-    private void AutoDetectCore()
-    {
-        if (currentBase != null && currentBase.Type == Building.BuildingType.Core && currentBase.IsOwner)
-            return;
-
-        Building previous = currentBase;
-        currentBase = null;
-
-        foreach (Building building in BuildingsInRange)
-        {
-            if (building == null || building.Type != Building.BuildingType.Core || !building.IsOwner)
-                continue;
-
-            currentBase = building;
-            break;
-        }
-
-        // Pokud se cíl změnil (starý zmizel/byl zničen a našel se nový), je potřeba
-        // zrušit příznak moveToBase, aby MoveToBase() poslal příkaz k chůzi znovu.
-        if (currentBase != previous)
-            moveToBase = false;
-    }
-
-    /// <summary>
-    /// Automatické hledání resource s alespoň 1 coriem v dosahu (resourcesInRange
-    /// plní ScanForResources) - hledá jen tehdy, když selectedResource ještě
-    /// neukazuje na platnou, nevyčerpanou surovinu.
-    /// </summary>
-    private void AutoDetectResource()
-    {
-        if (selectedResource != null && !selectedResource.Depleted && selectedResource.CoriumAmount.Value > 0)
-            return;
-
-        Resource previous = selectedResource;
-        selectedResource = null;
-
-        foreach (Resource resource in resourcesInRange)
-        {
-            if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0)
-                continue;
-
-            selectedResource = resource;
-            break;
-        }
-
-        if (selectedResource != previous)
-            moveToResource = false;
     }
 
     [ServerRpc]

@@ -145,6 +145,7 @@ MonoBehaviour:
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  groupSpriteIndex: 0
   navMeshSampleRadius: 3
   formationSpacing: 1.5
   positionSyncInterval: 0.21
@@ -161,6 +162,11 @@ MonoBehaviour:
   framePerUpdate: 10
   Kompenzace: 1
   MaxTroopAmount: 10
+  TroopGroupId:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -487,7 +493,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &539297645088943730
 Transform:
   m_ObjectHideFlags: 0
@@ -871,6 +877,10 @@ PrefabInstance:
     - target: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
