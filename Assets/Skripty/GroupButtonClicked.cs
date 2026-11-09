@@ -1,26 +1,32 @@
 using UnityEngine;
 
+/// <summary>UI button for a player's troop group, identified by a stable ID.</summary>
 public class GroupButtonClicked : MonoBehaviour
 {
-    public TroopUIController uiController;
-    public bool isFirstGroupButton = false;
+    [SerializeField, Min(0)] private int groupId;
+    [SerializeField] private bool isFirstGroupButton;
+
+    private TroopInteractor troopInteractor;
+
+    private void Awake()
+    {
+        troopInteractor = GetComponentInParent<TroopInteractor>();
+    }
+
     public void OnGroupButtonClicked()
     {
-        TroopGroup troopGroup = GetComponent<TroopGroup>();
-        if (uiController != null)
-        {
-            uiController.SetSelectedTroopGroup(troopGroup);
-        }
-    }
-    public void Start()
-    {
-        TroopGroup troopGroup = GetComponent<TroopGroup>();
-        if (uiController != null)
-            uiController.RegisterTroopGroup(troopGroup);
+        if (troopInteractor == null)
+            troopInteractor = GetComponentInParent<TroopInteractor>();
 
+        if (troopInteractor != null)
+            troopInteractor.RequestActivateGroup(groupId);
+        else
+            Debug.LogError("GroupButtonClicked could not find the player's TroopInteractor.", this);
+    }
+
+    private void Start()
+    {
         if (isFirstGroupButton)
-        {
             OnGroupButtonClicked();
-        }
     }
 }

@@ -20,7 +20,12 @@ public class TroopGroup : MonoBehaviour
     public int MaxUnits { get => maxUnits; set => maxUnits = Mathf.Max(1, value); }
     public int GroupId => groupId;
     public bool RefillUnits { get => refillUnits; set => refillUnits = value; }
-    public TroopGroupState State { get; internal set; } = TroopGroupState.Idle;
+    private TroopGroupState state = TroopGroupState.Idle;
+    public TroopGroupState State
+    {
+        get => state;
+        internal set { state = value; SyncGroupState(); }
+    }
     public TroopGroupTask Task { get; private set; } = TroopGroupTask.Nothing;
     public event Action<Troop> UnitDespawned;
     public Vector3 ObjectivePosition { get; private set; }
@@ -29,6 +34,8 @@ public class TroopGroup : MonoBehaviour
     public Resource TargetResource { get; private set; }
     public ulong OwnerClientId => owner != null ? owner.OwnerClientId : ulong.MaxValue;
     public TroopAI AI => troopAI;
+    public int TargetGroupId { get; private set; } = -1;
+    public ulong TargetGroupOwnerId { get; private set; } = ulong.MaxValue;
 
     private void Awake()
     {
@@ -44,6 +51,7 @@ public class TroopGroup : MonoBehaviour
         if (troop == null || units.Contains(troop) || units.Count >= maxUnits) return false;
         units.Add(troop);
         troop.Group = this;
+        SyncGroupState();
         return true;
     }
 
@@ -71,6 +79,7 @@ public class TroopGroup : MonoBehaviour
 
     public void SetTask(TroopGroupTask task, Vector3 position = default)
     {
+        owner?.RequestGroupOrder(this, task, position);
         StopAll();
         Task = task; ObjectivePosition = position; TargetTroop = null; TargetBuilding = null; TargetResource = null;
         State = task == TroopGroupTask.Harvest ? TroopGroupState.Harvesting : task == TroopGroupTask.Scout ? TroopGroupState.Scouting : task == TroopGroupTask.Defend ? TroopGroupState.Idle : TroopGroupState.Moving;
@@ -84,8 +93,85 @@ public class TroopGroup : MonoBehaviour
         if (target == null) return;
         foreach (Troop troop in Snapshot()) troop.StopCurrentTask();
         TargetTroop = target; TargetBuilding = null; Task = TroopGroupTask.Attack;
+        if (target.Group != null) SetTargetGroup(target.Group);
         ObjectivePosition = target.transform.position; State = TroopGroupState.Attacking;
         MoveAll(ObjectivePosition);
+    }
+
+    public void AttackGroup(TroopGroup enemyGroup)
+    {
+        if (enemyGroup == null || enemyGroup == this || enemyGroup.Units.Count == 0) return;
+        TargetGroupId = enemyGroup.GroupId;
+        TargetGroupOwnerId = enemyGroup.OwnerClientId;
+        Troop target = SelectWeakest(enemyGroup.Units);
+        if (target != null) Attack(target);
+    }
+
+    internal void HandleEnemyGroupDetected(TroopGroup enemyGroup)
+    {
+        if (enemyGroup == null || enemyGroup == this) return;
+        if (enemyGroup.State == TroopGroupState.Attacking || Task == TroopGroupTask.Attack)
+        {
+            if (Task != TroopGroupTask.Attack || TargetGroupId != enemyGroup.GroupId || TargetGroupOwnerId != enemyGroup.OwnerClientId)
+                AttackGroup(enemyGroup);
+            State = TroopGroupState.Attacking;
+        }
+    }
+
+    private void SetTargetGroup(TroopGroup target)
+    {
+        TargetGroupId = target != null ? target.GroupId : -1;
+        TargetGroupOwnerId = target != null ? target.OwnerClientId : ulong.MaxValue;
+        SyncGroupState();
+    }
+
+    private void SyncGroupState()
+    {
+        foreach (Troop troop in units)
+        {
+            if (troop == null || !troop.IsSpawned) continue;
+            if (troop.IsServer)
+            {
+                troop.SyncedGroupState.Value = (int)state;
+                troop.TargetGroupId.Value = TargetGroupId;
+                troop.TargetGroupOwnerId.Value = TargetGroupOwnerId;
+            }
+            else troop.RequestGroupStateSync((int)state, TargetGroupId, TargetGroupOwnerId);
+        }
+    }
+
+    internal void ApplySyncedState(TroopGroupState syncedState, int targetGroupId, ulong targetOwnerId)
+    {
+        state = syncedState;
+        TargetGroupId = targetGroupId;
+        TargetGroupOwnerId = targetOwnerId;
+        if (syncedState == TroopGroupState.Attacking && targetGroupId >= 0)
+        {
+            Task = TroopGroupTask.Attack;
+            TargetTroop = null;
+            foreach (Troop candidate in FindObjectsByType<Troop>(FindObjectsSortMode.None))
+                if (candidate != null && candidate.OwnerClientId == targetOwnerId && candidate.TroopGroupId.Value == targetGroupId)
+                { TargetTroop = candidate; break; }
+        }
+        else if (syncedState != TroopGroupState.Attacking && Task == TroopGroupTask.Attack)
+        {
+            Task = TroopGroupTask.Nothing;
+            TargetTroop = null;
+            TargetBuilding = null;
+        }
+    }
+
+    private static Troop SelectWeakest(IReadOnlyList<Troop> candidates)
+    {
+        Troop target = null;
+        float score = float.MaxValue;
+        foreach (Troop candidate in candidates)
+        {
+            if (candidate == null) continue;
+            float value = candidate.Health.Value + candidate.Damage * Mathf.Max(1f, candidate.AttackRange);
+            if (value < score) { score = value; target = candidate; }
+        }
+        return target;
     }
 
     public void Attack(Building target)
@@ -93,6 +179,7 @@ public class TroopGroup : MonoBehaviour
         if (target == null) return;
         foreach (Troop troop in Snapshot()) troop.StopCurrentTask();
         TargetBuilding = target; TargetTroop = null; Task = TroopGroupTask.Attack;
+        TargetGroupId = -1; TargetGroupOwnerId = ulong.MaxValue;
         ObjectivePosition = target.transform.position; State = TroopGroupState.Attacking;
         MoveAll(ObjectivePosition);
     }
@@ -110,6 +197,7 @@ public class TroopGroup : MonoBehaviour
 
     public void MoveOrder(Vector3 destination)
     {
+        owner?.RequestGroupOrder(this, TroopGroupTask.Nothing, destination);
         StopAll();
         TargetTroop = null; TargetBuilding = null; TargetResource = null;
         MoveAll(destination);
@@ -118,7 +206,12 @@ public class TroopGroup : MonoBehaviour
     public void MoveUnit(Troop troop, Vector3 destination) { if (units.Contains(troop)) troop.RequestMove(destination); }
     public void AssignUnit(Troop troop, Building building) { if (units.Contains(troop) && building != null) troop.OnSelectBuilding(building); }
     public void AssignUnit(Troop troop, Troop target) { if (units.Contains(troop) && target != null) troop.OnSelectTroop(target); }
-    public void StopAll() { Prune(); foreach (Troop troop in units) troop.StopCurrentTask(); Task = TroopGroupTask.Nothing; State = TroopGroupState.Idle; }
+    public void StopAll()
+    {
+        Prune(); foreach (Troop troop in units) troop.StopCurrentTask();
+        TargetGroupId = -1; TargetGroupOwnerId = ulong.MaxValue;
+        Task = TroopGroupTask.Nothing; State = TroopGroupState.Idle;
+    }
     public void AssignAll(Building building) { if (building == null) return; foreach (Troop troop in Snapshot()) troop.OnSelectBuilding(building); }
     public void AssignAll(Troop target) { if (target == null) return; foreach (Troop troop in Snapshot()) troop.OnSelectTroop(target); }
     public void Harvest(Resource resource = null)

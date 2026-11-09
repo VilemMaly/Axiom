@@ -74,6 +74,82 @@ public class TroopInteractor : NetworkBehaviour
         EnsureServerGroup(groupId);
     }
 
+    /// <summary>Asks the server to ensure this player's group exists and confirms its ID back to the owner.</summary>
+    public void RequestActivateGroup(int groupId)
+    {
+        if (!IsOwner || groupId < 0) return;
+        ActivateGroupServerRpc(groupId);
+    }
+
+    [ServerRpc]
+    private void ActivateGroupServerRpc(int groupId, ServerRpcParams rpcParams = default)
+    {
+        ulong requestingClientId = rpcParams.Receive.SenderClientId;
+        if (requestingClientId != OwnerClientId) return;
+
+        TroopGroup group = FindGroupById(groupId);
+        if (group == null)
+            group = EnsureServerGroup(groupId);
+
+        bool groupExists = group != null;
+        if (!groupExists)
+            Debug.LogWarning($"[TroopInteractor] Nelze vytvořit skupinu {groupId} pro hráče {OwnerClientId}.");
+
+        ActivateGroupClientRpc(groupId, groupExists, groupExists ? group.MaxUnits : 0,
+            groupExists && group.RefillUnits, new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams { TargetClientIds = new[] { requestingClientId } }
+        });
+    }
+
+    [ClientRpc]
+    private void ActivateGroupClientRpc(int groupId, bool groupExists, int maxUnits, bool refillUnits, ClientRpcParams rpcParams = default)
+    {
+        if (!IsOwner || !groupExists) return;
+
+        TroopGroup group = EnsureLocalGroup(groupId, maxUnits, refillUnits);
+        if (group == null) return;
+        TroopUIController uiController = GetComponentInChildren<TroopUIController>(true);
+        if (uiController != null)
+            uiController.SetSelectedTroopGroup(group);
+    }
+
+    private TroopGroup EnsureLocalGroup(int groupId, int maxUnits, bool refillUnits)
+    {
+        if (groupId < 0 || groupId > 1000) return null;
+        TroopGroup group = FindGroupById(groupId);
+        if (group == null) group = CreateGroupLocal(groupId);
+        group.MaxUnits = maxUnits;
+        group.RefillUnits = refillUnits;
+
+        // Troops may have spawned before this client received the group's
+        // activation response. Rebuild its local view from replicated troops.
+        foreach (Troop troop in FindObjectsByType<Troop>(FindObjectsSortMode.None))
+        {
+            if (troop != null && troop.OwnerClientId == OwnerClientId &&
+                troop.TroopGroupId.Value == groupId && troop.Group == null)
+                group.AddUnit(troop);
+        }
+        return group;
+    }
+
+    internal void RequestGroupOrder(TroopGroup group, TroopGroupTask task, Vector3 position)
+    {
+        if (group == null || !myGroups.Contains(group) || !IsOwner || IsServer) return;
+        SetGroupOrderServerRpc(group.GroupId, (int)task, position);
+    }
+
+    [ServerRpc]
+    private void SetGroupOrderServerRpc(int groupId, int taskValue, Vector3 position, ServerRpcParams rpcParams = default)
+    {
+        if (rpcParams.Receive.SenderClientId != OwnerClientId || taskValue < 0 || taskValue > (int)TroopGroupTask.Scout) return;
+        TroopGroup group = FindGroupById(groupId);
+        if (group == null) group = EnsureServerGroup(groupId);
+        if (group == null) return;
+        if ((TroopGroupTask)taskValue == TroopGroupTask.Nothing) group.MoveOrder(position);
+        else group.SetTask((TroopGroupTask)taskValue, position);
+    }
+
     // TroopGroup is intentionally a local MonoBehaviour, so RPCs carry only its
     // stable per-player ID. This also handles a spawn request arriving before
     // the separate group-creation RPC has been processed.
@@ -82,7 +158,8 @@ public class TroopInteractor : NetworkBehaviour
         if (!IsServer || groupId < 0 || groupId > 1000) return null;
         TroopGroup existing = FindGroupById(groupId);
         if (existing != null) return existing;
-        if (groupId != nextGroupId) return null;
+        // Group IDs may be assigned explicitly in the Inspector, so they do
+        // not have to be created in sequential order.
         return CreateGroupLocal(groupId);
     }
 
@@ -95,30 +172,18 @@ public class TroopInteractor : NetworkBehaviour
     public void MoveGroup(TroopGroup group, Vector3 destination) { if (myGroups.Contains(group)) group.MoveOrder(destination); }
     public void AttackGroup(TroopGroup group, TroopGroup enemyGroup)
     {
-        if (group == null || enemyGroup == null || !myGroups.Contains(group)) return;
-        Troop target = null;
-        float best = float.MaxValue;
-        foreach (Troop enemy in enemyGroup.Units)
-        {
-            if (enemy == null) continue;
-            float strength = enemy.Health.Value + enemy.Damage * Mathf.Max(1f, enemy.AttackRange);
-            if (strength < best) { best = strength; target = enemy; }
-        }
-        if (target != null) group.Attack(target);
+        if (group != null && myGroups.Contains(group)) group.AttackGroup(enemyGroup);
     }
     public void AttackEnemyGroup(TroopGroup group, Troop enemyMember)
     {
         if (group == null || enemyMember == null || !myGroups.Contains(group)) return;
-        List<Troop> members = TroopGroup.GetUnitsInSameGroup(enemyMember);
-        Troop target = null;
-        float weakest = float.MaxValue;
-        foreach (Troop member in members)
-        {
-            if (member == null) continue;
-            float strength = member.Health.Value + member.Damage * Mathf.Max(1f, member.AttackRange);
-            if (strength < weakest) { weakest = strength; target = member; }
-        }
-        if (target != null) group.Attack(target);
+        group.AttackGroup(FindForeignGroup(enemyMember));
+    }
+    private static TroopGroup FindForeignGroup(Troop member)
+    {
+        if (member == null || NetworkManager.Singleton == null || !NetworkManager.Singleton.ConnectedClients.TryGetValue(member.OwnerClientId, out NetworkClient client) || client.PlayerObject == null) return null;
+        TroopInteractor interactor = client.PlayerObject.GetComponent<TroopInteractor>();
+        return interactor != null ? interactor.FindGroupById(member.TroopGroupId.Value) : null;
     }
     public void AttackBuilding(TroopGroup group, Building target) { if (group != null && myGroups.Contains(group)) group.Attack(target); }
     public void Defend(TroopGroup group, Vector3 position) { if (group != null && myGroups.Contains(group)) group.SetTask(TroopGroupTask.Defend, position); }

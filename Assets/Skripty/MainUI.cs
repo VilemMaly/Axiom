@@ -27,13 +27,14 @@ public class MainUI : NetworkBehaviour
     {
         // Nastavení počáteční viditelnosti UI panelů.
         SetUIVisibility(isVisible);
-        SetResearchVisibility(isResearchVisible);
-
-        if (buildingsPanel != null)
-            buildingsPanel.SetActive(BuildingOn);
-
-        if (troopPanel != null)
-            troopPanel.SetActive(TroopOn);
+        if (isResearchVisible)
+            SetActiveTab("research");
+        else if (BuildingOn)
+            SetActiveTab("buildings");
+        else if (TroopOn)
+            SetActiveTab("troop");
+        else
+            SetActiveTab(null);
 
 
         if (!IsOwner)
@@ -76,19 +77,13 @@ public class MainUI : NetworkBehaviour
     // Přepne Building panel.
     public void ToggleBuilding()
     {
-        BuildingOn = !BuildingOn;
-
-        if (buildingsPanel != null)
-            buildingsPanel.SetActive(BuildingOn);
+        SetActiveTab(BuildingOn ? null : "buildings");
     }
 
     // Přepne Troop panel.
     public void ToggleTroop()
     {
-        TroopOn = !TroopOn;
-
-        if (troopPanel != null)
-            troopPanel.SetActive(TroopOn);
+        SetActiveTab(TroopOn ? null : "troop");
     }
 
     // Přepne viditelnost World UI panelu.
@@ -100,10 +95,10 @@ public class MainUI : NetworkBehaviour
     // Zapne nebo vypne celý Research panel.
     public void SetResearchVisibility(bool visible)
     {
-        isResearchVisible = visible;
-
-        if (researchParent != null)
-            researchParent.SetActive(isResearchVisible);
+        if (visible)
+            SetActiveTab("research");
+        else if (isResearchVisible)
+            SetActiveTab(null);
     }
 
     // Přepne viditelnost Research panelu.
@@ -111,5 +106,20 @@ public class MainUI : NetworkBehaviour
     {
         SetResearchVisibility(!isResearchVisible);
         ToggleUIVisibility();
+    }
+
+    // Udržuje obsahové panely vzájemně výlučné.
+    private void SetActiveTab(string tab)
+    {
+        isResearchVisible = tab == "research";
+        BuildingOn = tab == "buildings";
+        TroopOn = tab == "troop";
+
+        if (researchParent != null)
+            researchParent.SetActive(isResearchVisible);
+        if (buildingsPanel != null)
+            buildingsPanel.SetActive(BuildingOn);
+        if (troopPanel != null)
+            troopPanel.SetActive(TroopOn);
     }
 }

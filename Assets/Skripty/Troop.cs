@@ -33,6 +33,8 @@ public enum DamageType
     Explosion
 }
 
+public enum TroopScanType { Building, Troop, TroopGroup, Coria }
+
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(StatusBar))]
 [RequireComponent(typeof(TroopMaterial))]
@@ -112,6 +114,9 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     public int MaxTroopAmount;
     public TroopGroup Group { get; internal set; }
     public NetworkVariable<int> TroopGroupId = new(-1, writePerm: NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> SyncedGroupState = new((int)TroopGroupState.Idle, writePerm: NetworkVariableWritePermission.Server);
+    public NetworkVariable<ulong> TargetGroupOwnerId = new(ulong.MaxValue, writePerm: NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> TargetGroupId = new(-1, writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> Health = new NetworkVariable<int>(
         writePerm: NetworkVariableWritePermission.Server);
@@ -130,14 +135,58 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
     public virtual void StopCurrentTask()
     {
-        if (IsOwner) RequestStopServerRpc();
+        if (!IsServer) return;
+        if (Agent != null) Agent.isStopped = true;
+        GetComponent<GenericAttacker>()?.ClearCommandedTargetServer();
     }
 
-    [ServerRpc]
-    private void RequestStopServerRpc(ServerRpcParams rpcParams = default)
+    /// <summary>Explicit combat API used by TroopAI after group target assignment.</summary>
+    public void Attack(Troop target)
     {
-        if (rpcParams.Receive.SenderClientId != OwnerClientId || Agent == null) return;
-        Agent.isStopped = true;
+        if (!IsServer || target == null || target.OwnerClientId == OwnerClientId || target.Health.Value <= 0) return;
+        GetComponent<GenericAttacker>()?.SetCommandedTargetServer(target);
+    }
+
+    public virtual void AttackServer(Troop target) => Attack(target);
+
+    public virtual List<T> Scan<T>(TroopScanType type) where T : Component
+    {
+        var found = new List<T>();
+        if (!IsServer || SightRange <= 0f) return found;
+        Collider[] hits = Physics.OverlapSphere(transform.position, SightRange, ~0, QueryTriggerInteraction.Collide);
+        var seen = new HashSet<T>();
+        foreach (Collider hit in hits)
+        {
+            if (hit == null) continue;
+            Component component = type switch
+            {
+                TroopScanType.Building => hit.GetComponentInParent<Building>(),
+                TroopScanType.Troop => hit.GetComponentInParent<Troop>(),
+                TroopScanType.TroopGroup => hit.GetComponentInParent<Troop>()?.Group,
+                TroopScanType.Coria => hit.GetComponentInParent<Corium>(),
+                _ => null
+            };
+            if (component is T match && seen.Add(match)) found.Add(match);
+        }
+        return found;
+    }
+
+    //public virtual List<Building> ScanBuildings() => Scan<Building>(TroopScanType.Building);
+    public virtual List<Troop> ScanTroops() => Scan<Troop>(TroopScanType.Troop);
+    public virtual List<TroopGroup> ScanTroopGroups()
+    {
+        var groups = new HashSet<TroopGroup>();
+        foreach (Troop troop in ScanTroops()) if (troop != null && troop.Group != null) groups.Add(troop.Group);
+        return new List<TroopGroup>(groups);
+    }
+    public virtual List<Corium> ScanCoria() => Scan<Corium>(TroopScanType.Coria);
+
+    internal void RequestGroupStateSync(int state, int targetGroupId, ulong targetOwnerId)
+    {
+        if (!IsServer || !IsSpawned) return;
+        SyncedGroupState.Value = state;
+        TargetGroupId.Value = targetGroupId;
+        TargetGroupOwnerId.Value = targetOwnerId;
     }
 
     public virtual void OnSelectBuilding(Building building)
@@ -259,7 +308,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     private void OnHealthChanged(int previousValue, int newValue)
     {
         statusBar.SetValue(newValue, MaxHealth);
-        if (newValue < previousValue && IsOwner && Group != null)
+        if (newValue < previousValue && IsServer && Group != null)
         {
             Troop attacker = null;
             float nearest = float.MaxValue;
@@ -273,7 +322,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         }
 
     }
-
+    
     private void ScanBuildings()
     {
         int count = Physics.OverlapSphereNonAlloc(
@@ -335,6 +384,11 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         int groupIndex = 0,
         int groupSize = 1)
     {
+        if (IsServer)
+        {
+            MoveTo(ApplyFormationOffset(destination, groupIndex, groupSize));
+            return;
+        }
         if (!IsOwner)
         {
             Debug.LogWarning(
@@ -595,6 +649,9 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     {
         if (!IsOperational)
             return;
+
+        if (!IsServer && Group != null)
+            Group.ApplySyncedState((TroopGroupState)SyncedGroupState.Value, TargetGroupId.Value, TargetGroupOwnerId.Value);
 
         // -----------------------------------------------------
         // Klient -> server kontrola pozice

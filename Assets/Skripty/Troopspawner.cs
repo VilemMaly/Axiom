@@ -10,6 +10,7 @@ using UnityEngine;
 public class TroopSpawner : NetworkBehaviour
 {
     public event Action<int, int> SpawnRequestRejected;
+    public event Action<int, int, TroopType> SpawnRequestAccepted;
 
     [System.Serializable]
     public class TroopEntry
@@ -112,18 +113,37 @@ public class TroopSpawner : NetworkBehaviour
         }
 
         TroopInteractor interactor = GetComponent<TroopInteractor>();
-        // TroopGroup is a local MonoBehaviour and cannot be sent through NGO.
-        // Both the owner and server address the same logical group by its ID.
-        TroopGroup targetGroup = FindConfiguredGroup(groupId);
+        // TroopGroup is local to each peer. Resolve it from this player's
+        // interactor, creating the server-side counterpart if its creation RPC
+        // has not arrived yet. RPCs on different NetworkBehaviours are not
+        // guaranteed to arrive in the order the client issued them.
+        TroopGroup targetGroup = interactor != null ? interactor.FindGroupById(groupId) : null;
         if (targetGroup == null && interactor != null)
-            targetGroup = interactor.FindGroupById(groupId);
+            targetGroup = interactor.EnsureServerGroup(groupId);
         if (targetGroup == null || targetGroup.Units.Count + CountQueuedForGroup(groupId) >= targetGroup.MaxUnits)
         {
             Debug.LogWarning($"[TroopSpawner] Neplatná skupina {groupId} nebo nedostatek místa.");
             NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
             return;
         }
-        if (!interactor.isAllowedToSpawn(troop))
+        bool slotOccupied = false;
+        foreach (Troop existingTroop in targetGroup.Units)
+        {
+            if (existingTroop != null && existingTroop.groupSpriteIndex == spriteIndex)
+            {
+                slotOccupied = true;
+                break;
+            }
+        }
+        if (!slotOccupied && CountQueuedForSlot(groupId, spriteIndex) > 0)
+            slotOccupied = true;
+        if (slotOccupied)
+        {
+            Debug.LogWarning($"[TroopSpawner] Slot {spriteIndex} ve skupině {groupId} je již obsazen.");
+            NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
+            return;
+        }
+        if (interactor == null || !interactor.isAllowedToSpawn(troop))
         {
             Debug.Log("Hráč to nemůže spawnout, protože by překročil limit jednotek pro hráče");
             NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
@@ -178,15 +198,17 @@ public class TroopSpawner : NetworkBehaviour
                 buildingSpawner.loadingFinished -= TrySpawnTroopServerSide;
             }
             NotifySpawnRequestRejected(requestingClientId, groupId, spriteIndex);
+            return;
         }
+        NotifySpawnRequestAccepted(requestingClientId, groupId, spriteIndex, troop.Type);
     }
 
-    private TroopGroup FindConfiguredGroup(int groupId)
+    private void NotifySpawnRequestAccepted(ulong requestingClientId, int groupId, int spriteIndex, TroopType troopType)
     {
-        if (troopGroups == null) return null;
-        foreach (TroopGroup group in troopGroups)
-            if (group != null && group.GroupId == groupId) return group;
-        return null;
+        SpawnRequestAcceptedClientRpc(groupId, spriteIndex, troopType, new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams { TargetClientIds = new[] { requestingClientId } }
+        });
     }
 
     private void NotifySpawnRequestRejected(ulong requestingClientId, int groupId, int spriteIndex)
@@ -205,6 +227,26 @@ public class TroopSpawner : NetworkBehaviour
     {
         if (IsOwner)
             SpawnRequestRejected?.Invoke(groupId, spriteIndex);
+    }
+
+    [ClientRpc]
+    private void SpawnRequestAcceptedClientRpc(int groupId, int spriteIndex, TroopType troopType, ClientRpcParams rpcParams = default)
+    {
+        if (IsOwner)
+            SpawnRequestAccepted?.Invoke(groupId, spriteIndex, troopType);
+    }
+
+    private int CountQueuedForSlot(int groupId, int spriteIndex)
+    {
+        int count = 0;
+        BuildingInteractor buildings = GetComponent<BuildingInteractor>();
+        if (buildings == null) return count;
+        foreach (Building building in buildings.MyBuildings)
+        {
+            BuildingSpawner spawner = building != null ? building.GetComponent<BuildingSpawner>() : null;
+            if (spawner != null) count += spawner.CountQueuedTroopsForSlot(groupId, spriteIndex);
+        }
+        return count;
     }
 
     private int CountQueuedForGroup(int groupId)

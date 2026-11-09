@@ -34,30 +34,70 @@ public class TroopAI : MonoBehaviour
 
     private void Update()
     {
-        if (group == null || Time.time < nextThink || !IsLocalOwner()) return;
+        if (group == null || Time.time < nextThink || !IsServer()) return;
         nextThink = Time.time + Mathf.Max(.1f, thinkInterval);
         group.Prune();
         if (group.Units.Count == 0) return;
 
         if (group.Task == TroopGroupTask.Defend)
         {
+            ScanForAttackers(false);
             if (Vector3.Distance(Center(), defendPosition) > defendRadius) group.MoveAll(defendPosition);
             else if (group.State == TroopGroupState.Attacked) group.State = TroopGroupState.Idle;
         }
         else if (group.Task == TroopGroupTask.Attack)
         {
+            ScanForAttackers(true);
             if (group.TargetTroop != null && Vector3.Distance(Center(), group.TargetTroop.transform.position) > defendRadius)
                 group.MoveAll(group.TargetTroop.transform.position);
             else if (group.TargetBuilding != null && Vector3.Distance(Center(), group.TargetBuilding.transform.position) > defendRadius)
                 group.MoveAll(group.TargetBuilding.transform.position);
+            AssignAttackTargets();
         }
         else if (group.Task == TroopGroupTask.Harvest) UpdateHarvestOrders();
     }
 
-    private bool IsLocalOwner()
+    private void ScanForAttackers(bool attackAnyEnemy)
     {
-        return NetworkManager.Singleton != null && NetworkManager.Singleton.IsClient &&
-               NetworkManager.Singleton.LocalClientId == group.OwnerClientId;
+        foreach (Troop unit in group.Units)
+        {
+            if (unit == null) continue;
+            foreach (TroopGroup enemy in unit.ScanTroopGroups())
+            {
+                if (enemy == null || enemy.OwnerClientId == group.OwnerClientId) continue;
+                if (!attackAnyEnemy && enemy.Task != TroopGroupTask.Attack) continue;
+                group.HandleEnemyGroupDetected(enemy);
+                return;
+            }
+        }
+    }
+
+    private void AssignAttackTargets()
+    {
+        if (group.TargetGroupId < 0 || group.TargetGroupOwnerId == ulong.MaxValue) return;
+        List<Troop> enemies = new List<Troop>();
+        foreach (Troop candidate in FindObjectsByType<Troop>(FindObjectsSortMode.None))
+            if (candidate != null && candidate.OwnerClientId == group.TargetGroupOwnerId && candidate.TroopGroupId.Value == group.TargetGroupId && candidate.Health.Value > 0)
+                enemies.Add(candidate);
+        if (enemies.Count == 0) return;
+
+        foreach (Troop friendly in group.Units)
+        {
+            if (friendly == null) continue;
+            Troop assigned = null;
+            float nearest = float.MaxValue;
+            foreach (Troop enemy in enemies)
+            {
+                float distance = (enemy.transform.position - friendly.transform.position).sqrMagnitude;
+                if (distance < nearest) { nearest = distance; assigned = enemy; }
+            }
+            if (assigned != null) friendly.Attack(assigned);
+        }
+    }
+
+    private bool IsServer()
+    {
+        return NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
     }
 
     private void UpdateHarvestOrders()

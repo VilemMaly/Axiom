@@ -63,6 +63,14 @@ public class BuildingSpawner : NetworkBehaviour
         return count;
     }
 
+    public int CountQueuedTroopsForSlot(int groupId, int spriteIndex)
+    {
+        int count = 0;
+        foreach (QueuedTroop queued in troopQueue)
+            if (queued.GroupId == groupId && queued.SpriteIndex == spriteIndex) count++;
+        return count;
+    }
+
     public override void OnNetworkSpawn()
     {
         currentBuilding = GetComponent<Building>();

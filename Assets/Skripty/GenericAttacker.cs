@@ -49,6 +49,7 @@ public class GenericAttacker : NetworkBehaviour
     private float nextScanTime;
     private float nextFireTime;
     private bool useAlternateFirePoint;
+    private IDamageable commandedTarget;
 
     public IDamageable CurrentTarget => lockedTarget;
     public Transform FirePoint => firePoint;
@@ -56,7 +57,7 @@ public class GenericAttacker : NetworkBehaviour
 
     public bool TryAcquireTargetServer()
     {
-        if (!IsServer || !SourceIsAlive())
+        if (!IsServer || sourceTroop != null || !SourceIsAlive())
             return false;
 
         ValidateOrAcquireTarget();
@@ -124,7 +125,9 @@ public class GenericAttacker : NetworkBehaviour
         if (Time.time >= nextScanTime)
         {
             nextScanTime = Time.time + Mathf.Max(0.02f, scanInterval);
-            if (SourceIsAlive())
+            if (sourceTroop != null && commandedTarget == null)
+                SetTarget(null);
+            else if (SourceIsAlive())
                 ValidateOrAcquireTarget();
             else
                 SetTarget(null);
@@ -139,6 +142,24 @@ public class GenericAttacker : NetworkBehaviour
         float fireSpeed = GetCooldown();
         nextFireTime = Time.time + fireSpeed;
         FireAt(lockedTarget, fireSpeed);
+    }
+
+    /// <summary>Sets a troop's combat target. Troops never acquire targets autonomously.</summary>
+    public bool SetCommandedTargetServer(IDamageable target)
+    {
+        if (!IsServer || sourceTroop == null || !SourceIsAlive() || !IsValidTarget(target))
+            return false;
+        commandedTarget = target;
+        SetTarget(target);
+        nextFireTime = Time.time;
+        return true;
+    }
+
+    public void ClearCommandedTargetServer()
+    {
+        if (!IsServer || sourceTroop == null) return;
+        commandedTarget = null;
+        SetTarget(null);
     }
 
     private void ValidateOrAcquireTarget()
@@ -161,7 +182,7 @@ public class GenericAttacker : NetworkBehaviour
                 continue;
 
             IDamageable damageable = hit.GetComponentInParent(typeof(IDamageable)) as IDamageable;
-            if (damageable == null)
+            if (damageable == null || (sourceTroop != null && damageable != commandedTarget))
                 continue;
 
             Component damageableComponent = damageable as Component;
