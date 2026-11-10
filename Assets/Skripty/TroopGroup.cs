@@ -20,6 +20,7 @@ public class TroopGroup : MonoBehaviour
     public int MaxUnits { get => maxUnits; set => maxUnits = Mathf.Max(1, value); }
     public int GroupId => groupId;
     public bool RefillUnits { get => refillUnits; set => refillUnits = value; }
+    public TroopInteractor Owner => owner;
     private TroopGroupState state = TroopGroupState.Idle;
     public TroopGroupState State
     {
@@ -219,12 +220,6 @@ public class TroopGroup : MonoBehaviour
         StopAll();
         TargetResource = resource; Task = TroopGroupTask.Harvest; State = TroopGroupState.Harvesting;
         troopAI.BeginHarvest();
-    }
-    public void BuildAt(int buildingIndex, Building.BuildingType type, Vector3 position, int rotation = 0)
-    {
-        StopAll();
-        foreach (Troop troop in Snapshot()) if (troop is Cargo cargo) cargo.RequestMoveToBuild(position, buildingIndex, rotation);
-        Task = TroopGroupTask.Nothing; ObjectivePosition = position; State = TroopGroupState.Moving;
     }
 
     internal void MarkAttacked(Troop attacker)

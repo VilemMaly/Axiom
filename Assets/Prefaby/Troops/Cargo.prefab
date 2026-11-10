@@ -78,7 +78,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2041697799
+  GlobalObjectIdHash: 1522269699
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -282,7 +282,6 @@ MonoBehaviour:
   MaxHealth: 51
   Cost: 50
   SightRange: 10.86
-  BuildCoriumPerSecond: 51
   WorkRange: 10.65
   RepairCoriumPerSecond: 42
   HarvestCoriumPerSecond: 15
@@ -298,7 +297,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groupSpriteIndex: 0
-  navMeshSampleRadius: 3
+  navMeshSampleRadius: 8
   formationSpacing: 1.5
   positionSyncInterval: 0.4
   positionSyncTolerance: 2
@@ -319,6 +318,21 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: -1
+  SyncedGroupState:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  TargetGroupOwnerId:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 18446744073709551615
+  TargetGroupId:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -329,6 +343,11 @@ MonoBehaviour:
   pendingBuildQueue: []
   turretTransform: {fileID: 3621302787321780166}
   turretTurnSpeed: 360
+  status:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   IsBuilding:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

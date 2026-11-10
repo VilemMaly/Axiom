@@ -78,7 +78,7 @@ public enum UpgradeStatType
     AttackSpeed,
     MovementSpeed,
     SightRange,
-    BuildSpeed,
+    DepositSpeed,
     RepairPower,
     MiningSpeed,
     CargoCapacity,

@@ -92,6 +92,7 @@ public class BuildingPlacementController : NetworkBehaviour
     private int _wallLinePieceCount;
     private GameObject _wallLineAnchorGhost;
     private readonly List<GameObject> _wallLineGhosts = new List<GameObject>();
+    private Build buildScript;
 
     private void Awake()
     {
@@ -102,6 +103,7 @@ public class BuildingPlacementController : NetworkBehaviour
     private void Start()
     {
         troopManager = GetComponent<TroopInteractor>();
+        buildScript = GetComponent<Build>();
     }
 
     public override void OnNetworkSpawn()
@@ -351,7 +353,7 @@ public class BuildingPlacementController : NetworkBehaviour
         // Samotné umístění (validace + spawn) řeší server přes Build.cs / TroopInteractor -
         // tenhle skript se stará jen o ghost, vizuál a výběr pozice.
         int rotationDegrees = Mathf.RoundToInt(_ghostRotationY);
-        troopManager.Build(_currentPlacementPosition, _selectedPrefabIndex, _ghostInstance.GetComponent<Building>().Type, rotationDegrees);
+        buildScript.RequestBuildServerRpc(_selectedPrefabIndex, _currentPlacementPosition, rotationDegrees);
         CancelPlacement();
     }
 
@@ -494,11 +496,11 @@ public class BuildingPlacementController : NetworkBehaviour
     private void PlaceWallLine()
     {
         int rotation = Mathf.RoundToInt(_wallLineRotation);
-        troopManager.Build(_wallLineStart, _selectedPrefabIndex, Building.BuildingType.Wall, rotation);
+        buildScript.RequestBuildServerRpc(_selectedPrefabIndex, _wallLineStart, rotation);
         foreach (GameObject piece in _wallLineGhosts)
-            troopManager.Build(piece.transform.position, _selectedPrefabIndex, Building.BuildingType.Wall, rotation);
+            buildScript.RequestBuildServerRpc(_selectedPrefabIndex, piece.transform.position, rotation);
         if (_wallLinePieceCount > 1)
-            troopManager.Build(_ghostInstance.transform.position, _selectedPrefabIndex, Building.BuildingType.Wall, rotation);
+            buildScript.RequestBuildServerRpc(_selectedPrefabIndex, _ghostInstance.transform.position, rotation);
     }
 
     private void ClearWallLineGhosts()

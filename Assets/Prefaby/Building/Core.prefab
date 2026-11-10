@@ -225,7 +225,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Core
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 100
-  Cost: 50
   RequiredCorium: 0
   MaxBuildingAmount: 1
   CoriumConsumption: 20
@@ -238,6 +237,7 @@ MonoBehaviour:
   AttackSpeed: 0
   AttackCooldown: 0
   SightRange: 15.28
+  CanAttackAir: 0
   IsPowerSource: 1
   IsEnergyConsumer: 1
   Health:
@@ -291,6 +291,11 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   coriumPerSecond: 10
   troopLoading: {fileID: 6453304306507342089}
+  completionAudioSource: {fileID: 0}
+  completionSound: {fileID: 0}
+  completionAnimator: {fileID: 0}
+  startAudioSource: {fileID: 0}
+  startSound: {fileID: 0}
   allowedTroopTypes: 00000000
   spawnPoint: {fileID: 9103857377212758015}
   rallyPoint: {fileID: 5252370644650840072}
@@ -345,6 +350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44628c7971b15c745afb198d7a118358, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingModelSpawn
+  ShowTopMostFoldoutHeaderGroup: 1
   model: {fileID: 200918055982032589}
   red: {fileID: 2100000, guid: dfffbc0f62ca47642b1d746c50b1d3e3, type: 2}
   green: {fileID: 2100000, guid: 5696816d9c1b372498115c6fcb1f0e8a, type: 2}

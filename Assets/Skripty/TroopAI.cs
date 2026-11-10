@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>Chooses targets and executes shared orders for its owning group.</summary>
 public class TroopAI : MonoBehaviour
 {
+
     [SerializeField] private float thinkInterval = 1f;
     [SerializeField] private float defendRadius = 12f;
     private TroopGroup group;
@@ -102,63 +103,173 @@ public class TroopAI : MonoBehaviour
 
     private void UpdateHarvestOrders()
     {
-        bool hasCargoUnit = false;
-        bool allFinishedHarvesting = true;
-        List<Cargo> cargos = new List<Cargo>();
         foreach (Troop troop in group.Units)
         {
             if (!(troop is Cargo cargo)) continue;
-            cargos.Add(cargo);
-            hasCargoUnit = true;
-            if (cargo.IsHarvesting.Value) { allFinishedHarvesting = false; continue; }
-            if (cargo.IsCargoFull) continue;
 
-            Resource target = group.TargetResource != null && !group.TargetResource.Depleted
-                ? group.TargetResource : FindNearestResource(cargo.transform.position);
-            if (target != null)
+            if (group.Owner == null || group.Owner.BuildingInteractor == null)
+                return;
+
+            IReadOnlyList<Building> buildings = group.Owner.BuildingInteractor.MyBuildings;
+            if (!cargo.IsCargoFull && !(cargo.IsDepositing.Value && cargo.HasCargo))
             {
-                allFinishedHarvesting = false;
-                cargo.OrderHarvest(target);
+                cargo.IsDepositing.Value = false;
+                cargo.IsHarvesting.Value = false;
+
+                Core nearestCore = null;
+                float coreDistance = float.MaxValue;
+                foreach (Building building in buildings)
+                {
+                    if (building == null || building.OwnerClientId != group.OwnerClientId ||
+                        building.Type != Building.BuildingType.Core || !(building is Core core))
+                        continue;
+
+                    float distance = (core.transform.position - cargo.transform.position).sqrMagnitude;
+                    if (distance < coreDistance)
+                    {
+                        nearestCore = core;
+                        coreDistance = distance;
+                    }
+                }
+
+                Resource nearestResource = null;
+                float resourceDistance = float.MaxValue;
+                ResourceManager resourceManager = group.Owner.ResourceManager;
+                if (nearestCore != null && resourceManager != null)
+                {
+                    foreach (Resource resource in resourceManager.Resources)
+                    {
+                        if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0)
+                            continue;
+
+                        float distance = (resource.transform.position - nearestCore.transform.position).sqrMagnitude;
+                        if (distance < resourceDistance)
+                        {
+                            nearestResource = resource;
+                            resourceDistance = distance;
+                        }
+                    }
+                }
+
+                if (nearestResource == null)
+                {
+                    cargo.StopCurrentTask();
+                    cargo.status.Value = Troop.State.idle;
+                    continue;
+                }
+
+                Resource scannedResource = null;
+                float scannedResourceDistance = float.MaxValue;
+                foreach (Resource resource in cargo.Scan<Resource>(TroopScanType.Coria))
+                {
+                    if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0)
+                        continue;
+
+                    float distance = (resource.transform.position - cargo.transform.position).sqrMagnitude;
+                    if (distance < scannedResourceDistance)
+                    {
+                        scannedResource = resource;
+                        scannedResourceDistance = distance;
+                    }
+                }
+
+                if (scannedResource != null)
+                {
+                    cargo.IsHarvesting.Value = true;
+                    cargo.Harvest(scannedResource);
+                }
+                else if (cargo.status.Value != Troop.State.moving || !cargo.IsMoving)
+                {
+                    cargo.MoveTo(nearestResource.transform.position);
+                }
+
+                continue;
+            }
+
+            cargo.IsHarvesting.Value = false;
+
+            Building depositTarget = null;
+            float depositDistance = float.MaxValue;
+            foreach (Building building in buildings)
+            {
+                if (building == null || building.OwnerClientId != group.OwnerClientId ||
+                    building.Type == Building.BuildingType.Core || building.MissingCorium <= 0)
+                    continue;
+
+                float distance = (building.transform.position - cargo.transform.position).sqrMagnitude;
+                if (distance < depositDistance)
+                {
+                    depositTarget = building;
+                    depositDistance = distance;
+                }
+            }
+
+            if (depositTarget == null)
+            {
+                float nearestCoreDistance = float.MaxValue;
+                foreach (Building building in buildings)
+                {
+                    if (building == null || building.OwnerClientId != group.OwnerClientId ||
+                        building.Type != Building.BuildingType.Core)
+                        continue;
+
+                    float distance = (building.transform.position - cargo.transform.position).sqrMagnitude;
+                    if (distance < nearestCoreDistance)
+                    {
+                        depositTarget = building;
+                        nearestCoreDistance = distance;
+                    }
+                }
+            }
+
+            if (depositTarget == null)
+            {
+                cargo.IsDepositing.Value = false;
+                cargo.StopCurrentTask();
+                cargo.status.Value = Troop.State.idle;
+                continue;
+            }
+
+            Building scannedBuilding = null;
+            float scannedBuildingDistance = float.MaxValue;
+            foreach (Building building in cargo.Scan<Building>(TroopScanType.Building))
+            {
+                if (building == null || building.OwnerClientId != group.OwnerClientId ||
+                    (building.Type != Building.BuildingType.Core && building.MissingCorium <= 0))
+                    continue;
+
+                float distance = (building.transform.position - cargo.transform.position).sqrMagnitude;
+                if (distance < scannedBuildingDistance)
+                {
+                    scannedBuilding = building;
+                    scannedBuildingDistance = distance;
+                }
+            }
+
+            if (scannedBuilding != null)
+            {
+                cargo.IsDepositing.Value = true;
+                cargo.Deposit(scannedBuilding);
+            }
+            else if (cargo.status.Value != Troop.State.moving || !cargo.IsMoving)
+            {
+                cargo.MoveTo(depositTarget.transform.position);
             }
         }
-
-        if (hasCargoUnit && allFinishedHarvesting)
-        {
-            bool carryingAnything = false;
-            foreach (Cargo cargo in cargos)
-            {
-                if (!cargo.HasCargo) continue;
-                carryingAnything = true;
-                Core core = FindNearestCore(cargo.transform.position, cargo.OwnerClientId);
-                if (core != null) cargo.OrderDeposit(core);
-            }
-            group.State = carryingAnything ? TroopGroupState.Depositing : TroopGroupState.Harvesting;
-        }
-        else group.State = TroopGroupState.Harvesting;
     }
 
     private Resource FindNearestResource(Vector3 from)
     {
         Resource best = null;
         float bestDistance = float.MaxValue;
-        foreach (Resource resource in FindObjectsByType<Resource>(FindObjectsSortMode.None))
+        ResourceManager resourceManager = group != null && group.Owner != null ? group.Owner.ResourceManager : null;
+        if (resourceManager == null) return null;
+
+        foreach (Resource resource in resourceManager.Resources)
         {
             if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0) continue;
             float distance = (resource.transform.position - from).sqrMagnitude;
             if (distance < bestDistance) { best = resource; bestDistance = distance; }
-        }
-        return best;
-    }
-
-    private static Core FindNearestCore(Vector3 from, ulong ownerClientId)
-    {
-        Core best = null;
-        float bestDistance = float.MaxValue;
-        foreach (Core core in FindObjectsByType<Core>(FindObjectsSortMode.None))
-        {
-            if (core == null || core.OwnerClientId != ownerClientId || !core.IsOperational) continue;
-            float distance = (core.transform.position - from).sqrMagnitude;
-            if (distance < bestDistance) { best = core; bestDistance = distance; }
         }
         return best;
     }

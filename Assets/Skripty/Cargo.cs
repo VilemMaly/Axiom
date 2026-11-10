@@ -35,6 +35,9 @@ public class Cargo : Troop
     [Tooltip("Věž se otáčí pouze na klientovi, který vlastní toto Cargo.")]
     [SerializeField] private Transform turretTransform;
     [SerializeField, Min(0f)] private float turretTurnSpeed = 360f;
+    public NetworkVariable<Troop.State> status = new(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<Vector3> turretTargetPosition =
+        new(writePerm: NetworkVariableWritePermission.Server);
     public bool HasPendingBuildOrders => GoingToBuilding || pendingBuildQueue.Count > 0;
     public NetworkVariable<bool> IsBuilding = new(writePerm: NetworkVariableWritePermission.Server);
     public NetworkVariable<bool> IsRepairing = new(writePerm: NetworkVariableWritePermission.Server);
@@ -65,13 +68,7 @@ public class Cargo : Troop
     public NetworkVariable<bool> IsHarvesting = new(writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<bool> IsDepositing = new(writePerm: NetworkVariableWritePermission.Server);
-    private Core currentCore;
     private float nextDepositTick;
-
-    public Building currentBase;
-    private Resource selectedResource;
-    private Resource aiMoveResource;
-    private Core aiMoveCore;
 
     /// <summary>Kolik coria už tahle jednotka nasbírala a veze v sobě.</summary>
     public NetworkVariable<int> CoriumCargo = new(writePerm: NetworkVariableWritePermission.Server);
@@ -101,155 +98,25 @@ public class Cargo : Troop
             transferParticle.transform.SetParent(transferParticleOriginalParent, true);
     }
 
-    public override void BuildBuilding(Building building)
-    {
-        if (!IsServer || building == null) return;
-        currentBuildTarget = building;
-        nextBuildSendTime = Time.time + 1f;
-        IsBuilding.Value = true;
-        IsRepairing.Value = false;
-    }
-
-    public override void RepairBuilding(Building building)
-    {
-        if (!IsServer || building == null) return;
-        currentBuildTarget = building;
-        IsRepairing.Value = true;
-        IsBuilding.Value = false;
-    }
-
-    public override void StopCurrentTask()
-    {
-        base.StopCurrentTask();
-        if (IsOwner) CancelHarvestingForBuildServerRpc();
-    }
-
-    public override void OnSelectResource(Resource resource)
-    {
-        base.OnSelectResource(resource);
-        selectedResource = resource;
-        Debug.Log($"[Cargo-DIAG] {name} OnSelectResource -> selectedResource={(resource != null ? resource.name : "null")} | IsOwner={IsOwner} IsServer={IsServer}");
-    }
-    public override void OnSelectBuilding(Building building)
-    {
-        base.OnSelectBuilding(building);
-        if (building.Type == Building.BuildingType.Core)
-        {
-            currentBase = building;
-        }
-        else
-        {
-            Debug.Log("Není vybraný core building");
-        }
-        
-    }
-
     public bool IsCargoFull => CoriumCargo.Value >= MaxCargo;
     public bool HasCargo => CoriumCargo.Value > 0;
 
-    /// <summary>AI command: move to a resource and begin harvesting when in work range.</summary>
-    public void OrderHarvest(Resource resource)
-    {
-        if (!IsOwner || resource == null || resource.Depleted || IsCargoFull || IsHarvesting.Value) return;
-        selectedResource = resource;
-        if (IsNearEnough(resource.transform.position, transform.position))
-        {
-            aiMoveResource = null;
-            RequestHarvestTargetServerRpc(resource.NetworkObject);
-            return;
-        }
-        if (aiMoveResource != resource)
-        {
-            aiMoveResource = resource;
-            aiMoveCore = null;
-            RequestMove(resource.transform.position);
-        }
-    }
-
-    /// <summary>AI command: carry corium to a friendly Core and deposit it.</summary>
-    public void OrderDeposit(Core core)
-    {
-        if (!IsOwner || core == null || !HasCargo || IsDepositing.Value) return;
-        currentBase = core;
-        if (IsNearEnough(core.transform.position, transform.position))
-        {
-            aiMoveCore = null;
-            RequestDepositCoriumServerRpc(core.NetworkObject);
-            return;
-        }
-        if (aiMoveCore != core)
-        {
-            aiMoveCore = core;
-            aiMoveResource = null;
-            RequestMove(core.transform.position);
-        }
-    }
-
-    public void RequestMoveToBuild(Vector3 position, int buildingIndex, int rotation)
-    {
-        CancelHarvestingForBuildServerRpc();
-        if (GoingToBuilding || IsBuilding.Value)
-        {
-            pendingBuildQueue.Add(new PendingBuildRequest(buildingIndex, position, rotation));
-            return;
-        }
-        GoingToBuilding = true;
-        RequestMove(position);
-        BuildingPosition = position;
-        BuildingIndex = buildingIndex;
-        BuildingRotation = rotation;
-        if (BuildingPosition == Vector3.zero)
-        {
-            Debug.LogWarning("[Cargo-DIAG] Příkaz ke stavbě zrušen: cílová pozice je Vector3.zero, která se používá jako sentinel pro neplatnou pozici.", this);
-            GoingToBuilding = false;
-        }
-    }
-
-    [ServerRpc]
-    private void CancelHarvestingForBuildServerRpc(ServerRpcParams rpcParams = default)
-    {
-        if (rpcParams.Receive.SenderClientId != OwnerClientId)
-            return;
-
-        StopHarvesting();
-        StopDepositing();
-    }
 
     public override void UpdateTroop()
     {
-        UpdateConstruction();
         UpdateTurretAim();
-        if (IsBuilding.Value || HasPendingBuildOrders) return;
-        UpdateHarvesting();
+    }
+
+    private void LateUpdate()
+    {
     }
 
     private void UpdateTurretAim()
     {
-        if (!IsOwner || turretTransform == null)
+        if (!IsOwner || turretTransform == null || status.Value == Troop.State.moving)
             return;
 
-        Transform target = null;
-
-        // Budova se vybírá stejně jako v klientské části UpdateConstruction.
-        // Serverová currentBuildTarget není dostupná klientům, proto ji zde nehledáme.
-        foreach (Building building in BuildingsInRange)
-        {
-            if (building == null || building.IsConstructionComplete.Value)
-                continue;
-
-            target = building.transform;
-            break;
-        }
-
-        // Když není poblíž stavba, věž míří na zvolený zdroj coria.
-        if (target == null && CoriumCargo.Value < MaxCargo && selectedResource != null &&
-            !selectedResource.Depleted && selectedResource.CoriumAmount.Value > 0)
-            target = selectedResource.transform;
-
-        if (target == null)
-            return;
-
-        Vector3 direction = target.position - turretTransform.position;
+        Vector3 direction = turretTargetPosition.Value - turretTransform.position;
         direction.y = 0f;
         if (direction.sqrMagnitude < 0.0001f)
             return;
@@ -261,173 +128,45 @@ public class Cargo : Troop
             turretTurnSpeed * Time.deltaTime);
     }
 
-    private void UpdateConstruction()
+    public void Harvest(IHarvestable harvestable)
     {
-        if (IsOwner && !IsBuilding.Value)
-        {
-            if (GoingToBuilding && Vector3.Distance(BuildingPosition, transform.position) <= SightRange)
-                BeginBuild();
-            foreach (Building building in BuildingsInRange)
-            {
-                if (building == null || building.IsConstructionComplete.Value) continue;
-                RequestBuildServerRpc(building.NetworkObject);
-                break;
-            }
-        }
+        if (!IsServer || harvestable == null) return;
+        turretTargetPosition.Value = harvestable.HarvestTransform.position;
+        status.Value = Troop.State.harvesting;
+        if (Time.time < nextHarvestTick) return;
+        nextHarvestTick = Time.time + 1f;
+        harvestable.DepleteResource(this, HarvestCoriumPerSecond);
+    }
 
-        if (IsOwner && !IsBuilding.Value && !GoingToBuilding && pendingBuildQueue.Count > 0)
+    public void Deposit(Building building)
+    {
+        if (!IsServer || building == null) return;
+        turretTargetPosition.Value = building.transform.position;
+        status.Value = Troop.State.depositing;
+        if (building.Type != Building.BuildingType.Core)
         {
-            PendingBuildRequest next = pendingBuildQueue[0];
-            pendingBuildQueue.RemoveAt(0);
-            RequestMoveToBuild(next.Position, next.BuildingIndex, next.Rotation);
-        }
-
-        if (!IsServer) return;
-        if (IsBuilding.Value)
-        {
-            if (currentBuildTarget == null || currentBuildTarget.IsConstructionComplete.Value)
+            if (Time.time >= nextDepositTick)
             {
-                StopBuilding();
-                return;
-            }
-            if (Time.time >= nextBuildSendTime)
-            {
-                nextBuildSendTime = Time.time + 1f;
-                if (playerResources != null && playerResources.TrySpend(BuildCoriumPerSecond, 0))
+                nextDepositTick = Time.time + 1f;
+                if (playerResources != null && playerResources.TrySpend(DepositCoriumPerSecond, 0))
                 {
-                    currentBuildTarget.ReceiveCorium(BuildCoriumPerSecond);
-                    PlayTransferEffect(currentBuildTarget.transform.position);
+                    building.ReceiveCorium(DepositCoriumPerSecond);
+                    CoriumCargo.Value -= DepositCoriumPerSecond;
+                    PlayTransferEffect(building.transform.position);
                 }
             }
         }
-    }
-
-    private void StopBuilding()
-    {
-        currentBuildTarget = null;
-        IsBuilding.Value = false;
-        IsRepairing.Value = false;
-    }
-
-    [ServerRpc]
-    private void RequestBuildServerRpc(NetworkObjectReference buildingReference, ServerRpcParams rpcParams = default)
-    {
-        ulong sender = rpcParams.Receive.SenderClientId;
-        if (sender != OwnerClientId)
+        else if (building.Type == Building.BuildingType.Core)
         {
-            Debug.LogWarning($"[Cargo-DIAG] Stavba odmítnuta: RPC poslal cizí klient {sender}, vlastník Cargo={OwnerClientId}.", this);
-            return;
-        }
-        if (!buildingReference.TryGet(out NetworkObject netObj))
-        {
-            Debug.LogWarning("[Cargo-DIAG] Stavba odmítnuta: reference na budovu je neplatná.", this);
-            return;
-        }
-        if (!netObj.TryGetComponent(out Building building))
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Stavba odmítnuta: objekt {netObj.name} nemá komponentu Building.", this);
-            return;
-        }
-        if (!BuildingsInRange.Contains(building))
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Stavba odmítnuta: budova {building.name} není v dosahu Cargo.", this);
-            return;
-        }
-        if (building.IsConstructionComplete.Value)
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Stavba odmítnuta: budova {building.name} už je dokončená.", this);
-            return;
-        }
-        BuildBuilding(building);
-    }
-
-    [ServerRpc]
-    public void RequestRepairServerRpc(NetworkObjectReference buildingReference, ServerRpcParams rpcParams = default)
-    {
-        ulong sender = rpcParams.Receive.SenderClientId;
-        if (sender != OwnerClientId)
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Oprava odmítnuta: RPC poslal cizí klient {sender}, vlastník Cargo={OwnerClientId}.", this);
-            return;
-        }
-        if (!buildingReference.TryGet(out NetworkObject netObj))
-        {
-            Debug.LogWarning("[Cargo-DIAG] Oprava odmítnuta: reference na budovu je neplatná.", this);
-            return;
-        }
-        if (!netObj.TryGetComponent(out Building building))
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Oprava odmítnuta: objekt {netObj.name} nemá komponentu Building.", this);
-            return;
-        }
-        if (!BuildingsInRange.Contains(building))
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Oprava odmítnuta: budova {building.name} není v dosahu Cargo.", this);
-            return;
-        }
-        RepairBuilding(building);
-    }
-
-    private void BeginBuild()
-    {
-        GoingToBuilding = false;
-        NearBuilding?.Invoke(this, BuildingIndex, BuildingPosition, BuildingRotation, pendingBuildQueue.Count);
-        BuildingPosition = Vector3.zero;
-    }
-
-    private void UpdateHarvesting()
-    {
-        // Detekce resources kolem sebe běží na všech instancích stejně jako
-        // detekce budov v Troop.ScanBuildings - server tak má vlastní
-        // autoritativní seznam, klient (owner) ho používá k výběru cíle.
-        if (CoriumCargo.Value < MaxCargo)
-            ScanForResources();
-
-        if (!IsServer)
-            return;
-
-        if (IsHarvesting.Value)
-        {
-            if (currentTarget == null || currentTarget.Depleted || CoriumCargo.Value >= MaxCargo)
-            {
-                StopHarvesting();
-                return;
-            }
-
-            if (Time.time >= nextHarvestTick)
-            {
-                nextHarvestTick = Time.time + 1f;
-
-                int amount = Mathf.Min(HarvestCoriumPerSecond, MaxCargo - CoriumCargo.Value);
-
-                if (amount > 0)
-                {
-                    // Čistě serverové volání - žádné RPC, resource i harvester
-                    // tu žijí ve stejném procesu (na serveru), takže stačí
-                    // přímý C# call.
-                    currentTarget.DepleteResource(this, amount);
-                }
-            }
-        }
-
-        if (IsDepositing.Value)
-        {
-            if (currentCore == null || CoriumCargo.Value <= 0)
-            {
-                StopDepositing();
-                return;
-            }
-
             if (Time.time >= nextDepositTick)
             {
                 nextDepositTick = Time.time + 1f;
 
                 int amount = Mathf.Min(DepositCoriumPerSecond, CoriumCargo.Value);
+                Core currentCore = building as Core;
 
                 if (amount > 0)
                 {
-                    // Stejně jako u těžby - čistě serverové volání, core i harvester
-                    // žijí ve stejném procesu na serveru.
                     currentCore.CoriumReserve(amount, this);
                     CoriumCargo.Value -= amount;
                     PlayTransferEffect(currentCore.transform.position);
@@ -436,120 +175,11 @@ public class Cargo : Troop
         }
     }
 
-
-    private void ScanForResources()
+    public override void MoveTo(Vector3 destination)
     {
-        if (selectedResource != null && !selectedResource.Depleted && selectedResource.CoriumAmount.Value > 0)
-            return;
-        if (Time.time < nextResourceScan)
-            return;
-
-        nextResourceScan = Time.time + resourceDetectionInterval;
-
-        int count = Physics.OverlapSphereNonAlloc(
-            transform.position,
-            WorkRange,
-            resourceResults,
-            ResourceLayerMask);
-
-        HashSet<Resource> currentResources = new();
-
-        for (int i = 0; i < count; i++)
-        {
-            if (resourceResults[i] == null)
-                continue;
-
-            Resource resource = resourceResults[i].GetComponentInParent<Resource>();
-
-            if (resource == null)
-                continue;
-
-            currentResources.Add(resource);
-
-            if (!resourcesInRange.Contains(resource))
-            {
-                resourcesInRange.Add(resource);
-                Debug.Log($"[Cargo] {name} detekuje resource {resource.name} v dosahu.");
-            }
-        }
-
-        for (int i = resourcesInRange.Count - 1; i >= 0; i--)
-        {
-            Resource resource = resourcesInRange[i];
-
-            if (resource == null || !currentResources.Contains(resource))
-            {
-                if (resource != null)
-                    Debug.Log($"[Cargo] {name} ztrácí resource {resource.name} z dosahu.");
-
-                resourcesInRange.RemoveAt(i);
-            }
-        }
-    }
-
-    [ServerRpc]
-    private void RequestDepositCoriumServerRpc(NetworkObjectReference coreReference, ServerRpcParams rpcParams = default)
-    {
-        // bezpečnost - pouze vlastník jednotky může dávat příkazy
-        if (rpcParams.Receive.SenderClientId != OwnerClientId)
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Vyložení odmítnuto: RPC poslal cizí klient {rpcParams.Receive.SenderClientId}, vlastník Cargo={OwnerClientId}.", this);
-            return;
-        }
-
-        if (!coreReference.TryGet(out NetworkObject netObj))
-        {
-            Debug.LogWarning("[Cargo-DIAG] Vyložení odmítnuto: reference na Core je neplatná.", this);
-            return;
-        }
-
-        if (!netObj.TryGetComponent(out Core core))
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Vyložení odmítnuto: objekt {netObj.name} není Core.", this);
-            return;
-        }
-
-        // serverová kontrola: core musí být skutečně v dosahu Cargou
-        // (budovy v dosahu sleduje Troop.ScanBuildings, stejný list jako SearchForCore)
-        if (!BuildingsInRange.Contains(core))
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Vyložení odmítnuto: Core {core.name} není v evidovaném dosahu Cargo.", this);
-            return;
-        }
-        if(Vector3.Distance(core.GameObject().transform.position, this.GameObject().transform.position) > SightRange + 1)
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Vyložení odmítnuto: Core {core.name} je fyzicky příliš daleko.", this);
-            return;
-        }
-
-        // core musí patřit stejnému hráči jako harvester
-        if (core.OwnerClientId != OwnerClientId)
-        {
-            Debug.LogWarning($"[Cargo-DIAG] Vyložení odmítnuto: Core patří hráči {core.OwnerClientId}, Cargo hráči {OwnerClientId}.", this);
-            return;
-        }
-
-        if (CoriumCargo.Value <= 0)
-        {
-            Debug.LogWarning("[Cargo-DIAG] Vyložení odmítnuto: Cargo nemá žádné corium.", this);
-            return;
-        }
-
-        currentCore = core;
-        IsDepositing.Value = true;
-        nextDepositTick = Time.time;
-    }
-
-    private void StopHarvesting()
-    {
-        currentTarget = null;
-        IsHarvesting.Value = false;
-    }
-
-    private void StopDepositing()
-    {
-        currentCore = null;
-        IsDepositing.Value = false;
+        if (IsServer)
+            status.Value = Troop.State.moving;
+        base.MoveTo(destination);
     }
 
     /// <summary>
@@ -637,6 +267,8 @@ public class Cargo : Troop
         }
 
         currentTarget = resource;
+        turretTargetPosition.Value = resource.transform.position;
+        status.Value = Troop.State.harvesting;
         IsHarvesting.Value = true;
         nextHarvestTick = Time.time;
     }

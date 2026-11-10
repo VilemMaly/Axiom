@@ -55,7 +55,6 @@ public class Build : NetworkBehaviour
         int buildingIndex,
         Vector3 position,
         int rotation,
-        NetworkObjectReference atlasRef,
         ServerRpcParams rpcParams = default)
     {
         ulong requestingClientId = rpcParams.Receive.SenderClientId;
@@ -117,57 +116,6 @@ public class Build : NetworkBehaviour
                 $"Budova='{entry.buildingName}' | " +
                 $"Player={requestingClientId}"
             );
-
-            if (!atlasRef.TryGet(out NetworkObject cargoNetObj))
-            {
-                Debug.LogWarning(
-                    $"[Build] STAVBA NEDOKONČENA | " +
-                    $"Player={requestingClientId} | " +
-                    $"Budova='{entry.buildingName}' | " +
-                    $"Důvod: Cargo reference je neplatná."
-                );
-
-                return;
-            }
-
-            Cargo cargo = cargoNetObj.GetComponent<Cargo>();
-
-            if (cargo == null || cargo.OwnerClientId != requestingClientId)
-            {
-                Debug.LogWarning(
-                    $"[Build] STAVBA NEDOKONČENA | " +
-                    $"Player={requestingClientId} | " +
-                    $"Budova='{entry.buildingName}' | " +
-                    $"Důvod: Cargo chybí nebo patří jinému hráči. " +
-                    $"CargoOwner={(cargo != null ? cargo.OwnerClientId.ToString() : "NULL")}"
-                );
-
-                return;
-            }
-
-            float distance = Vector3.Distance(cargo.transform.position, position);
-
-            Debug.Log(
-                $"[Build] Kontrola vzdálenosti Cargo | " +
-                $"Budova='{entry.buildingName}' | " +
-                $"CargoPosition={cargo.transform.position} | " +
-                $"BuildPosition={position} | " +
-                $"Distance={distance:F2} | " +
-                $"SightRange={cargo.SightRange:F2}"
-            );
-
-            if (distance > cargo.SightRange)
-            {
-                Debug.LogWarning(
-                    $"[Build] STAVBA NEDOKONČENA | " +
-                    $"Player={requestingClientId} | " +
-                    $"Budova='{entry.buildingName}' | " +
-                    $"Důvod: Cargo je příliš daleko. " +
-                    $"Distance={distance:F2} > SightRange={cargo.SightRange:F2}"
-                );
-
-                return;
-            }
 
             Debug.Log(
                 $"[Build] Cargo je v povolené vzdálenosti | " +

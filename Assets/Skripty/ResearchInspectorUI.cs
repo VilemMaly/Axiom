@@ -493,7 +493,7 @@ public class ResearchInspectorUI : MonoBehaviour
             case UpgradeStatType.SightRange:
                 return "Dosah vidění";
 
-            case UpgradeStatType.BuildSpeed:
+            case UpgradeStatType.DepositSpeed:
                 return "Rychlost stavby";
 
             case UpgradeStatType.RepairPower:

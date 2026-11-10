@@ -81,6 +81,8 @@ public abstract class Building : NetworkBehaviour, IDamageable
 
     public void ReceiveCorium(int amount)
     {
+        StoredCorium.Value += amount;
+        
         if (StoredCorium.Value >= RequiredCorium)
         {
             if (IsServer)
@@ -98,7 +100,6 @@ public abstract class Building : NetworkBehaviour, IDamageable
         if (IsConstructionComplete.Value)
             return;
 
-        StoredCorium.Value += amount;
     }
 
     public override void OnNetworkSpawn()

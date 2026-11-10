@@ -6,11 +6,12 @@ using UnityEngine;
 /// typy v budoucnu). Konkrétní chování těžby (kolik se ubere, co se stane
 /// po vyčerpání, komu se surovina připíše) řeší potomci - viz Corium.
 /// </summary>
-public abstract class Resource : NetworkBehaviour
+public abstract class Resource : NetworkBehaviour, IHarvestable
 {
     public NetworkVariable<int> CoriumAmount = new(writePerm: NetworkVariableWritePermission.Server);
     public int SpawnAmount = 100; // výchozí množství coria při spawnování resource
     public bool Depleted => CoriumAmount.Value <= 0;
+    public Transform HarvestTransform => transform;
 
     /// <summary>
     /// Server-side metoda (NENÍ to Rpc) - volá ji server sám za sebe

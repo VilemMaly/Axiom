@@ -115,6 +115,9 @@ public class PlayerResources : NetworkBehaviour
 
     public void Add(int corium, int energy)
     {
+        Debug.Log($"[PlayerResources] {name} hráč {OwnerClientId} získal: " +
+            $"{corium} coria, {energy} energie. " +
+            $"Předtím měl: {Corium.Value} coria, {Energy.Value} energie.");
         if(Corium.Value + corium < MaxCorium.Value)
             Corium.Value += corium;
         if(Energy.Value + energy < MaxEnergy.Value)

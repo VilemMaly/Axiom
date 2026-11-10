@@ -19,8 +19,10 @@ public class Core : Building
 
     public void CoriumReserve(int amount, Troop transporter)
     {
+        Debug.Log($"Core: CoriumReserve called with amount {amount} from transporter {transporter.name}");
         if (transporter is not Cargo)
             return;
+        Debug.Log($"Core: CoriumReserve confirmed for transporter {transporter.name}");
         OwnerResources.Add(amount, 0); // pouze server volá tuhle funkci aby hráč nemohl podvádět
         OpenAndCloseClientRpc();
     }
@@ -33,7 +35,6 @@ public class Core : Building
     [ClientRpc]
     public void OpenAndCloseClientRpc()
     {
-        animace.SetTrigger("OpenAndClose");
     }
 
     public override void UpdateBuilding()

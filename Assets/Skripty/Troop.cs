@@ -40,6 +40,16 @@ public enum TroopScanType { Building, Troop, TroopGroup, Coria }
 [RequireComponent(typeof(TroopMaterial))]
 public abstract class Troop : NetworkBehaviour, IDamageable
 {
+    public enum State
+    {
+        moving,
+        depositing,
+        harvesting,
+        attacking,
+        escaping,
+        idle
+    }
+
     [Header("Typ")]
     public TroopType Type;
 
@@ -49,7 +59,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     [Tooltip("Dosah, na který jednotka vidí budovy ore a odhaluje mlhu")]
     public float SightRange;
     protected bool IsBusy;
-    public int BuildCoriumPerSecond = 0;
     public float WorkRange = 0f;
     public int RepairCoriumPerSecond = 0;
     public int HarvestCoriumPerSecond = 0;

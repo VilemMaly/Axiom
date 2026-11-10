@@ -79,10 +79,10 @@ public class TechResolver : NetworkBehaviour
                     : troop.SightRange * (1f + value);
                 break;
 
-            case UpgradeStatType.BuildSpeed:
-                troop.BuildCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
-                    ? troop.BuildCoriumPerSecond + (int)value
-                    : Mathf.RoundToInt(troop.BuildCoriumPerSecond * (1f + value));
+            case UpgradeStatType.DepositSpeed:
+                troop.DepositCoriumPerSecond = upgrade.ValueType == UpgradeValueType.Flat
+                    ? troop.DepositCoriumPerSecond + (int)value
+                    : Mathf.RoundToInt(troop.DepositCoriumPerSecond * (1f + value));
                 break;
 
             case UpgradeStatType.RepairPower:
