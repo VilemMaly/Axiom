@@ -22,6 +22,7 @@ public class Core : Building
         if (transporter is not Cargo)
             return;
         OwnerResources.Add(amount, 0); // pouze server volá tuhle funkci aby hráč nemohl podvádět
+        Debug.Log($"Core: {amount} corium added to player {OwnerClientId} by transporter {transporter.name}");
         OpenAndCloseClientRpc();
     }
 

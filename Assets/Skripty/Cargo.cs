@@ -7,6 +7,11 @@ using UnityEngine;
 
 public class Cargo : Troop
 {
+    public enum WorkStatus { Idle, Moving, Harvesting, Depositing, Building }
+    public NetworkVariable<WorkStatus> Status = new(writePerm: NetworkVariableWritePermission.Server);
+    public Resource AssignedResource { get; private set; }
+    public Building AssignedBuilding { get; private set; }
+    public Vector3 WorkDestination { get; private set; }
     [System.Serializable]
     public struct PendingBuildRequest
     {
@@ -48,6 +53,12 @@ public class Cargo : Troop
     private float nextResourceScan;
 
     public IReadOnlyList<Resource> ResourcesInRange => resourcesInRange;
+    public void RefreshResourceKnowledge(ResourceManager manager)
+    {
+        if (!IsServer || manager == null) return;
+        ScanForResources();
+        foreach (Resource resource in resourcesInRange) manager.Observe(resource);
+    }
 
     private Resource currentTarget;
     private float nextHarvestTick;
@@ -66,6 +77,7 @@ public class Cargo : Troop
 
     public NetworkVariable<bool> IsDepositing = new(writePerm: NetworkVariableWritePermission.Server);
     private Core currentCore;
+    private Building currentDepositBuilding;
     private float nextDepositTick;
 
     public Building currentBase;
@@ -121,7 +133,8 @@ public class Cargo : Troop
     public override void StopCurrentTask()
     {
         base.StopCurrentTask();
-        if (IsOwner) CancelHarvestingForBuildServerRpc();
+        if (IsServer) CancelWork();
+        else if (IsOwner) CancelHarvestingForBuildServerRpc();
     }
 
     public override void OnSelectResource(Resource resource)
@@ -150,12 +163,13 @@ public class Cargo : Troop
     /// <summary>AI command: move to a resource and begin harvesting when in work range.</summary>
     public void OrderHarvest(Resource resource)
     {
-        if (!IsOwner || resource == null || resource.Depleted || IsCargoFull || IsHarvesting.Value) return;
+        if (!IsServer || resource == null || !resource.IsSpawned || resource.Depleted || IsCargoFull || IsHarvesting.Value) return;
         selectedResource = resource;
+        AssignedResource = resource; AssignedBuilding = null; WorkDestination = resource.transform.position;
         if (IsNearEnough(resource.transform.position, transform.position))
         {
             aiMoveResource = null;
-            RequestHarvestTargetServerRpc(resource.NetworkObject);
+            BeginHarvestServer(resource);
             return;
         }
         if (aiMoveResource != resource)
@@ -163,18 +177,21 @@ public class Cargo : Troop
             aiMoveResource = resource;
             aiMoveCore = null;
             RequestMove(resource.transform.position);
+            Status.Value = WorkStatus.Moving;
         }
     }
 
     /// <summary>AI command: carry corium to a friendly Core and deposit it.</summary>
     public void OrderDeposit(Core core)
     {
-        if (!IsOwner || core == null || !HasCargo || IsDepositing.Value) return;
+        if (!IsServer || core == null || !core.IsSpawned || !HasCargo || IsDepositing.Value) return;
         currentBase = core;
+        AssignedBuilding = core; AssignedResource = null; WorkDestination = core.transform.position;
         if (IsNearEnough(core.transform.position, transform.position))
         {
             aiMoveCore = null;
-            RequestDepositCoriumServerRpc(core.NetworkObject);
+            if (core.OwnerClientId == OwnerClientId && core.IsOperational)
+            { currentCore = core; currentDepositBuilding = core; IsDepositing.Value = true; Status.Value = WorkStatus.Depositing; nextDepositTick = Time.time; }
             return;
         }
         if (aiMoveCore != core)
@@ -182,7 +199,33 @@ public class Cargo : Troop
             aiMoveCore = core;
             aiMoveResource = null;
             RequestMove(core.transform.position);
+            Status.Value = WorkStatus.Moving;
         }
+    }
+
+    public void OrderDepositStorage(Building building)
+    {
+        if (!IsServer || building == null || !building.IsSpawned || building.OwnerClientId != OwnerClientId ||
+            building.Type != Building.BuildingType.Storage || !building.IsOperational || !HasCargo) return;
+        if (Status.Value == WorkStatus.Moving && AssignedBuilding == building &&
+            Vector3.Distance(transform.position, building.transform.position) > SightRange) return;
+        AssignedBuilding = building; AssignedResource = null; WorkDestination = building.transform.position;
+        if (Vector3.Distance(transform.position, building.transform.position) <= SightRange)
+        { currentDepositBuilding = building; currentCore = null; IsDepositing.Value = true; Status.Value = WorkStatus.Depositing; nextDepositTick = Time.time; }
+        else { RequestMove(building.transform.position); Status.Value = WorkStatus.Moving; }
+    }
+
+    public void OrderBuild(Building building)
+    {
+        if (!IsServer || building == null || !building.IsSpawned || building.IsConstructionComplete.Value || !HasCargo) return;
+        StopHarvesting(); StopDepositing();
+        currentBuildTarget = building; AssignedBuilding = building; AssignedResource = null;
+        WorkDestination = building.transform.position;
+        if (Vector3.Distance(transform.position, building.transform.position) > SightRange)
+        {
+            RequestMove(building.transform.position); Status.Value = WorkStatus.Moving;
+        }
+        else { IsBuilding.Value = true; IsRepairing.Value = false; nextBuildSendTime = Time.time; Status.Value = WorkStatus.Building; }
     }
 
     public void RequestMoveToBuild(Vector3 position, int buildingIndex, int rotation)
@@ -211,12 +254,25 @@ public class Cargo : Troop
         if (rpcParams.Receive.SenderClientId != OwnerClientId)
             return;
 
-        StopHarvesting();
-        StopDepositing();
+        CancelWork();
+    }
+
+    private void CancelWork()
+    {
+        StopHarvesting(); StopDepositing(); StopBuilding();
+        AssignedResource = null; AssignedBuilding = null; aiMoveResource = null; aiMoveCore = null;
+        Status.Value = WorkStatus.Idle;
     }
 
     public override void UpdateTroop()
     {
+        if (!IsServer) return;
+        if (AssignedResource != null && !IsHarvesting.Value && !IsCargoFull &&
+            Vector3.Distance(transform.position, AssignedResource.transform.position) <= SightRange)
+            BeginHarvestServer(AssignedResource);
+        if (AssignedBuilding != null && !AssignedBuilding.IsConstructionComplete.Value && !IsBuilding.Value &&
+            Vector3.Distance(transform.position, AssignedBuilding.transform.position) <= SightRange && HasCargo)
+        { currentBuildTarget = AssignedBuilding; IsBuilding.Value = true; Status.Value = WorkStatus.Building; }
         UpdateConstruction();
         UpdateTurretAim();
         if (IsBuilding.Value || HasPendingBuildOrders) return;
@@ -263,17 +319,7 @@ public class Cargo : Troop
 
     private void UpdateConstruction()
     {
-        if (IsOwner && !IsBuilding.Value)
-        {
-            if (GoingToBuilding && Vector3.Distance(BuildingPosition, transform.position) <= SightRange)
-                BeginBuild();
-            foreach (Building building in BuildingsInRange)
-            {
-                if (building == null || building.IsConstructionComplete.Value) continue;
-                RequestBuildServerRpc(building.NetworkObject);
-                break;
-            }
-        }
+        if (!IsServer) return;
 
         if (IsOwner && !IsBuilding.Value && !GoingToBuilding && pendingBuildQueue.Count > 0)
         {
@@ -282,7 +328,6 @@ public class Cargo : Troop
             RequestMoveToBuild(next.Position, next.BuildingIndex, next.Rotation);
         }
 
-        if (!IsServer) return;
         if (IsBuilding.Value)
         {
             if (currentBuildTarget == null || currentBuildTarget.IsConstructionComplete.Value)
@@ -293,9 +338,11 @@ public class Cargo : Troop
             if (Time.time >= nextBuildSendTime)
             {
                 nextBuildSendTime = Time.time + 1f;
-                if (playerResources != null && playerResources.TrySpend(BuildCoriumPerSecond, 0))
+                int amount = Mathf.Min(BuildCoriumPerSecond, CoriumCargo.Value, currentBuildTarget.MissingCorium);
+                if (amount > 0)
                 {
-                    currentBuildTarget.ReceiveCorium(BuildCoriumPerSecond);
+                    currentBuildTarget.ReceiveCorium(amount);
+                    CoriumCargo.Value -= amount;
                     PlayTransferEffect(currentBuildTarget.transform.position);
                 }
             }
@@ -307,6 +354,7 @@ public class Cargo : Troop
         currentBuildTarget = null;
         IsBuilding.Value = false;
         IsRepairing.Value = false;
+        if (Status.Value == WorkStatus.Building) Status.Value = WorkStatus.Idle;
     }
 
     [ServerRpc]
@@ -380,7 +428,7 @@ public class Cargo : Troop
         // Detekce resources kolem sebe běží na všech instancích stejně jako
         // detekce budov v Troop.ScanBuildings - server tak má vlastní
         // autoritativní seznam, klient (owner) ho používá k výběru cíle.
-        if (CoriumCargo.Value < MaxCargo)
+        if (IsServer && CoriumCargo.Value < MaxCargo)
             ScanForResources();
 
         if (!IsServer)
@@ -406,13 +454,14 @@ public class Cargo : Troop
                     // tu žijí ve stejném procesu (na serveru), takže stačí
                     // přímý C# call.
                     currentTarget.DepleteResource(this, amount);
+                Status.Value = WorkStatus.Harvesting;
                 }
             }
         }
 
         if (IsDepositing.Value)
         {
-            if (currentCore == null || CoriumCargo.Value <= 0)
+            if (currentDepositBuilding == null || !currentDepositBuilding.IsSpawned || CoriumCargo.Value <= 0)
             {
                 StopDepositing();
                 return;
@@ -428,9 +477,12 @@ public class Cargo : Troop
                 {
                     // Stejně jako u těžby - čistě serverové volání, core i harvester
                     // žijí ve stejném procesu na serveru.
-                    currentCore.CoriumReserve(amount, this);
+                    if (currentCore != null) currentCore.CoriumReserve(amount, this);
+                    else if (NetworkManager.Singleton.ConnectedClients.TryGetValue(OwnerClientId, out var owner) && owner.PlayerObject != null)
+                        owner.PlayerObject.GetComponent<PlayerResources>()?.Add(amount, 0);
                     CoriumCargo.Value -= amount;
-                    PlayTransferEffect(currentCore.transform.position);
+                    Status.Value = CoriumCargo.Value <= 0 ? WorkStatus.Idle : WorkStatus.Depositing;
+                    PlayTransferEffect(currentDepositBuilding.transform.position);
                 }
             }
         }
@@ -439,8 +491,6 @@ public class Cargo : Troop
 
     private void ScanForResources()
     {
-        if (selectedResource != null && !selectedResource.Depleted && selectedResource.CoriumAmount.Value > 0)
-            return;
         if (Time.time < nextResourceScan)
             return;
 
@@ -536,6 +586,7 @@ public class Cargo : Troop
         }
 
         currentCore = core;
+        currentDepositBuilding = core;
         IsDepositing.Value = true;
         nextDepositTick = Time.time;
     }
@@ -544,12 +595,15 @@ public class Cargo : Troop
     {
         currentTarget = null;
         IsHarvesting.Value = false;
+        if (Status.Value == WorkStatus.Harvesting) Status.Value = WorkStatus.Idle;
     }
 
     private void StopDepositing()
     {
         currentCore = null;
+        currentDepositBuilding = null;
         IsDepositing.Value = false;
+        if (Status.Value == WorkStatus.Depositing) Status.Value = WorkStatus.Idle;
     }
 
     /// <summary>
@@ -638,6 +692,16 @@ public class Cargo : Troop
 
         currentTarget = resource;
         IsHarvesting.Value = true;
+        AssignedResource = resource; Status.Value = WorkStatus.Harvesting;
         nextHarvestTick = Time.time;
+    }
+
+    private void BeginHarvestServer(Resource resource)
+    {
+        if (!IsServer || resource == null || !resource.IsSpawned || resource.Depleted ||
+            Vector3.Distance(transform.position, resource.transform.position) > SightRange || CoriumCargo.Value >= MaxCargo)
+            return;
+        currentTarget = resource; AssignedResource = resource; IsHarvesting.Value = true;
+        Status.Value = WorkStatus.Harvesting; nextHarvestTick = Time.time;
     }
 }

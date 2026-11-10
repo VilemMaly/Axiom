@@ -9,8 +9,27 @@ public class BuildingInteractor : NetworkBehaviour
     // Seznam budov hráče. Naplňuje se automaticky - každá Building se sem
     // sama zaregistruje ve svém OnNetworkSpawn/OnNetworkDespawn (viz Building.cs),
     // pokud je její vlastníkem tenhle klient.
-    private readonly List<Building> myBuildings = new List<Building>();
+    [SerializeField] private readonly List<Building> myBuildings = new List<Building>();
     public IReadOnlyList<Building> MyBuildings => myBuildings;
+
+    public Building FindNearestIncompleteBuilding(Vector3 from, ulong ownerId)
+    {
+        Building best = null; float bestDistance = float.MaxValue;
+        foreach (Building b in myBuildings)
+            if (b != null && b.IsSpawned && b.OwnerClientId == ownerId && !b.IsConstructionComplete.Value && b.MissingCorium > 0)
+            { float d = (b.transform.position - from).sqrMagnitude; if (d < bestDistance) { best = b; bestDistance = d; } }
+        return best;
+    }
+
+    public Building FindNearestDeposit(Vector3 from, ulong ownerId)
+    {
+        Building best = null; float bestDistance = float.MaxValue;
+        foreach (Building b in myBuildings)
+            if (b != null && b.IsSpawned && b.OwnerClientId == ownerId && b.IsConstructionComplete.Value && b.IsOperational &&
+                (b.Type == Building.BuildingType.Core || b.Type == Building.BuildingType.Storage))
+            { float d = (b.transform.position - from).sqrMagnitude; if (d < bestDistance) { best = b; bestDistance = d; } }
+        return best;
+    }
 
     /// <summary>Returns the first eligible idle spawner, or the first eligible spawner if all are busy.</summary>
     public BuildingSpawner GetSpawner(TroopType troopType)

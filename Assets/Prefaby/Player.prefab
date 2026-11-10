@@ -5412,7 +5412,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 3
   isFirstGroupButton: 0
 --- !u!1 &2017973736668428970
@@ -14772,7 +14771,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 1
   isFirstGroupButton: 1
 --- !u!1 &5787225547055489985
@@ -18083,7 +18081,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 2
   isFirstGroupButton: 0
 --- !u!1 &7315942946654001413
@@ -20764,6 +20761,7 @@ GameObject:
   - component: {fileID: 3260594143507183813}
   - component: {fileID: 4048288837588009954}
   - component: {fileID: 5094601715524805211}
+  - component: {fileID: 4259749176644370481}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -21376,6 +21374,20 @@ MonoBehaviour:
   troopSpawner: {fileID: 8782758606969523537}
   graphicRaycaster: {fileID: 3621932800149355816}
   eventSystem: {fileID: 0}
+--- !u!114 &4259749176644370481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8600446094655747949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263d80be3e0647246b4d4bd92b7b37dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  knownResources: []
 --- !u!1 &8744124395040183519
 GameObject:
   m_ObjectHideFlags: 0
@@ -22637,7 +22649,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 4
   isFirstGroupButton: 0
 --- !u!1 &9021922938744315875

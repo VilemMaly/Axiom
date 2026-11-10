@@ -287,32 +287,9 @@ public class TroopInteractor : NetworkBehaviour
             return;
         }
 
-        if (buildingType == Building.BuildingType.Core)
-        {
-            Debug.Log("[TroopInteractor] Core se staví rovnou, bez potřeby Cargo.");
-            build.RequestBuildServerRpc(buildingIndex, position, rotation, default);
-            return;
-        }
-
-        bool anyCargoFound = false;
-
-        foreach (TroopGroup group in myGroups)
-        foreach (Troop troop in group.Units)
-        {
-            if (troop is Cargo cargo)
-            {
-                BuildIndex = buildingIndex;
-                BuildPosition = position;
-                BuildRotation = rotation;
-                Debug.Log($"[TroopInteractor] Posílám příkaz Cargu {troop.name} (typ {troop.Type}) k postavení budovy {buildingType.ToString()} na pozici {position} s rotací {rotation}.");
-                anyCargoFound = true;
-                cargo.NearBuilding += BuildSubscribeEvent;
-                cargo.RequestMoveToBuild(position, buildingIndex, rotation);
-            }
-        }
-
-        if (!anyCargoFound)
-            Debug.Log("[TroopInteractor] Žádné vlastní Cargo k dispozici, stavbu nemá kdo provést.");
+        // Potvrzené umístění vytvoří server ihned jako nedostavěnou budovu.
+        // Building.OnNetworkSpawn ji zaregistruje v BuildingInteractor.
+        build.RequestBuildServerRpc(buildingIndex, position, rotation, default);
     }
 
     private void BuildSubscribeEvent(Cargo cargo, int index, Vector3 position, int rotation, int BuildingLeft)

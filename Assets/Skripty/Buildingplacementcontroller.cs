@@ -196,6 +196,9 @@ public class BuildingPlacementController : NetworkBehaviour
         foreach (var col in colliders)
             col.enabled = false;
 
+        foreach (var skinnedRenderer in ghost.GetComponentsInChildren<SkinnedMeshRenderer>())
+            skinnedRenderer.enabled = false;
+
     }
 
     private void Update()
@@ -309,7 +312,7 @@ public class BuildingPlacementController : NetworkBehaviour
         var mat = valid ? ghostValidMaterial : ghostInvalidMaterial;
         if (mat == null || ghost == null) return;
 
-        foreach (var renderer in ghost.GetComponentsInChildren<Renderer>())
+        foreach (var renderer in ghost.GetComponentsInChildren<MeshRenderer>())
             renderer.material = mat;
     }
 
