@@ -110,13 +110,25 @@ public class Build : NetworkBehaviour
 
         // Core lze postavit bez Cargo (bootstrap) - u všeho ostatního musí žádost
         // reálně přijít od vlastního Cargo, které je fyzicky u místa stavby.
-        if (atlasRef.TryGet(out NetworkObject cargoNetObj))
+        if (entry.type != Building.BuildingType.Core)
         {
             Debug.Log(
                 $"[Build] Kontrola Cargo | " +
                 $"Budova='{entry.buildingName}' | " +
                 $"Player={requestingClientId}"
             );
+
+            if (!atlasRef.TryGet(out NetworkObject cargoNetObj))
+            {
+                Debug.LogWarning(
+                    $"[Build] STAVBA NEDOKONČENA | " +
+                    $"Player={requestingClientId} | " +
+                    $"Budova='{entry.buildingName}' | " +
+                    $"Důvod: Cargo reference je neplatná."
+                );
+
+                return;
+            }
 
             Cargo cargo = cargoNetObj.GetComponent<Cargo>();
 
@@ -162,7 +174,7 @@ public class Build : NetworkBehaviour
                 $"Budova='{entry.buildingName}'"
             );
         }
-        else if (entry.type == Building.BuildingType.Core)
+        else
         {
             Debug.Log(
                 $"[Build] Budova '{entry.buildingName}' je Core -> Cargo se nekontroluje."

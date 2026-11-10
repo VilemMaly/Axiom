@@ -10,8 +10,6 @@ public class TroopAI : MonoBehaviour
     private TroopGroup group;
     private float nextThink;
     private Vector3 defendPosition;
-    private ResourceManager resourceManager;
-    private BuildingInteractor buildingInteractor;
 
     public void Initialize(TroopGroup owner) { group = owner; }
     public void SetDefendPosition(Vector3 position) { defendPosition = position; }
@@ -104,163 +102,39 @@ public class TroopAI : MonoBehaviour
 
     private void UpdateHarvestOrders()
     {
-        if (group == null || !IsServer())
-        {
-            return;
-        }
-
-        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(group.OwnerClientId, out var ownerClient)
-            && ownerClient.PlayerObject != null)
-        {
-            if (resourceManager == null)
-            {
-                resourceManager = ownerClient.PlayerObject.GetComponent<ResourceManager>();
-            }
-
-            if (buildingInteractor == null)
-            {
-                buildingInteractor = ownerClient.PlayerObject.GetComponent<BuildingInteractor>();
-            }
-        }
-
-        bool harvesting = false;
-        bool depositing = false;
-
+        bool hasCargoUnit = false;
+        bool allFinishedHarvesting = true;
+        List<Cargo> cargos = new List<Cargo>();
         foreach (Troop troop in group.Units)
         {
-            if (!(troop is Cargo cargo))
-            {
-                continue;
-            }
-            if(IsServer())
-            {
-                Debug.Log($"Updating harvest orders for cargo unit {cargo.name}");
-            }
+            if (!(troop is Cargo cargo)) continue;
+            cargos.Add(cargo);
+            hasCargoUnit = true;
+            if (cargo.IsHarvesting.Value) { allFinishedHarvesting = false; continue; }
+            if (cargo.IsCargoFull) continue;
 
-            cargo.RefreshResourceKnowledge(resourceManager);
-
-            if (cargo.Status.Value == Cargo.WorkStatus.Moving)
-            {
-                bool resourceIsUnavailable = cargo.AssignedResource != null
-                    && (!cargo.AssignedResource.IsSpawned || cargo.AssignedResource.Depleted);
-                bool buildingIsUnavailable = cargo.AssignedBuilding != null
-                    && (!cargo.AssignedBuilding.IsSpawned || cargo.AssignedBuilding.IsConstructionComplete.Value);
-
-                if (resourceIsUnavailable)
-                {
-                    cargo.StopCurrentTask();
-                }
-                else if (buildingIsUnavailable)
-                {
-                    cargo.StopCurrentTask();
-                }
-                // Keep moving until the destination is within sight so the cargo can continue its task.
-                else if (Vector3.Distance(cargo.transform.position, cargo.WorkDestination) > cargo.SightRange)
-                {
-                    continue;
-                }
-            }
-
-            if (cargo.IsBuilding.Value)
-            {
-                if (cargo.AssignedBuilding == null
-                    || !cargo.AssignedBuilding.IsSpawned
-                    || cargo.AssignedBuilding.IsConstructionComplete.Value)
-                {
-                    cargo.StopCurrentTask();
-                }
-                else
-                {
-                    continue;
-                }
-            }
-
-            if (cargo.IsHarvesting.Value)
-            {
-                harvesting = true;
-                continue;
-            }
-
-            if (cargo.IsDepositing.Value)
-            {
-                depositing = true;
-                continue;
-            }
-
-            if (cargo.HasCargo)
-            {
-                Building buildTarget = null;
-                if (buildingInteractor != null)
-                {
-                    buildTarget = buildingInteractor.FindNearestIncompleteBuilding(
-                        cargo.transform.position,
-                        cargo.OwnerClientId);
-                }
-
-                if (buildTarget != null)
-                {
-                    cargo.OrderBuild(buildTarget);
-                    continue;
-                }
-
-                Building deposit = null;
-                if (buildingInteractor != null)
-                {
-                    deposit = buildingInteractor.FindNearestDeposit(
-                        cargo.transform.position,
-                        cargo.OwnerClientId);
-                }
-
-                if (deposit is Core core)
-                {
-                    cargo.OrderDeposit(core);
-                    depositing = true;
-                }
-                else if (deposit != null)
-                {
-                    cargo.OrderDepositStorage(deposit);
-                    depositing = true;
-                }
-
-                continue;
-            }
-
-            Resource target = null;
-            if (group.TargetResource != null
-                && group.TargetResource.IsSpawned
-                && !group.TargetResource.Depleted)
-            {
-                target = group.TargetResource;
-            }
-            else if (resourceManager != null)
-            {
-                // Prefer a known resource near the group's objective, then one near this cargo unit.
-                target = resourceManager.FindNearestKnown(group.ObjectivePosition);
-                if (target == null)
-                {
-                    target = resourceManager.FindNearestKnown(cargo.transform.position);
-                }
-            }
-
+            Resource target = group.TargetResource != null && !group.TargetResource.Depleted
+                ? group.TargetResource : FindNearestResource(cargo.transform.position);
             if (target != null)
             {
+                allFinishedHarvesting = false;
                 cargo.OrderHarvest(target);
-                harvesting = true;
             }
         }
 
-        if (depositing)
+        if (hasCargoUnit && allFinishedHarvesting)
         {
-            group.State = TroopGroupState.Depositing;
+            bool carryingAnything = false;
+            foreach (Cargo cargo in cargos)
+            {
+                if (!cargo.HasCargo) continue;
+                carryingAnything = true;
+                Core core = FindNearestCore(cargo.transform.position, cargo.OwnerClientId);
+                if (core != null) cargo.OrderDeposit(core);
+            }
+            group.State = carryingAnything ? TroopGroupState.Depositing : TroopGroupState.Harvesting;
         }
-        else if (harvesting)
-        {
-            group.State = TroopGroupState.Harvesting;
-        }
-        else
-        {
-            group.State = TroopGroupState.Idle;
-        }
+        else group.State = TroopGroupState.Harvesting;
     }
 
     private Resource FindNearestResource(Vector3 from)

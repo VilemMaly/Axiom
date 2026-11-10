@@ -375,21 +375,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
     public virtual void UpdateTroop() { }
 
-    private void ValidateVisibleCoriumKnowledge()
-    {
-        if (!IsServer || SightRange <= 0f || NetworkManager.Singleton == null ||
-            !NetworkManager.Singleton.ConnectedClients.TryGetValue(OwnerClientId, out var ownerClient) ||
-            ownerClient.PlayerObject == null)
-            return;
-
-        ResourceManager manager = ownerClient.PlayerObject.GetComponent<ResourceManager>();
-        if (manager == null) return;
-
-        List<Corium> visibleCoria = ScanCoria();
-        if (visibleCoria.Count > 0)
-            manager.ValidateVisibleResources(visibleCoria);
-    }
-
     public virtual void RepairBuilding(Building building) { }
 
     public virtual void BuildBuilding(Building building) { }
@@ -693,7 +678,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
         if (framePerUpdate - frameCountSinceUpdate <= 0)
         {
-            ValidateVisibleCoriumKnowledge();
             UpdateTroop();
             frameCountSinceUpdate = 0;
         }

@@ -216,11 +216,9 @@ public class TroopGroup : MonoBehaviour
     public void AssignAll(Troop target) { if (target == null) return; foreach (Troop troop in Snapshot()) troop.OnSelectTroop(target); }
     public void Harvest(Resource resource = null)
     {
-        Vector3 position = resource != null ? resource.transform.position : ObjectivePosition;
-        if (resource == null && position == Vector3.zero && units.Count > 0 && units[0] != null)
-            position = units[0].transform.position;
-        SetTask(TroopGroupTask.Harvest, position);
-        TargetResource = resource;
+        StopAll();
+        TargetResource = resource; Task = TroopGroupTask.Harvest; State = TroopGroupState.Harvesting;
+        troopAI.BeginHarvest();
     }
     public void BuildAt(int buildingIndex, Building.BuildingType type, Vector3 position, int rotation = 0)
     {
