@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using System.Collections;
 /// <summary>
 /// Edge-scrolling + akční ovládání kamery (RTS styl) + zoom ortografické kamery.
 /// Skript patří na PRÁZDNÝ PARENT objekt, který se pohybuje.
@@ -103,11 +104,41 @@ public class CameraController : NetworkBehaviour
         if (udrzovatVyskuNadZemi)
             ZjistiVyskuTerenu();
 
+        Vector3 pocatecniRotace = transform.eulerAngles;
+        cameraYaw = pocatecniRotace.y;
+        cameraPitch = Mathf.Clamp(Mathf.DeltaAngle(0f, pocatecniRotace.x), -89f, 89f);
+        if (cilovaKamera != null)
+        {
+            Vector3 lokalniRotaceKamery = cilovaKamera.transform.localEulerAngles;
+            cameraYaw += Mathf.DeltaAngle(0f, lokalniRotaceKamery.y);
+            cilovaKamera.transform.localRotation = Quaternion.Euler(
+                Mathf.DeltaAngle(0f, lokalniRotaceKamery.x),
+                0f,
+                0f);
+        }
+
+        transform.rotation = Quaternion.Euler(cameraPitch, cameraYaw, 0f);
+
         LocalCamera = cilovaKamera;
+        StartCoroutine(WaitForInputManager());
+        
+    }
+
+        private IEnumerator WaitForInputManager()
+    {
+        yield return new WaitUntil(() => InputManager.StaticClass != null);
+        InputManager.StaticClass.Controls.Player.RotateCamera.performed += StartRotation;
+        InputManager.StaticClass.Controls.Player.RotateCamera.canceled += StopRotation;
     }
 
     private void OnDestroy()
     {
+        if (InputManager.StaticClass != null)
+        {
+            InputManager.StaticClass.Controls.Player.RotateCamera.performed -= StartRotation;
+            InputManager.StaticClass.Controls.Player.RotateCamera.canceled -= StopRotation;
+        }
+
         // Uklidit static referenci, ale jen pokud pořád ukazuje na tuhle instanci -
         // jinak bys mohl vynulovat kameru jinému (pozdě-joinujícímu) hráči.
         if (LocalCamera == cilovaKamera)
@@ -125,8 +156,51 @@ public class CameraController : NetworkBehaviour
         ZpracujPohyb();
         ZpracujZoom();
         ZpracujVyskuNadZemi();
+        RotateCamera();
     }
 
+    private Vector2 lastCursorPosition;
+    private bool rotating;
+    private float cameraYaw;
+    private float cameraPitch;
+
+    [Tooltip("Citlivost rotace v úhlových stupních na pixel pohybu myši.")]
+    [Min(0f)] public float rotationSpeed = 0.2f;
+
+    private void PivotRotateCamera(Vector2 mouseDelta)
+    {
+        Vector3 pivot = transform.position + transform.forward * 2f;
+        Quaternion oldRotation = transform.rotation;
+        cameraYaw += mouseDelta.x * rotationSpeed;
+        cameraPitch = Mathf.Clamp(cameraPitch - mouseDelta.y * rotationSpeed, -89f, 89f);
+        Quaternion newRotation = Quaternion.Euler(cameraPitch, cameraYaw, 0f);
+        Quaternion rotationDelta = newRotation * Quaternion.Inverse(oldRotation);
+
+        transform.position = pivot + rotationDelta * (transform.position - pivot);
+        transform.rotation = newRotation;
+    }
+
+    private void RotateCamera()
+    {
+        if (!rotating)
+            return;
+
+        Vector2 cursorPosition = InputManager.StaticClass.Controls.UI.Point.ReadValue<Vector2>();
+        Vector2 mouseDelta = cursorPosition - lastCursorPosition;
+        lastCursorPosition = cursorPosition;
+        PivotRotateCamera(mouseDelta);
+    }
+
+    private void StartRotation(InputAction.CallbackContext context)
+    {
+        rotating = true;
+        lastCursorPosition = InputManager.StaticClass.Controls.UI.Point.ReadValue<Vector2>();
+    }
+
+    private void StopRotation(InputAction.CallbackContext context)
+    {
+        rotating = false;
+    }
     private void ZpracujPohyb()
     {
         Vector2 smerEdge = povolitEdgeScroll ? ZjistiSmerOdOkraju() : Vector2.zero;

@@ -104,6 +104,11 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     private bool isMoving;
     private bool combatMovementPaused;
 
+    public bool isVisible = false;
+    public bool isDiscovered = false;
+    Vector3 lastKnownPosition;
+    public GameObject Model;
+
     public bool IsMoving => isMoving;
 
     [SerializeField] public Animator Animator;
@@ -218,6 +223,9 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         if (!IsOwner)
         {
             currentVisibility.GameObject().SetActive(false);
+            Model.SetActive(false);
+            isDiscovered = false;
+            isVisible = false;
         }
 
         currentVisibility.GameObject().transform.localScale =
@@ -226,6 +234,12 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         if (IsServer)
         {
             Health.Value = MaxHealth;
+        }
+        if(IsOwner)
+        {
+            isDiscovered = true;
+            isVisible = true;
+            Model.SetActive(true);
         }
         // Boost půjde na klientovi i server zvlášť, protože se stejně pravděpodobně bude kontrolovat vzdálenost při výstřelu rychlost atd
         // takže i kdyby si klient dal upgrade svůj tak by nefungoval
@@ -654,6 +668,55 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         GetComponent<NetworkObject>().Despawn();
     }
 
+    [ServerRpc]
+    protected virtual void ScanSurroundingsServerRpc()
+    {
+        List<Troop> nearbyTroops = ScanTroops();
+        if (nearbyTroops.Count > 0)
+        {
+            foreach (Troop troop in nearbyTroops)
+            {
+                if (troop == null || troop.OwnerClientId == OwnerClientId || troop.Health.Value <= 0)
+                    continue;
+
+                if (!troop.isDiscovered)
+                {
+                    troop.isDiscovered = true;
+                    troop.isVisible = true;
+                }
+            }
+        }
+    }
+
+    protected virtual void isSeen()
+    {
+        if (isVisible)
+        {
+            isSeenClientRpc(true);
+        }
+        else
+        {
+            isSeenClientRpc(false);
+        }
+    }
+
+    [ClientRpc]
+    protected virtual void isSeenClientRpc(bool isVisible)
+    {
+        if (IsOwner)
+            return;
+        if (isVisible)
+        {
+            this.isDiscovered = true;
+            this.isVisible = true;
+            Model.SetActive(true);
+        }
+        else
+        {
+            this.isVisible = false;
+            Model.SetActive(false);
+        }
+    }
     private void Update()
     {
         if (!IsOperational)
@@ -661,7 +724,14 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
         if (!IsServer && Group != null)
             Group.ApplySyncedState((TroopGroupState)SyncedGroupState.Value, TargetGroupId.Value, TargetGroupOwnerId.Value);
-
+        if(IsServer)
+        {
+            isSeen();
+        }
+        if(IsOwner)
+        {
+            ScanSurroundingsServerRpc();
+        }
         // -----------------------------------------------------
         // Klient -> server kontrola pozice
         // -----------------------------------------------------

@@ -189,17 +189,19 @@ public class TroopAI : MonoBehaviour
             cargo.IsHarvesting.Value = false;
 
             Building depositTarget = null;
+            Building.BuildingType selectedBuildingType = Building.BuildingType.Core;
             float depositDistance = float.MaxValue;
             foreach (Building building in buildings)
             {
                 if (building == null || building.OwnerClientId != group.OwnerClientId ||
-                    building.Type == Building.BuildingType.Core || building.MissingCorium <= 0)
+                    building.MissingCorium <= 0)
                     continue;
 
                 float distance = (building.transform.position - cargo.transform.position).sqrMagnitude;
                 if (distance < depositDistance)
                 {
                     depositTarget = building;
+                    selectedBuildingType = building.Type;
                     depositDistance = distance;
                 }
             }
@@ -217,6 +219,7 @@ public class TroopAI : MonoBehaviour
                     if (distance < nearestCoreDistance)
                     {
                         depositTarget = building;
+                        selectedBuildingType = building.Type;
                         nearestCoreDistance = distance;
                     }
                 }
@@ -232,10 +235,12 @@ public class TroopAI : MonoBehaviour
 
             Building scannedBuilding = null;
             float scannedBuildingDistance = float.MaxValue;
+
             foreach (Building building in cargo.Scan<Building>(TroopScanType.Building))
             {
                 if (building == null || building.OwnerClientId != group.OwnerClientId ||
-                    (building.Type != Building.BuildingType.Core && building.MissingCorium <= 0))
+                    building.Type != selectedBuildingType ||
+                    (selectedBuildingType != Building.BuildingType.Core && building.MissingCorium <= 0))
                     continue;
 
                 float distance = (building.transform.position - cargo.transform.position).sqrMagnitude;

@@ -5156,13 +5156,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1917294185059729611}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.35355338, y: -0.35355338, z: 0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: 0, y: 20, z: 0}
+  m_LocalRotation: {x: 0.70090926, y: 0, z: 0, w: 0.71325046}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 349780722312741617}
-  m_LocalEulerAnglesHint: {x: 45, y: -45, z: 0}
+  m_LocalEulerAnglesHint: {x: 89, y: 0, z: 0}
 --- !u!20 &1700524481096388129
 Camera:
   m_ObjectHideFlags: 0
@@ -5412,7 +5412,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 3
   isFirstGroupButton: 0
 --- !u!1 &2017973736668428970
@@ -9711,7 +9710,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TroopStatus
   healthText: {fileID: 4683760020499014505}
-  buildPowerText: {fileID: 9110711675642791206}
+  harvestPowerText: {fileID: 0}
   repairPowerText: {fileID: 1906446481210348706}
 --- !u!1 &3836978554917762838
 GameObject:
@@ -13289,7 +13288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TroopStatus
   healthText: {fileID: 5104198143402863735}
-  buildPowerText: {fileID: 300433848786760552}
+  harvestPowerText: {fileID: 0}
   repairPowerText: {fileID: 8407244702547544200}
 --- !u!1 &5004492131949108985
 GameObject:
@@ -14772,7 +14771,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 1
   isFirstGroupButton: 1
 --- !u!1 &5787225547055489985
@@ -15379,7 +15377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TroopStatus
   healthText: {fileID: 8798890398853381886}
-  buildPowerText: {fileID: 1968271654227336058}
+  harvestPowerText: {fileID: 0}
   repairPowerText: {fileID: 8499452212188208726}
 --- !u!1 &6044123219538247097
 GameObject:
@@ -18083,7 +18081,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 2
   isFirstGroupButton: 0
 --- !u!1 &7315942946654001413
@@ -20802,7 +20799,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2584874171
+  GlobalObjectIdHash: 2901248539
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -20854,6 +20851,7 @@ MonoBehaviour:
   stredMapy: {x: 0, y: 0, z: 0}
   polovinaStranyMapy: 150
   povolitZoom: 1
+  rotationSpeed: 0.2
 --- !u!114 &7951113444830326951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21387,8 +21385,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 263d80be3e0647246b4d4bd92b7b37dd, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResourceManager
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &8744124395040183519
 GameObject:
   m_ObjectHideFlags: 0
@@ -22650,7 +22649,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afc3921a3110ab41ac51892baa8537e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroupButtonClicked
-  uiController: {fileID: 5094601715524805211}
   groupId: 4
   isFirstGroupButton: 0
 --- !u!1 &9021922938744315875

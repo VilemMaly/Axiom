@@ -148,11 +148,21 @@ public class Cargo : Troop
             if (Time.time >= nextDepositTick)
             {
                 nextDepositTick = Time.time + 1f;
-                if (playerResources != null && playerResources.TrySpend(DepositCoriumPerSecond, 0))
+                if (playerResources != null && CoriumCargo.Value > 0 && building.MissingCorium > 0)
                 {
-                    building.ReceiveCorium(DepositCoriumPerSecond);
-                    CoriumCargo.Value -= DepositCoriumPerSecond;
-                    PlayTransferEffect(building.transform.position);
+                    if (CoriumCargo.Value < DepositCoriumPerSecond)
+                    {
+                        building.ReceiveCorium(CoriumCargo.Value);
+                        CoriumCargo.Value -= CoriumCargo.Value;
+                        PlayTransferEffect(building.transform.position);
+                    }
+                    else
+                    {
+                        building.ReceiveCorium(DepositCoriumPerSecond);
+                        CoriumCargo.Value -= DepositCoriumPerSecond;
+                        PlayTransferEffect(building.transform.position);
+                    }
+                    
                 }
             }
         }
