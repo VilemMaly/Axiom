@@ -345,7 +345,7 @@ MonoBehaviour:
   BuildingPosition: {x: 0, y: 0, z: 0}
   pendingBuildQueue: []
   turretTransform: {fileID: 3621302787321780166}
-  turretTurnSpeed: 360
+  turretTurnSpeed: 1800
   status:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

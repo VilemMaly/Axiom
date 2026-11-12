@@ -275,7 +275,7 @@ public class TroopUIController : MonoBehaviour
         }
 
         pendingGroundOrder = order;
-        hovering = false;
+        hovering = true;
         hoverImage.sprite = cursorSprite;
         hoverImage.gameObject.SetActive(true);
         hoverImage.transform.position = mousePosition;
@@ -317,6 +317,8 @@ public class TroopUIController : MonoBehaviour
                 group.SetTask(TroopGroupTask.Harvest, hit.point);
                 break;
         }
+        
+        hovering = false;
     }
 
     private void HideHoverImage()

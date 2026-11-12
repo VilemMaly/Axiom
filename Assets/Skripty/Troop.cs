@@ -220,13 +220,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner)
-        {
-            currentVisibility.GameObject().SetActive(false);
-            Model.SetActive(false);
-            isDiscovered = false;
-            isVisible = false;
-        }
 
         currentVisibility.GameObject().transform.localScale =
             new Vector3(SightRange, SightRange, 1f);
@@ -234,12 +227,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         if (IsServer)
         {
             Health.Value = MaxHealth;
-        }
-        if(IsOwner)
-        {
-            isDiscovered = true;
-            isVisible = true;
-            Model.SetActive(true);
         }
         // Boost půjde na klientovi i server zvlášť, protože se stejně pravděpodobně bude kontrolovat vzdálenost při výstřelu rychlost atd
         // takže i kdyby si klient dal upgrade svůj tak by nefungoval
