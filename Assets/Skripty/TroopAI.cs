@@ -43,7 +43,11 @@ public class TroopAI : MonoBehaviour
         if (group.Task == TroopGroupTask.Defend)
         {
             ScanForAttackers(false);
-            if (Vector3.Distance(Center(), defendPosition) > defendRadius) group.MoveAll(defendPosition);
+            if (group.State != TroopGroupState.Attacked)
+            {
+                if (Vector3.Distance(Center(), defendPosition) > defendRadius)
+                    group.MoveAll(defendPosition);
+            }
             else if (group.State == TroopGroupState.Attacked) group.State = TroopGroupState.Idle;
         }
         else if (group.Task == TroopGroupTask.Attack)
