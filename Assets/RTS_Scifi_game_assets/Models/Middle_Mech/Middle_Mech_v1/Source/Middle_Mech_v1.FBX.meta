@@ -329,7 +329,33 @@ ModelImporter:
     animationPositionError: 0.5
     animationScaleError: 0.5
     animationWrapMode: 2
-    extraExposedTransformPaths: []
+    extraExposedTransformPaths:
+    - Bip001
+    - Bip001/Bip001 Footsteps
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001
+      L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001
+      L Toe0/Bip001 L Toe0Nub
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Neck/Bip001 Head/Bip001 HeadNub
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001
+      R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001
+      R Toe0/Bip001 R Toe0Nub
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Middle_Mech_v1_DWS1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Middle_Mech_v1_LWS1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Middle_Mech_v1_RWS1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Middle_Mech_v1_UWS1
+    - Middle_Mech_v1_body
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
@@ -753,7 +779,7 @@ ModelImporter:
     legStretch: 0.05
     feetSpacing: 0
     globalScale: 1
-    rootMotionBoneName: Middle_Mech_v1_body
+    rootMotionBoneName: Bip001
     hasTranslationDoF: 0
     hasExtraRoot: 1
     skeletonHasParents: 1

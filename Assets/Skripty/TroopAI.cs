@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using Unity.Multiplayer.Tools.NetStats;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>Chooses targets and executes shared orders for its owning group.</summary>
@@ -11,25 +14,89 @@ public class TroopAI : MonoBehaviour
     private TroopGroup group;
     private float nextThink;
     private Vector3 defendPosition;
+    private readonly Dictionary<Troop, Vector3> idleReturnOrders = new Dictionary<Troop, Vector3>();
 
     public void Initialize(TroopGroup owner) { group = owner; }
     public void SetDefendPosition(Vector3 position) { defendPosition = position; }
 
     public void BeginHarvest() { if (group != null) group.State = TroopGroupState.Harvesting; }
 
-    public void RespondTo(Troop attacker)
+    public void RespondTo(TroopGroup attacker)
     {
-        if (group == null || attacker == null || group.Units.Count == 0) return;
-        group.State = TroopGroupState.Attacked;
-        List<Troop> enemyGroup = TroopGroup.GetUnitsInSameGroup(attacker);
-        float ownStrength = EstimateStrength(group.Units);
-        float enemyStrength = EstimateStrength(enemyGroup);
-        Troop target = SelectWeakest(enemyGroup);
-        if (target != null)
+        Debug.Log($"[Troop AI] Responding to attack status: {group.State}");
+        if (group == null || attacker == null || group.Units.Count == 0)
         {
-            // Group strength informs the response state; every order still returns fire.
-            group.Attack(target);
-            if (ownStrength < enemyStrength) group.State = TroopGroupState.Attacked;
+            Debug.Log($"[Troop AI] Chyba v respond to útok status: {group.State}");
+            return;
+        } 
+        if(group.State == TroopGroupState.Attacking)
+        {
+            if(group.attackingBuilding)
+            {
+                group.attackingBuilding = false;
+                group.respondingToAttack = true;
+
+                // Zastavit původní příkazy jednotek
+                // Zahájit útok na nepřátelskou skupinu
+                foreach(Troop troop in group.Units)
+                {
+                    troop.StopCurrentTask();
+                }
+            }
+            
+            bool anyAttacking = false;
+            foreach(Troop troop in group.Units)
+            {
+                if(troop == null) continue;
+                if(troop.hasTarget())
+                {
+                    anyAttacking = true;
+                    Debug.Log($"[TroopAI] Group {group.GroupId} found attacking {troop.Type}");
+                }
+            }
+            if(anyAttacking == false)
+            {
+                Debug.Log($"[TroopAI] Group {group.GroupId} is attacking but has no targets, responding to attacker {attacker.name} owned by {attacker.OwnerClientId}");
+                group.AttackGroup(attacker);
+            }
+        }
+        else if(group.State == TroopGroupState.Idle || group.State == TroopGroupState.Harvesting)
+        {
+            Debug.Log($"[TroopAI] Group {group.GroupId} is idle or harvesting, responding to attacker {attacker.name} owned by {attacker.OwnerClientId}");
+            group.AttackGroup(attacker);
+        }
+    }
+
+    public void RespondTo(Building attacker)
+    {
+        Debug.Log($"[Troop AI] Responding to attack status: {group.State}");
+        if (group == null || attacker == null || group.Units.Count == 0)
+        {
+            Debug.Log($"[Troop AI] Chyba v respond to útok status: {group.State}");
+            return;
+        } 
+        if(group.State == TroopGroupState.Attacking)
+        {
+            bool anyAttacking = false;
+            foreach(Troop troop in group.Units)
+            {
+                if(troop == null) continue;
+                if(troop.hasTarget())
+                {
+                    anyAttacking = true;
+                    Debug.Log($"[TroopAI] Group {group.GroupId} found attacking {troop.Type}");
+                }
+            }
+            if(anyAttacking == false)
+            {
+                Debug.Log($"[TroopAI] Group {group.GroupId} is attacking but has no targets, responding to attacker {attacker.name} owned by {attacker.OwnerClientId}");
+                group.AttackBuilding(attacker);
+            }
+        }
+        else if(group.State == TroopGroupState.Idle || group.State == TroopGroupState.Harvesting)
+        {
+            Debug.Log($"[TroopAI] Group {group.GroupId} is idle or harvesting, responding to attacker {attacker.name} owned by {attacker.OwnerClientId}");
+            group.AttackBuilding(attacker);
         }
     }
 
@@ -39,30 +106,162 @@ public class TroopAI : MonoBehaviour
         nextThink = Time.time + Mathf.Max(.1f, thinkInterval);
         group.Prune();
         if (group.Units.Count == 0) return;
-
+        scanForScrap();
         if (group.Task == TroopGroupTask.Defend)
         {
             ScanForAttackers(false);
-            if (group.State != TroopGroupState.Attacked)
-            {
-                if (Vector3.Distance(Center(), defendPosition) > defendRadius)
-                    group.MoveAll(defendPosition);
-            }
-            else if (group.State == TroopGroupState.Attacked) group.State = TroopGroupState.Idle;
+            if (group.State == TroopGroupState.Idle)
+                ReturnDistantUnitsToPoint(defendPosition);
         }
         else if (group.Task == TroopGroupTask.Attack)
         {
+            // 1) nepřátelské jednotky mají přednost
             ScanForAttackers(true);
-            if (group.TargetTroop != null && Vector3.Distance(Center(), group.TargetTroop.transform.position) > defendRadius)
-                group.MoveAll(group.TargetTroop.transform.position);
-            else if (group.TargetBuilding != null && Vector3.Distance(Center(), group.TargetBuilding.transform.position) > defendRadius)
-                group.MoveAll(group.TargetBuilding.transform.position);
-            AssignAttackTargets();
+
+            // 2) skupina bojuje - jednotkám bez cíle dám nový cíl
+            if(group.State == TroopGroupState.Attacking)
+            {
+                bool anyCombatTarget = false;
+                foreach(Troop troop in group.Units)
+                {
+                    if(troop != null && troop.GetComponent<GenericAttacker>() != null && troop.hasTarget())
+                    {
+                        anyCombatTarget = true;
+                        break;
+                    }
+                }
+                if(anyCombatTarget)
+                {
+                    foreach(Troop troop in group.Units)
+                    {
+                        if(troop != null && troop.GetComponent<GenericAttacker>() != null && !troop.hasTarget())
+                        {
+                            Debug.Log($"[TroopAI] Group {group.GroupId} has a unit {troop.name} without a target, returning it to attack objective");
+                            if(group.TargetGroup != null && group.TargetGroup.Units.Count > 0)
+                            {
+                                Troop attackTroop = group.TargetGroup.Units[UnityEngine.Random.Range(0, group.TargetGroup.Units.Count)];
+                                if(attackTroop == null || attackTroop.Health.Value <= 0)
+                                {
+                                    Debug.Log("[TroopAI] jednotka náhodně přiřazená je neplatná");
+                                    continue;
+                                }
+                                troop.Attack(attackTroop);
+                                troop.MoveTo(attackTroop.gameObject.transform.position);
+                            }
+                        }
+                    }
+                }
+                Debug.Log($"[TroopAI] Group {group.GroupId} has any combat target: {anyCombatTarget}");
+                if(!anyCombatTarget)
+                {
+                    group.State = TroopGroupState.Idle;
+                    group.attackingBuilding = false;
+                    group.respondingToAttack = false;
+                }
+            }
+
+            // 3) skupina nic nedělá (Idle) - zkusí najít nepřátelské budovy kolem sebe
+            //    když nějakou najde, AttackBuilding nastaví State = Attacking
+            if(group.State == TroopGroupState.Idle)
+                ScanForEnemyBuildings();
+
+            // 4) pořád Idle - nic nenašla, jde na místo útoku
+            if(group.State == TroopGroupState.Idle)
+                ReturnDistantUnitsToPoint(GetAttackObjective());
         }
         else if (group.Task == TroopGroupTask.Harvest) UpdateHarvestOrders();
     }
+    
+    private Vector3 GetAttackObjective()
+    {
+        if (group.TargetTroop != null && group.TargetTroop.Health.Value > 0)
+            return group.TargetTroop.transform.position;
+        if (group.TargetBuilding != null && group.TargetBuilding.Health.Value > 0)
+            return group.TargetBuilding.transform.position;
+        return group.ObjectivePosition;
+    }
 
-    private void ScanForAttackers(bool attackAnyEnemy)
+    private bool ScanForEnemyBuildings()
+    {
+        Building nearest = null;
+        float best = float.MaxValue;
+        Vector3 center = Center();
+
+        foreach (Troop troop in group.Units)
+        {
+            if (troop == null || troop.GetComponent<GenericAttacker>() == null)
+                continue;
+
+            foreach (Building building in troop.Scan<Building>(TroopScanType.Building))
+            {
+                if (building == null ||
+                    building.OwnerClientId == group.OwnerClientId ||
+                    building.Health.Value <= 0)
+                    continue;
+
+                float distance = (building.transform.position - center).sqrMagnitude;
+                if (distance < best)
+                {
+                    best = distance;
+                    nearest = building;
+                }
+            }
+        }
+
+        if (nearest == null)
+        {
+            Debug.Log("[TroopAI] žádná budova nebyla nalezena");
+            return false;
+        }
+
+        Debug.Log($"[TroopAI] nalezena nejbližší budova {nearest.Type}");
+        group.AttackBuilding(nearest);
+        return true;
+    }
+
+    private void scanForScrap()
+    {
+        foreach(Troop troop in group.Units)
+        {
+                foreach (Resource resource in troop.Scan<Resource>(TroopScanType.Scrap))
+                {
+                    if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0)
+                        continue;
+                    if(resource is Scrap)
+                    {
+                        group.Owner.ResourceManager.RegisterScrap(resource as Scrap);
+                    }
+                }
+        }
+                
+    }
+
+    private void ReturnDistantUnitsToPoint(Vector3 destination)
+    {
+        if (group == null || group.State != TroopGroupState.Idle || !IsServer()) return;
+
+        int unitCount = group.Units.Count;
+        for (int i = 0; i < unitCount; i++)
+        {
+            Troop troop = group.Units[i];
+            if (troop == null) continue;
+
+            if (Vector3.Distance(troop.transform.position, destination) <= defendRadius)
+            {
+                idleReturnOrders.Remove(troop);
+                continue;
+            }
+
+            bool sameOrder = idleReturnOrders.TryGetValue(troop, out Vector3 previousDestination) &&
+                             (previousDestination - destination).sqrMagnitude <= 0.25f;
+            if (sameOrder && troop.IsMoving) continue;
+
+            troop.RequestMove(destination, i, unitCount);
+            idleReturnOrders[troop] = destination;
+        }
+    }
+
+    private bool ScanForAttackers(bool attackAnyEnemy)
     {
         foreach (Troop unit in group.Units)
         {
@@ -72,32 +271,11 @@ public class TroopAI : MonoBehaviour
                 if (enemy == null || enemy.OwnerClientId == group.OwnerClientId) continue;
                 if (!attackAnyEnemy && enemy.Task != TroopGroupTask.Attack) continue;
                 group.HandleEnemyGroupDetected(enemy);
-                return;
+                return true;
             }
         }
-    }
-
-    private void AssignAttackTargets()
-    {
-        if (group.TargetGroupId < 0 || group.TargetGroupOwnerId == ulong.MaxValue) return;
-        List<Troop> enemies = new List<Troop>();
-        foreach (Troop candidate in FindObjectsByType<Troop>(FindObjectsSortMode.None))
-            if (candidate != null && candidate.OwnerClientId == group.TargetGroupOwnerId && candidate.TroopGroupId.Value == group.TargetGroupId && candidate.Health.Value > 0)
-                enemies.Add(candidate);
-        if (enemies.Count == 0) return;
-
-        foreach (Troop friendly in group.Units)
-        {
-            if (friendly == null) continue;
-            Troop assigned = null;
-            float nearest = float.MaxValue;
-            foreach (Troop enemy in enemies)
-            {
-                float distance = (enemy.transform.position - friendly.transform.position).sqrMagnitude;
-                if (distance < nearest) { nearest = distance; assigned = enemy; }
-            }
-            if (assigned != null) friendly.Attack(assigned);
-        }
+        Debug.Log($"[TroopAI] Group {group.GroupId} found no attackers.");
+        return false;
     }
 
     private bool IsServer()
@@ -145,7 +323,14 @@ public class TroopAI : MonoBehaviour
                     {
                         if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0)
                             continue;
-
+                        if(resource is Corium)
+                        {
+                            Debug.Log("[TroopAI] nejbližší scan ke core je korium");
+                        }
+                        if(resource is Scrap)
+                        {
+                            Debug.Log("[TroopAI] nejbližší scan ke core je scrap");
+                        }
                         float distance = (resource.transform.position - nearestCore.transform.position).sqrMagnitude;
                         if (distance < resourceDistance)
                         {
@@ -155,20 +340,17 @@ public class TroopAI : MonoBehaviour
                     }
                 }
 
-                if (nearestResource == null)
-                {
-                    cargo.StopCurrentTask();
-                    cargo.status.Value = Troop.State.idle;
-                    continue;
-                }
-
                 Resource scannedResource = null;
                 float scannedResourceDistance = float.MaxValue;
-                foreach (Resource resource in cargo.Scan<Resource>(TroopScanType.Coria))
+                foreach (Resource resource in cargo.Scan<Resource>(TroopScanType.Scrap))
                 {
+                    Debug.Log("[TroopAI] Scan scrapu kolem sebe");
                     if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0)
                         continue;
-
+                    if(resource is Scrap)
+                    {
+                        resourceManager.RegisterScrap(resource as Scrap);
+                    }
                     float distance = (resource.transform.position - cargo.transform.position).sqrMagnitude;
                     if (distance < scannedResourceDistance)
                     {
@@ -177,13 +359,38 @@ public class TroopAI : MonoBehaviour
                     }
                 }
 
+                if (nearestResource == null)
+                {
+                    Debug.Log("[TroopAI] Žádný resource poblíž");
+                    cargo.StopCurrentTask();
+                    cargo.status.Value = Troop.State.idle;
+                    continue;
+                }
+
+
+                foreach (Resource resource in cargo.Scan<Resource>(TroopScanType.Coria))
+                {
+                    Debug.Log("[TroopAI] Scan coria kolem sebe");
+                    if (resource == null || resource.Depleted || resource.CoriumAmount.Value <= 0)
+                        continue;
+                    float distance = (resource.transform.position - cargo.transform.position).sqrMagnitude;
+                    if (distance < scannedResourceDistance)
+                    {
+                        Debug.Log("[TroopAI] Našlo se korium kolem sebe");
+                        scannedResource = resource;
+                        scannedResourceDistance = distance;
+                    }
+                }
+
                 if (scannedResource != null)
                 {
+                    Debug.Log("[TroopAI] cargo harvestuje");
                     cargo.IsHarvesting.Value = true;
                     cargo.Harvest(scannedResource);
                 }
                 else if (cargo.status.Value != Troop.State.moving || !cargo.IsMoving)
                 {
+                    Debug.Log("[TroopAI] pohyb k nearest resource");
                     cargo.MoveTo(nearestResource.transform.position);
                 }
 

@@ -35,4 +35,6 @@ public class Tank : Troop, IGenericAttackerCallbacks
 
         attacker.TryAcquireTargetServer();
     }
+
+    
 }

@@ -34,6 +34,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2117080981018443451}
   - {fileID: 1083181260226145545}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -70,7 +71,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3757069463
+  GlobalObjectIdHash: 3235918571
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -114,7 +115,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Storage
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 100
-  Cost: 10
   RequiredCorium: 0
   MaxBuildingAmount: 10
   CoriumConsumption: 0
@@ -127,8 +127,15 @@ MonoBehaviour:
   AttackSpeed: 0
   AttackCooldown: 0
   SightRange: 0
+  CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 0
+  isVisible:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  visibilityMap: {fileID: 7049473851328460369}
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -149,6 +156,8 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  scrapDropped: 0
+  scrapPrefab: {fileID: 6350479522769530736, guid: 314f79f2d8b6e034585b1de58ebf6da2, type: 3}
   coriumCapacityBonus: 1000
 --- !u!114 &6735346088036704744
 MonoBehaviour:
@@ -162,6 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44628c7971b15c745afb198d7a118358, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingMaterial
+  ShowTopMostFoldoutHeaderGroup: 1
   model: {fileID: 307347802148829107}
   red: {fileID: 2100000, guid: aa6f34db5d13f834b8c4ef56b27a8d26, type: 2}
   green: {fileID: 2100000, guid: 87673a4746291f54a919b320da5a78cb, type: 2}
@@ -249,4 +259,71 @@ GameObject:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1d6887aa1b10b3d48880cc2002157ff9, type: 3}
   m_PrefabInstance: {fileID: 613196412852554466}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4007280378557385617
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8588969681708020915}
+    m_Modifications:
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_Name
+      value: TroopMap
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+--- !u!4 &2117080981018443451 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+  m_PrefabInstance: {fileID: 4007280378557385617}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7049473851328460369 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+  m_PrefabInstance: {fileID: 4007280378557385617}
   m_PrefabAsset: {fileID: 0}

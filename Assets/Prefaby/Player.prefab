@@ -4416,7 +4416,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7164047637814245837}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 13316825908767613}
+        m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
+        m_MethodName: ToggleMap
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1822629700700207900
 GameObject:
   m_ObjectHideFlags: 0
@@ -10506,7 +10518,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7435181844864161700
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19140,14 +19152,14 @@ RectTransform:
   m_GameObject: {fileID: 7667073650267266290}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.7337, y: 1.7337, z: 1.7337}
+  m_LocalScale: {x: 6.959592, y: 6.959592, z: 6.959592}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8921597498681779892}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -224, y: 541}
+  m_AnchoredPosition: {x: -945, y: 561}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5799664191753489067
@@ -20799,7 +20811,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2901248539
+  GlobalObjectIdHash: 2584874171
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -21158,6 +21170,8 @@ MonoBehaviour:
   buildingsPanel: {fileID: 4939812548147849638}
   troopPanel: {fileID: 4002493204386193042}
   TroopOn: 0
+  mapPanel: {fileID: 7667073650267266290}
+  MapOn: 0
 --- !u!114 &2669324903911045947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21371,6 +21385,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   maxGroundRaycastDistance: 200
+  mainUI: {fileID: 13316825908767613}
   hoverImage: {fileID: 3730340769896235857}
   troopSpawner: {fileID: 8782758606969523537}
   graphicRaycaster: {fileID: 3621932800149355816}

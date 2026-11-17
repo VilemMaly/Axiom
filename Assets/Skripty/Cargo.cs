@@ -136,6 +136,7 @@ public class Cargo : Troop
         if (Time.time < nextHarvestTick) return;
         nextHarvestTick = Time.time + 1f;
         harvestable.DepleteResource(this, HarvestCoriumPerSecond);
+        PlayTransferEffect(harvestable.HarvestTransform.position);
     }
 
     public void Deposit(Building building)

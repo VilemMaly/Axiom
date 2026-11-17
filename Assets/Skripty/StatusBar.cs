@@ -16,8 +16,8 @@ using UnityEngine;
 public class StatusBar : MonoBehaviour
 {
     [Header("Reference (jen 2 objekty)")]
-    [Tooltip("Objekt nad objektem, který se natáčí ke kameře (obsahuje background i fill).")]
-    [SerializeField] private Transform pivot;
+    [Tooltip("Objekt nad objektem, který se natáčí ke kameře (obsahuje background i fill) Je parent všech prvků.")]
+    public Transform pivot;
     [Tooltip("Pozadí baru. Musí mít jako svého prvního childa fill sprite (pivot Left) - ten si StatusBar najde sám. Zároveň slouží jako root pro skrytí při plné hodnotě.")]
     [SerializeField] private GameObject background;
 

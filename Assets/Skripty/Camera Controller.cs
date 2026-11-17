@@ -351,6 +351,7 @@ public class CameraController : NetworkBehaviour
             // Násobeno Time.deltaTime -> rychlost zoomu je nezávislá na FPS
             cilovaVelikostZoomu += smerZoomu * rychlostZoomu * Time.deltaTime;
             cilovaVelikostZoomu = Mathf.Clamp(cilovaVelikostZoomu, minVelikost, maxVelikost);
+            pozadovanaVyskaNadZemi = cilovaVelikostZoomu; // udržovat výšku nad terénem podle zoomu
         }
 
         cilovaKamera.orthographicSize = Mathf.Lerp(

@@ -16,7 +16,10 @@ public class RocketAttacker : GenericAttacker
     protected override void FireAt(IDamageable target, float fireSpeed)
     {
         if (!IsValidTarget(target))
+        {
+            SetTarget(null);
             return;
+        }
 
         if (boom == null)
         {
@@ -25,6 +28,7 @@ public class RocketAttacker : GenericAttacker
         }
 
         Component targetComponent = target as Component;
+        Debug.Log("[Rocket Attacker] Rocket exploze");
         boom.maxDamage = rocketTroop.Damage;
         boom.setExplosionPosition(targetComponent.transform);
         boom.Explode(gameObject, OwnerClientId);

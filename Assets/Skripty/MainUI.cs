@@ -22,6 +22,8 @@ public class MainUI : NetworkBehaviour
     [Header("Troop UI")]
     [SerializeField] private GameObject troopPanel;
     public bool TroopOn = false;
+    [SerializeField] private GameObject mapPanel;
+    public bool MapOn = false;
 
     public override void OnNetworkSpawn()
     {
@@ -33,6 +35,8 @@ public class MainUI : NetworkBehaviour
             SetActiveTab("buildings");
         else if (TroopOn)
             SetActiveTab("troop");
+        else if (MapOn)
+            SetActiveTab("map");
         else
             SetActiveTab(null);
 
@@ -63,6 +67,8 @@ public class MainUI : NetworkBehaviour
     {
         if (isResearchVisible)
             ToggleResearchVisibility();
+        else if (MapOn)
+            ToggleMap();
     }
 
     // Zapne nebo vypne World UI panel podle bool hodnoty.
@@ -84,6 +90,12 @@ public class MainUI : NetworkBehaviour
     public void ToggleTroop()
     {
         SetActiveTab(TroopOn ? null : "troop");
+    }
+
+    // Přepne Map panel.
+    public void ToggleMap()
+    {
+        SetActiveTab(MapOn ? null : "map");
     }
 
     // Přepne viditelnost World UI panelu.
@@ -114,6 +126,7 @@ public class MainUI : NetworkBehaviour
         isResearchVisible = tab == "research";
         BuildingOn = tab == "buildings";
         TroopOn = tab == "troop";
+        MapOn = tab == "map";
 
         if (researchParent != null)
             researchParent.SetActive(isResearchVisible);
@@ -121,5 +134,7 @@ public class MainUI : NetworkBehaviour
             buildingsPanel.SetActive(BuildingOn);
         if (troopPanel != null)
             troopPanel.SetActive(TroopOn);
+        if (mapPanel != null)
+            mapPanel.SetActive(MapOn);
     }
 }

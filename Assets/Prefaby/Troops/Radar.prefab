@@ -275,7 +275,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groupSpriteIndex: 0
-  navMeshSampleRadius: 3
   formationSpacing: 1.5
   positionSyncInterval: 1
   positionSyncTolerance: 2
@@ -287,6 +286,13 @@ MonoBehaviour:
   damageHitRelay: {fileID: 3998280376470503436}
   movingVelocityThreshold: 0.01
   walkAudioSource: {fileID: 7822322786228302621}
+  scrapPrefab: {fileID: 6350479522769530736, guid: 314f79f2d8b6e034585b1de58ebf6da2, type: 3}
+  isVisible:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  isDiscovered: 0
   Animator: {fileID: 0}
   framePerUpdate: 10
   Kompenzace: 1
@@ -296,26 +302,13 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: -1
-  SyncedGroupState:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  TargetGroupOwnerId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 18446744073709551615
-  TargetGroupId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: -1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  Scrap: {fileID: 0}
+  scrapDropped: 0
 --- !u!1 &3900622497212662512
 GameObject:
   m_ObjectHideFlags: 0
@@ -526,7 +519,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3831756975397589863, guid: 4e9efc31ef12d61479a5cd57c871f0f3, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 6132851
+      value: 261821150
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

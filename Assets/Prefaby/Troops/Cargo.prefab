@@ -42,7 +42,6 @@ Transform:
   - {fileID: 6185396196942779357}
   - {fileID: 5599465076130313595}
   - {fileID: 4329769557315269267}
-  - {fileID: 3629569346095692762}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1425491476330724532
@@ -297,7 +296,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groupSpriteIndex: 0
-  navMeshSampleRadius: 8
   formationSpacing: 1.5
   positionSyncInterval: 0.4
   positionSyncTolerance: 2
@@ -309,9 +307,13 @@ MonoBehaviour:
   damageHitRelay: {fileID: 7157065385293463398}
   movingVelocityThreshold: 0.01
   walkAudioSource: {fileID: 6123897057786151569}
-  isVisible: 0
+  scrapPrefab: {fileID: 6350479522769530736, guid: 314f79f2d8b6e034585b1de58ebf6da2, type: 3}
+  isVisible:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   isDiscovered: 0
-  Model: {fileID: 6186619246334414661}
   Animator: {fileID: 8065265518634701480}
   framePerUpdate: 10
   Kompenzace: 1
@@ -321,26 +323,13 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: -1
-  SyncedGroupState:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  TargetGroupOwnerId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 18446744073709551615
-  TargetGroupId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: -1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  Scrap: {fileID: 0}
+  scrapDropped: 0
   GoingToBuilding: 0
   BuildingPosition: {x: 0, y: 0, z: 0}
   pendingBuildQueue: []
@@ -10320,7 +10309,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 8588969681708020915}
+    m_TransformParent: {fileID: 6185396196942779357}
     m_Modifications:
     - target: {fileID: 1854970096147930, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_Name
@@ -10328,15 +10317,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804653789393472, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.06944
       objectReference: {fileID: 0}
     - target: {fileID: 4804653789393472, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.06
+      value: 0.9599999
       objectReference: {fileID: 0}
     - target: {fileID: 4804653789393472, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.001
+      value: -0.09100005
       objectReference: {fileID: 0}
     - target: {fileID: 4804653789393472, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10344,11 +10333,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804653789393472, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.000000021855694
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4804653789393472, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4804653789393472, guid: e0ef3032f03a2314a97d2384b90a6d07, type: 3}
       propertyPath: m_LocalRotation.z
@@ -10514,7 +10503,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4000012008116756, guid: 528af406eaf082244ae68b755f89d3d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3629569346095692762}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 528af406eaf082244ae68b755f89d3d3, type: 3}
 --- !u!82 &6123897057786151569 stripped
@@ -10591,7 +10583,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3831756975397589863, guid: 4e9efc31ef12d61479a5cd57c871f0f3, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 2656962954
+      value: 1217855252
       objectReference: {fileID: 0}
     - target: {fileID: 4221838878702668090, guid: 4e9efc31ef12d61479a5cd57c871f0f3, type: 3}
       propertyPath: audioSource

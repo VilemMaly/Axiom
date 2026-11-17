@@ -17,11 +17,10 @@ MonoBehaviour:
   description: "Odemkne pokro\u010Dil\xFD ai algoritmy pro zprovozn\u011Bn\xED robot\u016F
     a jejich tov\xE1ren"
   icon: {fileID: 21300000, guid: 4b8a5dcee185e7a408dda14f44f82e2f, type: 3}
-  coriumCost: 100
+  coriumCost: 0
   researchTime: 2
   energyPerSecond: 10
-  requiredResearches:
-  - {fileID: 11400000, guid: ecaa4c8ca1d05b8488354ee8ca519588, type: 2}
+  requiredResearches: []
   upgrades: []
   unlockedTroops: 0200000001000000030000000400000007000000
   unlockedBuildings: 0b0000000c00000004000000

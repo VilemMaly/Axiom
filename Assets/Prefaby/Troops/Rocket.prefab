@@ -228,7 +228,7 @@ MonoBehaviour:
   Type: 3
   MaxHealth: 100
   Cost: 200
-  SightRange: 10
+  SightRange: 20
   WorkRange: 0
   RepairCoriumPerSecond: 0
   HarvestCoriumPerSecond: 0
@@ -244,7 +244,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groupSpriteIndex: 0
-  navMeshSampleRadius: 3
   formationSpacing: 3
   positionSyncInterval: 0.5
   positionSyncTolerance: 2
@@ -256,6 +255,13 @@ MonoBehaviour:
   damageHitRelay: {fileID: 5761707481752448412}
   movingVelocityThreshold: 0.01
   walkAudioSource: {fileID: 9166086016664239025}
+  scrapPrefab: {fileID: 6350479522769530736, guid: 314f79f2d8b6e034585b1de58ebf6da2, type: 3}
+  isVisible:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  isDiscovered: 0
   Animator: {fileID: 3343677651432342019}
   framePerUpdate: 10
   Kompenzace: 1
@@ -265,26 +271,13 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: -1
-  SyncedGroupState:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  TargetGroupOwnerId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 18446744073709551615
-  TargetGroupId:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: -1
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  Scrap: {fileID: 0}
+  scrapDropped: 0
   shootingAnimationBool: isShooting
 --- !u!114 &3433831457990976303
 MonoBehaviour:
@@ -749,6 +742,10 @@ PrefabInstance:
     - target: {fileID: 2499265541662536541, guid: 4e9efc31ef12d61479a5cd57c871f0f3, type: 3}
       propertyPath: m_Name
       value: HitParticles
+      objectReference: {fileID: 0}
+    - target: {fileID: 3831756975397589863, guid: 4e9efc31ef12d61479a5cd57c871f0f3, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1366115302
       objectReference: {fileID: 0}
     - target: {fileID: 4221838878702668090, guid: 4e9efc31ef12d61479a5cd57c871f0f3, type: 3}
       propertyPath: audioSource

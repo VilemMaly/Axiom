@@ -6,7 +6,7 @@ public class BuildingMaterial : NetworkBehaviour
     // zelená = AI, modrá = lokální hráč,
     // červená = protihráč, žlutá = další hráč
 
-    [SerializeField] GameObject model;
+    [SerializeField] public GameObject model;
     [SerializeField] Material red;
     [SerializeField] Material green;
     [SerializeField] Material orange;

@@ -33,7 +33,7 @@ public enum DamageType
     Explosion
 }
 
-public enum TroopScanType { Building, Troop, TroopGroup, Coria }
+public enum TroopScanType { Building, Troop, TroopGroup, Coria, Scrap }
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(StatusBar))]
@@ -79,7 +79,8 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     [SerializeField] private LayerMask groundLayerMask;
     public int groupSpriteIndex;
     private float mapaHranice = 300f;
-    [SerializeField] private float navMeshSampleRadius = 3f;
+    // maximální validní poloměr pro přesun jednotky k bodu na mapě
+    private float navMeshSampleRadius = 10f;
     [SerializeField] private float formationSpacing = 1.5f;
 
     [Header("Synchronizace pozice")]
@@ -99,15 +100,16 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     [SerializeField] private float movingVelocityThreshold = 0.01f;
     [Tooltip("AudioSource s chůzovým zvukem; při lokálně detekované chůzi se přehrává ve smyčce.")]
     [SerializeField] private AudioSource walkAudioSource;
+    public GameObject scrapPrefab;
     private static readonly int IsWalkingHash = Animator.StringToHash("isWalking");
 
     private bool isMoving;
     private bool combatMovementPaused;
 
-    public bool isVisible = false;
+    public NetworkVariable<bool> isVisible = new(false, writePerm: NetworkVariableWritePermission.Server);
     public bool isDiscovered = false;
     Vector3 lastKnownPosition;
-    public GameObject Model;
+    private TroopMaterial troopMaterial;
 
     public bool IsMoving => isMoving;
 
@@ -118,8 +120,9 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     private int frameCountSinceUpdate = 0;
 
     public IReadOnlyList<Building> BuildingsInRange => buildingsInRange;
+    
 
-    private readonly List<Building> buildingsInRange = new();
+    private List<Building> buildingsInRange = new();
     private readonly Collider[] buildingResults = new Collider[64];
     private float nextBuildingScan;
 
@@ -128,9 +131,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     public int MaxTroopAmount;
     public TroopGroup Group { get; internal set; }
     public NetworkVariable<int> TroopGroupId = new(-1, writePerm: NetworkVariableWritePermission.Server);
-    public NetworkVariable<int> SyncedGroupState = new((int)TroopGroupState.Idle, writePerm: NetworkVariableWritePermission.Server);
-    public NetworkVariable<ulong> TargetGroupOwnerId = new(ulong.MaxValue, writePerm: NetworkVariableWritePermission.Server);
-    public NetworkVariable<int> TargetGroupId = new(-1, writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> Health = new NetworkVariable<int>(
         writePerm: NetworkVariableWritePermission.Server);
@@ -138,14 +138,18 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     protected bool IsOperational { get; private set; } = false;
 
     protected NavMeshAgent Agent { get; private set; }
-
+    public Vector3 AgentDestination => Agent.destination;
     private StatusBar statusBar;
+
+    public GameObject Scrap;
+    public int scrapDropped;
 
     // ---------------------------------------------------------
     // Synchronizace pozice
     // ---------------------------------------------------------
 
     private float nextPositionSync;
+    private float stoppingDistance = 5f;
 
     public virtual void StopCurrentTask()
     {
@@ -158,7 +162,25 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     public void Attack(Troop target)
     {
         if (!IsServer || target == null || target.OwnerClientId == OwnerClientId || target.Health.Value <= 0) return;
-        GetComponent<GenericAttacker>()?.SetCommandedTargetServer(target);
+        if(GetComponent<GenericAttacker>() != null)
+        {
+            if(GetComponent<GenericAttacker>().SetCommandedTargetServer(target) == true)
+            {
+                Debug.Log($"[Troop] {name} attacking {target.name} owned by {target.OwnerClientId}");
+            }
+        }
+    }
+
+    public void Attack(Building target)
+    {
+        if (!IsServer || target == null || target.OwnerClientId == OwnerClientId || target.Health.Value <= 0) return;
+        if(GetComponent<GenericAttacker>() != null)
+        {
+            if(GetComponent<GenericAttacker>().SetCommandedTargetServer(target) == true)
+            {
+                Debug.Log($"[Troop] {name} attacking {target.name} owned by {target.OwnerClientId}");
+            }
+        }
     }
 
     public virtual void AttackServer(Troop target) => Attack(target);
@@ -178,6 +200,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
                 TroopScanType.Troop => hit.GetComponentInParent<Troop>(),
                 TroopScanType.TroopGroup => hit.GetComponentInParent<Troop>()?.Group,
                 TroopScanType.Coria => hit.GetComponentInParent<Corium>(),
+                TroopScanType.Scrap => hit.GetComponentInParent<Scrap>(),
                 _ => null
             };
             if (component is T match && seen.Add(match)) found.Add(match);
@@ -185,7 +208,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         return found;
     }
 
-    //public virtual List<Building> ScanBuildings() => Scan<Building>(TroopScanType.Building);
+    public virtual List<Building> ScanBuildings() => Scan<Building>(TroopScanType.Building);
     public virtual List<Troop> ScanTroops() => Scan<Troop>(TroopScanType.Troop);
     public virtual List<TroopGroup> ScanTroopGroups()
     {
@@ -194,14 +217,6 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         return new List<TroopGroup>(groups);
     }
     public virtual List<Corium> ScanCoria() => Scan<Corium>(TroopScanType.Coria);
-
-    internal void RequestGroupStateSync(int state, int targetGroupId, ulong targetOwnerId)
-    {
-        if (!IsServer || !IsSpawned) return;
-        SyncedGroupState.Value = state;
-        TargetGroupId.Value = targetGroupId;
-        TargetGroupOwnerId.Value = targetOwnerId;
-    }
 
     public virtual void OnSelectBuilding(Building building)
     {
@@ -221,13 +236,21 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     public override void OnNetworkSpawn()
     {
 
-        currentVisibility.GameObject().transform.localScale =
-            new Vector3(SightRange, SightRange, 1f);
-
+        currentVisibility.gameObject.transform.localScale =
+            new Vector3(SightRange/2, SightRange/2, SightRange/2);
+        if (!IsOwner)
+        {
+            Destroy(currentVisibility);
+        }
         if (IsServer)
         {
             Health.Value = MaxHealth;
+            if(scrapDropped <= 0)
+            {
+                scrapDropped = (int)((float) Cost * 0.5f);
+            }
         }
+
         // Boost půjde na klientovi i server zvlášť, protože se stejně pravděpodobně bude kontrolovat vzdálenost při výstřelu rychlost atd
         // takže i kdyby si klient dal upgrade svůj tak by nefungoval
         NetworkManager.Singleton.ConnectedClients[OwnerClientId]
@@ -256,9 +279,19 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
         OnSpawned();
 
+        troopMaterial = GetComponent<TroopMaterial>();
         Agent = GetComponent<NavMeshAgent>();
         Agent.enabled = true;
         Agent.isStopped = combatMovementPaused;
+        if(GetComponent<GenericAttacker>() != null)
+        {
+            Agent.stoppingDistance = (AttackRange - 0.1f) / 2.0f;
+        }
+        else
+        {
+            Agent.stoppingDistance = stoppingDistance;
+        }
+        
 
         if (damageHitRelay == null)
             damageHitRelay = GetComponent<DamageHitRelay>();
@@ -313,27 +346,18 @@ public abstract class Troop : NetworkBehaviour, IDamageable
             if (interactor != null)
                 interactor.UnregisterTroop(this);
         }
+        if(IsServer)
+        {
+            Building.SpawnScrap(scrapPrefab, transform.position, transform.rotation, OwnerClientId, scrapDropped);
+        }
     }
 
     private void OnHealthChanged(int previousValue, int newValue)
     {
         statusBar.SetValue(newValue, MaxHealth);
-        if (newValue < previousValue && IsServer && Group != null)
-        {
-            Troop attacker = null;
-            float nearest = float.MaxValue;
-            foreach (Troop candidate in FindObjectsByType<Troop>(FindObjectsSortMode.None))
-            {
-                if (candidate == this || candidate.OwnerClientId == OwnerClientId || candidate.Health.Value <= 0) continue;
-                float distance = (candidate.transform.position - transform.position).sqrMagnitude;
-                if (distance < nearest) { nearest = distance; attacker = candidate; }
-            }
-            Group.MarkAttacked(attacker);
-        }
-
     }
     
-    private void ScanBuildings()
+/*    private void ScanBuildings()
     {
         int count = Physics.OverlapSphereNonAlloc(
             transform.position,
@@ -379,7 +403,7 @@ public abstract class Troop : NetworkBehaviour, IDamageable
                 buildingsInRange.RemoveAt(i);
             }
         }
-    }
+    }*/
 
     public virtual void OnSpawned() { }
 
@@ -655,70 +679,94 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         GetComponent<NetworkObject>().Despawn();
     }
 
-    [ServerRpc]
-    protected virtual void ScanSurroundingsServerRpc()
+    protected virtual void ScanSurroundingsServer()
     {
+        if (buildingsInRange.Count > 0)
+        {
+            foreach (Building building in buildingsInRange)
+            {
+                if (building == null || building.OwnerClientId == OwnerClientId || building.Health.Value <= 0)
+                    {
+                        continue;
+                    }
+
+                // pokud ji nevlastním tak ji vidím
+                if(Vector3.Distance(transform.position, building.transform.position) <= building.SightRange)
+                {
+                    Debug.Log($"[Troop] Budova {building.Type} je viditelná");
+                    building.ChangeVisibilityClientRpc(true);
+                }
+                
+            }
+        }
+
         List<Troop> nearbyTroops = ScanTroops();
+        if(isVisible.Value == false)
+        {
+            ChangeVisibilityClientRpc(false);
+        }
         if (nearbyTroops.Count > 0)
         {
             foreach (Troop troop in nearbyTroops)
             {
                 if (troop == null || troop.OwnerClientId == OwnerClientId || troop.Health.Value <= 0)
-                    continue;
+                    {
+                        isVisible.Value = false;
+                        continue;
+                    }
 
-                if (!troop.isDiscovered)
+                // pokud ji nevlastním tak mě vidí
+                if(Vector3.Distance(transform.position, troop.transform.position) <= troop.SightRange)
                 {
-                    troop.isDiscovered = true;
-                    troop.isVisible = true;
+                    isVisible.Value = true;
+                    Debug.Log($"[Troop] {Type} je viditelná");
+                    ChangeVisibilityClientRpc(true);
+                    return;
                 }
+                
             }
         }
-    }
 
-    protected virtual void isSeen()
-    {
-        if (isVisible)
+        if (buildingsInRange.Count > 0)
         {
-            isSeenClientRpc(true);
+            foreach (Building building in buildingsInRange)
+            {
+                if (building == null || building.OwnerClientId == OwnerClientId || building.Health.Value <= 0)
+                    {
+                        isVisible.Value = false;
+                        continue;
+                    }
+
+                // pokud ji nevlastním tak mě vidí
+                if(Vector3.Distance(transform.position, building.transform.position) <= building.SightRange)
+                {
+                    isVisible.Value = true;
+                    Debug.Log($"[Troop] {Type} je viditelná");
+                    ChangeVisibilityClientRpc(true);
+                    return;
+                }
+                
+            }
         }
-        else
-        {
-            isSeenClientRpc(false);
-        }
+
+        
     }
 
     [ClientRpc]
-    protected virtual void isSeenClientRpc(bool isVisible)
+    protected virtual void ChangeVisibilityClientRpc(bool IsVisible)
     {
-        if (IsOwner)
+        if(IsOwner)
             return;
-        if (isVisible)
-        {
-            this.isDiscovered = true;
-            this.isVisible = true;
-            Model.SetActive(true);
-        }
-        else
-        {
-            this.isVisible = false;
-            Model.SetActive(false);
-        }
+
+        statusBar.pivot.gameObject.SetActive(IsVisible);
+        troopMaterial.model.SetActive(IsVisible);
+        
+        
     }
     private void Update()
     {
         if (!IsOperational)
             return;
-
-        if (!IsServer && Group != null)
-            Group.ApplySyncedState((TroopGroupState)SyncedGroupState.Value, TargetGroupId.Value, TargetGroupOwnerId.Value);
-        if(IsServer)
-        {
-            isSeen();
-        }
-        if(IsOwner)
-        {
-            ScanSurroundingsServerRpc();
-        }
         // -----------------------------------------------------
         // Klient -> server kontrola pozice
         // -----------------------------------------------------
@@ -737,7 +785,12 @@ public abstract class Troop : NetworkBehaviour, IDamageable
             nextBuildingScan =
                 Time.time + buildingDetectionInterval;
 
-            ScanBuildings();
+            buildingsInRange = ScanBuildings();
+            if(IsServer)
+            {
+                ScanSurroundingsServer();
+            }
+
         }
 
         frameCountSinceUpdate++;
@@ -766,7 +819,11 @@ public abstract class Troop : NetworkBehaviour, IDamageable
         combatMovementPaused = paused;
 
         if (Agent != null && Agent.enabled && Agent.isOnNavMesh)
-            Agent.isStopped = paused;
+            {Agent.isStopped = paused;}
+        else
+        {
+            Debug.Log($"[Troop] Jednotka nemůže zastavit, agent není v funkčním stavu");
+        }
     }
 
     private void UpdateMovementState()
@@ -805,6 +862,11 @@ public abstract class Troop : NetworkBehaviour, IDamageable
     {
         return Vector3.Distance(first, second) <
                SightRange + Kompenzace;
+    }
+
+    public bool hasTarget()
+    {
+        return GetComponent<GenericAttacker>()?.CurrentTarget != null;
     }
 
     public bool IsNearEnough(Vector3 first, Building second)
@@ -866,7 +928,13 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
         Gizmos.DrawWireSphere(
             transform.position,
-            buildingDetectionRadius);
+            SightRange);
+
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            AttackRange);
     }
 #endif
 }

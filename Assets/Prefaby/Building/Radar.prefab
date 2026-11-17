@@ -99,7 +99,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Radar
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 50
-  Cost: 20
   RequiredCorium: 0
   MaxBuildingAmount: 2
   CoriumConsumption: 0
@@ -115,6 +114,12 @@ MonoBehaviour:
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1
+  isVisible:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  visibilityMap: {fileID: 872353469142507752}
   Health:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -135,6 +140,8 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  scrapDropped: 0
+  scrapPrefab: {fileID: 6350479522769530736, guid: 314f79f2d8b6e034585b1de58ebf6da2, type: 3}
   revealRadius: 25
 --- !u!208 &1252411705593279050
 NavMeshObstacle:
@@ -283,15 +290,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
       propertyPath: m_LocalScale.x
-      value: 20.048
+      value: 0.99999994
       objectReference: {fileID: 0}
     - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
       propertyPath: m_LocalScale.y
-      value: 20.048
+      value: 0.99999994
       objectReference: {fileID: 0}
     - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
       propertyPath: m_LocalScale.z
-      value: 20.048
+      value: 0.99999994
       objectReference: {fileID: 0}
     - target: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
       propertyPath: m_LocalPosition.x
@@ -346,6 +353,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+--- !u!1 &872353469142507752 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+  m_PrefabInstance: {fileID: 6508620104996592936}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8119596687490623490 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}

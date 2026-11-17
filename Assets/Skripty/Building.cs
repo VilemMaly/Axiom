@@ -29,6 +29,9 @@ public abstract class Building : NetworkBehaviour, IDamageable
     public bool IsPowerSource;
     public bool IsEnergyConsumer;
     private bool IsDestroyed = false;
+    public NetworkVariable<bool> isVisible = new(false, writePerm: NetworkVariableWritePermission.Server);
+    private StatusBar statusBar = null;
+    public GameObject visibilityMap;
 
     public enum BuildingType
     {
@@ -79,6 +82,10 @@ public abstract class Building : NetworkBehaviour, IDamageable
     public bool CanReceiveCorium =>
         !IsConstructionComplete.Value;
 
+    private BuildingMaterial buildingMaterial;
+    public int scrapDropped;
+    public GameObject scrapPrefab;
+
     public void ReceiveCorium(int amount)
     {
         StoredCorium.Value += amount;
@@ -104,6 +111,12 @@ public abstract class Building : NetworkBehaviour, IDamageable
 
     public override void OnNetworkSpawn()
     {
+        visibilityMap.gameObject.transform.localScale =
+            new Vector3(SightRange/2, SightRange/2, SightRange/2);
+        if (!IsOwner)
+        {
+            Destroy(visibilityMap);
+        }
         if (IsServer)
             Health.Value = MaxHealth;
 
@@ -111,6 +124,10 @@ public abstract class Building : NetworkBehaviour, IDamageable
         {
             var client = NetworkManager.Singleton.ConnectedClients[OwnerClientId];
             OwnerResources = client.PlayerObject.GetComponent<PlayerResources>();
+            if(scrapDropped <= 0)
+            {
+                scrapDropped = (int)((float) RequiredCorium * 0.5f);
+            }
         }
 
         if (IsOwner || IsServer)
@@ -125,6 +142,7 @@ public abstract class Building : NetworkBehaviour, IDamageable
 
         IsOperational = true;
 
+        buildingMaterial = GetComponent<BuildingMaterial>();
         if (IsOwner || IsServer)
         {
             BuildingInteractor interactor = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<BuildingInteractor>();
@@ -149,13 +167,28 @@ public abstract class Building : NetworkBehaviour, IDamageable
         }
 
         // Inicializace IsConstructionComplete podle StoredCorium.
-        ReceiveCorium(0);
+        if(IsServer)
+        {
+            ReceiveCorium(0);
+        }
+        
         
         Debug.Log(
             $"[Building] {Type} spawned for client {OwnerClientId}. " +
             $"IsOperational={IsOperational}, " +
             $"IsConstructionComplete={IsConstructionComplete.Value}"
         );
+
+        if(GetComponent<BuildingSpawner>() != null)
+        {
+            statusBar = GetComponent<BuildingSpawner>().troopLoading;
+        }
+
+        if(IsServer)
+        {
+            ChangeVisibilityClientRpc(false);
+        }
+        
     }
 
     public override void OnNetworkDespawn()
@@ -175,6 +208,11 @@ public abstract class Building : NetworkBehaviour, IDamageable
             else
                 Debug.LogWarning($"[Building-DIAG] {name} nenašel BuildingInteractor na vlastním PlayerObjectu.");
         }
+        if(IsServer)
+        {
+            SpawnScrap(scrapPrefab, transform.position, transform.rotation, OwnerClientId, scrapDropped);
+        }
+        
         base.OnNetworkDespawn();
     }
     
@@ -191,6 +229,18 @@ public abstract class Building : NetworkBehaviour, IDamageable
     {
     }
 
+    [ClientRpc]
+    public virtual void ChangeVisibilityClientRpc(bool IsVisible)
+    {
+        if(IsOwner)
+            return;
+        if(statusBar != null)
+        {
+            statusBar.pivot.gameObject.SetActive(IsVisible);
+        } 
+        buildingMaterial.model.SetActive(IsVisible);
+        
+    }
     public void searchForEnergyConnections()
     {
         if (!IsServer)
@@ -561,6 +611,54 @@ public abstract class Building : NetworkBehaviour, IDamageable
         return instance;
     }
 
+    public static GameObject SpawnScrap(
+        GameObject prefab,
+        Vector3 groundedPosition,
+        Quaternion rotation,
+        ulong ownerClientId,
+        int scrapAmount)
+    {
+        GameObject instance =
+            Instantiate(prefab, groundedPosition, rotation);
+
+        float baseOffset = ComputeGroundOffset(instance);
+
+        if (baseOffset != 0f)
+        {
+            Vector3 pos = instance.transform.position;
+            pos.y = groundedPosition.y + baseOffset;
+            instance.transform.position = pos;
+        }
+
+        NetworkObject netObj =
+            instance.GetComponent<NetworkObject>();
+
+        if (netObj == null)
+        {
+            Debug.LogError(
+                $"[Building] Prefab '{prefab.name}' " +
+                $"nemá komponentu NetworkObject!"
+            );
+
+            Destroy(instance);
+            return null;
+        }
+
+        Scrap scrapSkript = instance.GetComponent<Scrap>();
+
+        if(scrapSkript == null)
+        {
+            Debug.Log("Nenašel jsem žádný scrap skript, nemůže se spawnout");
+        }
+        
+
+        netObj.SpawnWithOwnership(ownerClientId);
+
+        scrapSkript.setCoriumAmount(scrapAmount);
+        
+        return instance;
+    }
+
     public static float ComputeGroundOffset(GameObject instance)
     {
         Collider[] colliders =
@@ -578,4 +676,21 @@ public abstract class Building : NetworkBehaviour, IDamageable
 
         return instance.transform.position.y - combined.min.y;
     }
+
+    #if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            SightRange);
+
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            AttackRange);
+    }
+#endif
 }

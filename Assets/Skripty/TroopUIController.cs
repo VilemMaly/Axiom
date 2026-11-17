@@ -27,6 +27,7 @@ public class TroopUIController : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     [SerializeField] private LayerMask groundLayerMask;
     [SerializeField] private float maxGroundRaycastDistance = 200f;
+    public MainUI mainUI;
 
     public Image hoverImage;
     private bool hovering = false;
@@ -279,6 +280,9 @@ public class TroopUIController : MonoBehaviour
         hoverImage.sprite = cursorSprite;
         hoverImage.gameObject.SetActive(true);
         hoverImage.transform.position = mousePosition;
+
+        // dočasně skrýt ui jednotek
+        mainUI.ToggleTroop();
     }
 
     private void CompleteGroundOrder()
@@ -317,7 +321,7 @@ public class TroopUIController : MonoBehaviour
                 group.SetTask(TroopGroupTask.Harvest, hit.point);
                 break;
         }
-        
+        mainUI.ToggleTroop();
         hovering = false;
     }
 

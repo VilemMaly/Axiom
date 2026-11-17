@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class ResourceManager : NetworkBehaviour
 {
-    private readonly List<Resource> resources = new();
+    private readonly HashSet<Resource> resources = new();
 
-    public IReadOnlyList<Resource> Resources => resources;
+    public HashSet<Resource> Resources => resources;
 
     public override void OnNetworkSpawn()
     {
@@ -21,5 +21,18 @@ public class ResourceManager : NetworkBehaviour
         {
             resources.Add(resource);
         }
+    }
+
+    public bool RegisterScrap(Scrap scrap)
+    {
+        Debug.Log("[ResourceManager] Registrace scrap");
+        scrap.resourceManager = this;
+        return resources.Add(scrap);
+    }
+
+    public void UnRegisterScrap(Scrap scrap)
+    {
+        Debug.Log("[ResourceManager] Deregistrace scrap");
+        resources.Remove(scrap);
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -139,16 +140,57 @@ public class GenericAttacker : NetworkBehaviour
         if (lockedTarget == null || Time.time < nextFireTime)
             return;
 
+        // troop ještě není u cíle, jen jde dál, cíl nerušit
+        if (!IsValidTarget(lockedTarget))
+            return;
+
         float fireSpeed = GetCooldown();
         nextFireTime = Time.time + fireSpeed;
+        if(sourceTroop != null)
+        {
+            Debug.Log($"[Generic Attacker] fireAt {lockedTarget} from {sourceTroop.Type}");
+        }
+        else if (sourceBuilding != null)
+        {
+            Debug.Log($"[Generic Attacker] fireAt {lockedTarget} from {sourceBuilding.Type}");
+        }
+        
         FireAt(lockedTarget, fireSpeed);
+    }
+
+        public virtual List<Troop> BuildingScanTroops()
+        {
+        var found = new List<Troop>();
+        if (!IsServer || sourceBuilding.SightRange <= 0f) return found;
+        Collider[] hits = Physics.OverlapSphere(transform.position, sourceBuilding.SightRange, targetLayers, QueryTriggerInteraction.Collide);
+        foreach (Collider hit in hits)
+        {
+            if (hit == null) continue;
+            Troop foundTroop = hit.GetComponentInParent<Troop>();
+
+            if (foundTroop != null && foundTroop.OwnerClientId != OwnerClientId)
+            {
+                if(foundTroop.IsAirUnit)
+                {
+                    if(sourceBuilding.CanAttackAir == true)
+                    {
+                        found.Add(foundTroop);
+                        continue;
+                    }
+                }
+                found.Add(foundTroop);
+                
+            }
+        }
+        return found;
     }
 
     /// <summary>Sets a troop's combat target. Troops never acquire targets autonomously.</summary>
     public bool SetCommandedTargetServer(IDamageable target)
     {
-        if (!IsServer || sourceTroop == null || !SourceIsAlive() || !IsValidTarget(target))
+        if (!IsServer || sourceTroop == null || !SourceIsAlive() || !IsValidTarget(target, false))
             return false;
+        Debug.Log($"[GenericAttacker] nastavuju cíl na {target}");
         commandedTarget = target;
         SetTarget(target);
         nextFireTime = Time.time;
@@ -164,6 +206,20 @@ public class GenericAttacker : NetworkBehaviour
 
     private void ValidateOrAcquireTarget()
     {
+        if (sourceTroop != null)
+        {
+            if (commandedTarget == null || !IsValidTarget(commandedTarget, false))
+            {
+                commandedTarget = null;
+                SetTarget(null);
+                return;
+            }
+
+            SetTarget(commandedTarget);
+            UpdateTroopTargetMovement(commandedTarget);
+            return;
+        }
+
         int count = Physics.OverlapSphereNonAlloc(
             transform.position,
             GetRange(),
@@ -182,7 +238,7 @@ public class GenericAttacker : NetworkBehaviour
                 continue;
 
             IDamageable damageable = hit.GetComponentInParent(typeof(IDamageable)) as IDamageable;
-            if (damageable == null || (sourceTroop != null && damageable != commandedTarget))
+            if (damageable == null)
                 continue;
 
             Component damageableComponent = damageable as Component;
@@ -213,21 +269,33 @@ public class GenericAttacker : NetworkBehaviour
         SetTarget(nearest);
     }
 
-    protected bool IsValidTarget(IDamageable candidate)
+    protected bool IsValidTarget(IDamageable candidate, bool requireInRange = true)
     {
         Component candidateComponent = candidate as Component;
         if (candidateComponent == null ||
             ReferenceEquals(candidate, sourceBuilding) ||
             ReferenceEquals(candidate, sourceTroop))
-            return false;
+            {
+                Debug.Log("[Generic Attacker] candidate není validní protože je null nebo je tato budova nebo troop");
+                return false;
+                
+            }
+            
 
         NetworkBehaviour candidateNetworkBehaviour = candidateComponent as NetworkBehaviour;
         if (candidateNetworkBehaviour != null &&
             (!candidateNetworkBehaviour.IsSpawned || candidateNetworkBehaviour.OwnerClientId == OwnerClientId))
-            return false;
+            {
+                Debug.Log("[Generic Attacker] candidate není validní protože není spawned nebo se snaží střelit na vlastní jednotku hráče");
+                return false;
+                }
 
-        if ((candidateComponent.transform.position - transform.position).sqrMagnitude > GetRange() * GetRange())
+        if (requireInRange && (candidateComponent.transform.position - transform.position).sqrMagnitude > GetRange() * GetRange())
+        {
+            Debug.Log("[Generic Attacker] candidate není validní protože je moc daleko");
             return false;
+        }
+            
 
         if (candidateComponent is Troop troop)
             return troop.OwnerClientId != OwnerClientId &&
@@ -241,6 +309,7 @@ public class GenericAttacker : NetworkBehaviour
                    building.IsConstructionComplete.Value;
         }
 
+        Debug.Log("[Generic Attacker] candidate není validní protože nesplnil podmínky pro validaci");
         return false;
     }
 
@@ -287,16 +356,83 @@ public class GenericAttacker : NetworkBehaviour
         return Mathf.Max(0.02f, cooldown);
     }
 
-    private void SetTarget(IDamageable target)
+    protected void SetTarget(IDamageable target)
     {
         if (lockedTarget == target)
             return;
-
+        Debug.Log($"[GenericAttacker] {name} setting target to {target?.ToString() ?? "null"}");
         lockedTarget = target;
-        SetTroopMovementPaused(target != null);
-        callbacks?.OnAttackTargetChanged(animator, target);
+        if(target is Troop targetTroop)
+        {
+            if (targetTroop.Group == null)
+            {
+                Debug.Log($"[GenericAttacker] {targetTroop.Type} nemá validní nebo žádnou skupinu");
+                return;
+            }
+            if(sourceTroop != null)
+            {
+                Debug.Log($"[GenericAttacker] Troop Mark attacked");
+                targetTroop.Group.MarkAttacked(sourceTroop.Group);
+            }
+            else if(sourceBuilding != null)
+            {
+                Debug.Log($"[GenericAttacker] Building Mark attacked");
+                targetTroop.Group.MarkAttacked(sourceBuilding);
+            }
+            
+        }
+        if(sourceTroop != null)
+        {
+            UpdateTroopTargetMovement(target);
+        }
+            callbacks?.OnAttackTargetChanged(animator, target);
+        
         if (IsServer)
             SetAttackTargetClientRpc(target != null);
+    }
+
+    private void UpdateTroopTargetMovement(IDamageable target)
+    {
+        if (sourceTroop == null)
+            {
+                Debug.Log("[Generic Attacker] Source troop neexistuje");
+                return;
+            }
+            
+        Debug.Log($"[GenericAttacker] Updating troop {sourceTroop.name} movement for target {target?.ToString() ?? "null"}");
+        if(target == null)
+            return;
+        if (target is Troop targetTroop)
+        {
+            
+            float range = GetRange();
+            if (Vector3.Distance(sourceTroop.AgentDestination, targetTroop.transform.position) > 1)
+                return;   // jednotka se nepohnula, není potřeba měnit cílovou pozici pohybu
+            Debug.Log("[Generic Attacker] Target je troop, pohyb k němu");
+            sourceTroop.MoveTo(targetTroop.transform.position);
+        }
+        if (target is Building targetBuilding)
+        {
+            
+            float range = GetRange();
+            if (Vector3.Distance(sourceTroop.AgentDestination, targetBuilding.transform.position) > 1)
+                return;   // jednotka se nepohnula, není potřeba měnit cílovou pozici pohybu
+            Debug.Log("[Generic Attacker] Target je budova, pohyb k ní");
+            sourceTroop.MoveTo(targetBuilding.transform.position);
+        }
+        /*
+        Component targetComponent = target as Component;
+        bool hasValidTarget = targetComponent != null && IsValidTarget(target, false);
+        bool inRange = hasValidTarget &&
+                       (targetComponent.transform.position - transform.position).sqrMagnitude <= GetRange() * GetRange();
+
+        if(!hasValidTarget)
+        {
+            Debug.Log($"[Generic Attacker] Jednotka {sourceTroop.Type} nemá valid target na pohyb k němu");
+        }
+        SetTroopMovementPaused(inRange);
+        if (hasValidTarget && !inRange && IsServer)
+            sourceTroop.MoveTo(targetComponent.transform.position);*/
     }
 
     [ClientRpc]

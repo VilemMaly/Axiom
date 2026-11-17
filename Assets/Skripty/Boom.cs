@@ -131,7 +131,7 @@ public class Boom : NetworkBehaviour
     {
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
             return;
-
+        Debug.Log($"[Boom] kaboom {center}");
         Scan(center, ignoreClientId);
         ApplyDamage(center);
         ParticlePlayClientRpc(center);

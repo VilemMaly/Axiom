@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TroopGroupState { Idle, Attacked, Attacking, Fleeing, Harvesting, Scouting, Moving, Depositing }
+public enum TroopGroupState { Idle, Attacking, Fleeing, Harvesting, Scouting, Moving, Depositing }
 public enum TroopGroupTask { Nothing, Defend, Attack, Harvest, Scout }
 
 /// <summary>A player's controllable collection of troops and its shared orders.</summary>
@@ -12,7 +12,7 @@ public class TroopGroup : MonoBehaviour
     [SerializeField] private int maxUnits = 20;
     [SerializeField] private int groupId = -1;
     [SerializeField] private bool refillUnits;
-    [SerializeField] private TroopAI troopAI;
+    private TroopAI troopAI;
     private readonly List<Troop> units = new List<Troop>();
     private TroopInteractor owner;
 
@@ -25,7 +25,7 @@ public class TroopGroup : MonoBehaviour
     public TroopGroupState State
     {
         get => state;
-        internal set { state = value; SyncGroupState(); }
+        internal set { state = value; }
     }
     public TroopGroupTask Task { get; private set; } = TroopGroupTask.Nothing;
     public event Action<Troop> UnitDespawned;
@@ -33,10 +33,11 @@ public class TroopGroup : MonoBehaviour
     public Troop TargetTroop { get; private set; }
     public Building TargetBuilding { get; private set; }
     public Resource TargetResource { get; private set; }
+    public bool attackingBuilding;
+    public bool respondingToAttack;
     public ulong OwnerClientId => owner != null ? owner.OwnerClientId : ulong.MaxValue;
+    public TroopGroup TargetGroup { get; private set; }
     public TroopAI AI => troopAI;
-    public int TargetGroupId { get; private set; } = -1;
-    public ulong TargetGroupOwnerId { get; private set; } = ulong.MaxValue;
 
     private void Awake()
     {
@@ -52,11 +53,8 @@ public class TroopGroup : MonoBehaviour
         if (troop == null || units.Contains(troop) || units.Count >= maxUnits) return false;
         units.Add(troop);
         troop.Group = this;
-        SyncGroupState();
         return true;
     }
-
-    public Troop GetTroop(int index) { return (index >= 0 && units[index] != null) ? units[index] : null; }
 
     public void RemoveUnit(Troop troop)
     {
@@ -80,6 +78,7 @@ public class TroopGroup : MonoBehaviour
 
     public void SetTask(TroopGroupTask task, Vector3 position = default)
     {
+        Debug.Log($"[TroopGroup] Group {groupId} assigned task {task} at {position}");
         owner?.RequestGroupOrder(this, task, position);
         StopAll();
         Task = task; ObjectivePosition = position; TargetTroop = null; TargetBuilding = null; TargetResource = null;
@@ -93,73 +92,107 @@ public class TroopGroup : MonoBehaviour
     {
         if (target == null) return;
         foreach (Troop troop in Snapshot()) troop.StopCurrentTask();
-        TargetTroop = target; TargetBuilding = null; Task = TroopGroupTask.Attack;
+        TargetTroop = target; TargetBuilding = null;
         if (target.Group != null) SetTargetGroup(target.Group);
-        ObjectivePosition = target.transform.position; State = TroopGroupState.Attacking;
-        MoveAll(ObjectivePosition);
+        MoveAll(target.transform.position);
+        State = TroopGroupState.Attacking;
+    }
+
+    public void Attack(Building target)
+    {
+        if (target == null) return;
+        foreach (Troop troop in Snapshot()) troop.StopCurrentTask();
+        TargetTroop = null; TargetBuilding = target;
+        if (target != null) SetTargetBuilding(target);
+        MoveAll(target.transform.position);
+        State = TroopGroupState.Attacking;
     }
 
     public void AttackGroup(TroopGroup enemyGroup)
     {
-        if (enemyGroup == null || enemyGroup == this || enemyGroup.Units.Count == 0) return;
-        TargetGroupId = enemyGroup.GroupId;
-        TargetGroupOwnerId = enemyGroup.OwnerClientId;
-        Troop target = SelectWeakest(enemyGroup.Units);
-        if (target != null) Attack(target);
+        if (enemyGroup == null || enemyGroup == this || enemyGroup.Units.Count <= 0) return;
+        TargetGroup = enemyGroup;
+        AttackRandom(enemyGroup);
+    }
+
+    public void AttackBuilding(Building enemyBuilding)
+    {
+        if (enemyBuilding == null) return;
+        // cíl měníme jen když ten původní neexistuje nebo je zničený
+        if (TargetBuilding == null || TargetBuilding.Health.Value <= 0) TargetBuilding = enemyBuilding;
+        AttackRandom(TargetBuilding);
+    }
+
+    private void AttackRandom(TroopGroup enemyGroup)
+    {
+        if (enemyGroup == null || enemyGroup == this) return;
+        enemyGroup.Prune();
+        List<Troop> validTargets = new List<Troop>();
+        foreach (Troop candidate in enemyGroup.Units)
+            if (candidate != null && candidate.Health.Value > 0)
+                validTargets.Add(candidate);
+        if (validTargets.Count == 0) return;
+
+        State = TroopGroupState.Attacking;
+        foreach (Troop troop in units)
+        {
+            if (troop == null) continue;
+            if (troop.hasTarget()) continue;
+            Troop target = validTargets[UnityEngine.Random.Range(0, validTargets.Count)];
+            Debug.Log($"[TroopGroup] Group {groupId} attacking enemy group {enemyGroup.GroupId} owned by {enemyGroup.OwnerClientId} with troop {troop.Type} targeting {target.Type}");
+            troop.Attack(target);
+            troop.MoveTo(target.transform.position);
+        }
+    }
+
+    private void AttackRandom(Building enemyBuilding)
+    {
+        if (enemyBuilding == null || enemyBuilding.OwnerClientId == OwnerClientId) 
+        {
+            Debug.Log($"[TroopGroup] Building neexistuje nebo je vlastněn stejným hráčem");
+            return;
+        }
+
+        if (enemyBuilding.Health.Value <= 0)
+        {
+            Debug.Log($"[TroopGroup] Building je už zničený a nemá životy");
+            return;
+        }
+
+        State = TroopGroupState.Attacking;
+        foreach (Troop troop in units)
+        {
+            if (troop == null) continue;
+            if (troop.hasTarget()) continue;
+            Building target = enemyBuilding;
+            Debug.Log($"[TroopGroup] Group {groupId} attacking enemy building {enemyBuilding.Type} owned by {enemyBuilding.OwnerClientId} with troop {troop.Type} targeting {target.Type}");
+            troop.Attack(target);
+            troop.MoveTo(target.transform.position);
+        }
     }
 
     internal void HandleEnemyGroupDetected(TroopGroup enemyGroup)
     {
+        if(State == TroopGroupState.Attacking) return;
         if (enemyGroup == null || enemyGroup == this) return;
+        Debug.Log($"[TroopGroup] Group {groupId} detected enemy group {enemyGroup.GroupId} owned by {enemyGroup.OwnerClientId}");
         if (enemyGroup.State == TroopGroupState.Attacking || Task == TroopGroupTask.Attack)
         {
-            if (Task != TroopGroupTask.Attack || TargetGroupId != enemyGroup.GroupId || TargetGroupOwnerId != enemyGroup.OwnerClientId)
-                AttackGroup(enemyGroup);
+            AttackGroup(enemyGroup);
+            MarkAttacked(enemyGroup);
             State = TroopGroupState.Attacking;
         }
     }
 
     private void SetTargetGroup(TroopGroup target)
     {
-        TargetGroupId = target != null ? target.GroupId : -1;
-        TargetGroupOwnerId = target != null ? target.OwnerClientId : ulong.MaxValue;
-        SyncGroupState();
+        TargetGroup = target;
     }
-
-    private void SyncGroupState()
+    private void SetTargetBuilding(Building target)
     {
-        foreach (Troop troop in units)
-        {
-            if (troop == null || !troop.IsSpawned) continue;
-            if (troop.IsServer)
-            {
-                troop.SyncedGroupState.Value = (int)state;
-                troop.TargetGroupId.Value = TargetGroupId;
-                troop.TargetGroupOwnerId.Value = TargetGroupOwnerId;
-            }
-            else troop.RequestGroupStateSync((int)state, TargetGroupId, TargetGroupOwnerId);
-        }
-    }
-
-    internal void ApplySyncedState(TroopGroupState syncedState, int targetGroupId, ulong targetOwnerId)
-    {
-        state = syncedState;
-        TargetGroupId = targetGroupId;
-        TargetGroupOwnerId = targetOwnerId;
-        if (syncedState == TroopGroupState.Attacking && targetGroupId >= 0)
-        {
-            Task = TroopGroupTask.Attack;
-            TargetTroop = null;
-            foreach (Troop candidate in FindObjectsByType<Troop>(FindObjectsSortMode.None))
-                if (candidate != null && candidate.OwnerClientId == targetOwnerId && candidate.TroopGroupId.Value == targetGroupId)
-                { TargetTroop = candidate; break; }
-        }
-        else if (syncedState != TroopGroupState.Attacking && Task == TroopGroupTask.Attack)
-        {
-            Task = TroopGroupTask.Nothing;
-            TargetTroop = null;
-            TargetBuilding = null;
-        }
+        attackingBuilding = true;
+        respondingToAttack = false;
+        TargetBuilding = target;
     }
 
     private static Troop SelectWeakest(IReadOnlyList<Troop> candidates)
@@ -175,20 +208,10 @@ public class TroopGroup : MonoBehaviour
         return target;
     }
 
-    public void Attack(Building target)
-    {
-        if (target == null) return;
-        foreach (Troop troop in Snapshot()) troop.StopCurrentTask();
-        TargetBuilding = target; TargetTroop = null; Task = TroopGroupTask.Attack;
-        TargetGroupId = -1; TargetGroupOwnerId = ulong.MaxValue;
-        ObjectivePosition = target.transform.position; State = TroopGroupState.Attacking;
-        MoveAll(ObjectivePosition);
-    }
 
     public void MoveAll(Vector3 destination)
     {
-        ObjectivePosition = destination;
-        if (Task == TroopGroupTask.Attack) State = TroopGroupState.Attacking;
+        if (Task == TroopGroupTask.Attack) State = TroopGroupState.Idle;
         else if (Task == TroopGroupTask.Scout) State = TroopGroupState.Scouting;
         else if (Task != TroopGroupTask.Harvest && Task != TroopGroupTask.Defend) State = TroopGroupState.Moving;
         Prune();
@@ -210,7 +233,6 @@ public class TroopGroup : MonoBehaviour
     public void StopAll()
     {
         Prune(); foreach (Troop troop in units) troop.StopCurrentTask();
-        TargetGroupId = -1; TargetGroupOwnerId = ulong.MaxValue;
         Task = TroopGroupTask.Nothing; State = TroopGroupState.Idle;
     }
     public void AssignAll(Building building) { if (building == null) return; foreach (Troop troop in Snapshot()) troop.OnSelectBuilding(building); }
@@ -222,10 +244,17 @@ public class TroopGroup : MonoBehaviour
         troopAI.BeginHarvest();
     }
 
-    internal void MarkAttacked(Troop attacker)
+    internal void MarkAttacked(TroopGroup attacker)
     {
-        if (Task == TroopGroupTask.Defend || Task == TroopGroupTask.Nothing) State = TroopGroupState.Attacked;
-        if (attacker != null) troopAI.RespondTo(attacker);
+        if (attacker == null) return;
+        Debug.Log($"[TroopGroup] Group {groupId} attacked by {(attacker != null ? attacker.groupId.ToString() : "unknown")}");
+        troopAI.RespondTo(attacker);
+    }
+    internal void MarkAttacked(Building attacker)
+    {
+        if (attacker == null) return;
+        Debug.Log($"[TroopGroup] Group {groupId} attacked by {(attacker != null ? attacker.Type : "unknown")}");
+        troopAI.RespondTo(attacker);
     }
 
     private List<Troop> Snapshot() { Prune(); return new List<Troop>(units); }

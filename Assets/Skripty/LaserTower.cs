@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(GenericAttacker))]
@@ -48,4 +49,6 @@ public class LaserTower : Building, IGenericAttackerCallbacks
             targetRotation,
             turretRotationSpeed * Time.deltaTime);
     }
+
+
 }

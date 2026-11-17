@@ -5,7 +5,7 @@ public class TroopMaterial : NetworkBehaviour
 {
     // Zelená = AI, modrá = lokální hráč, červená = protihráč,
     // oranžová = další hráč.
-    [SerializeField] private GameObject model;
+    [SerializeField] public GameObject model;
     [SerializeField] private Material red;
     [SerializeField] private Material green;
     [SerializeField] private Material orange;

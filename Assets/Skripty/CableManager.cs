@@ -41,6 +41,10 @@ public class CableManager : NetworkBehaviour
             line.startColor = Color.black;
             line.endColor = Color.black;
         }
+        if(!IsOwner)
+        {
+            line.gameObject.SetActive(false);
+        }
 
         cables.Add(cableObject);
     }
