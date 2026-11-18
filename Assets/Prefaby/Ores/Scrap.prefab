@@ -134,6 +134,7 @@ MonoBehaviour:
     m_InternalValue: 0
   SpawnAmount: 100
   visual: {fileID: 2734443346513815404}
+  resourceManager: {fileID: 0}
 --- !u!1001 &2734443346513846734
 PrefabInstance:
   m_ObjectHideFlags: 0

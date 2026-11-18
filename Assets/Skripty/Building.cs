@@ -611,24 +611,38 @@ public abstract class Building : NetworkBehaviour, IDamageable
         return instance;
     }
 
-    public static GameObject SpawnScrap(
-        GameObject prefab,
-        Vector3 groundedPosition,
-        Quaternion rotation,
-        ulong ownerClientId,
-        int scrapAmount)
+public static GameObject SpawnScrap(
+    GameObject prefab,
+    Vector3 groundedPosition,
+    Quaternion rotation,
+    ulong ownerClientId,
+    int scrapAmount)
+{
+    // najdeme zemi pod místem, kde se objekt zničil
+    Vector3 groundPosition = groundedPosition;
+
+    if (Physics.Raycast(
+        groundedPosition + Vector3.up * 5f,
+        Vector3.down,
+        out RaycastHit groundHit,
+        200f,
+        LayerMask.GetMask("Ground")))
     {
-        GameObject instance =
-            Instantiate(prefab, groundedPosition, rotation);
+        groundPosition = groundHit.point;
+    }
 
-        float baseOffset = ComputeGroundOffset(instance);
+    GameObject instance =
+        Instantiate(prefab, groundPosition, rotation);
 
-        if (baseOffset != 0f)
-        {
-            Vector3 pos = instance.transform.position;
-            pos.y = groundedPosition.y + baseOffset;
-            instance.transform.position = pos;
-        }
+    float baseOffset = ComputeGroundOffset(instance);
+
+    if (baseOffset != 0f)
+    {
+        Vector3 pos = instance.transform.position;
+        pos.y = groundPosition.y + baseOffset;
+        instance.transform.position = pos;
+    }
+
 
         NetworkObject netObj =
             instance.GetComponent<NetworkObject>();

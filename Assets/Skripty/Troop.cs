@@ -681,22 +681,21 @@ public abstract class Troop : NetworkBehaviour, IDamageable
 
     protected virtual void ScanSurroundingsServer()
     {
+        // Odhalení nepřátelských budov podle SightRange TÉTO jednotky.
+        // buildingsInRange se plní přes ScanBuildings(), který hledá právě
+        // v dosahu SightRange jednotky, takže každá nepřátelská budova v seznamu
+        // je v dosahu mé jednotky a může se odhalit.
         if (buildingsInRange.Count > 0)
         {
             foreach (Building building in buildingsInRange)
             {
                 if (building == null || building.OwnerClientId == OwnerClientId || building.Health.Value <= 0)
-                    {
-                        continue;
-                    }
-
-                // pokud ji nevlastním tak ji vidím
-                if(Vector3.Distance(transform.position, building.transform.position) <= building.SightRange)
                 {
-                    Debug.Log($"[Troop] Budova {building.Type} je viditelná");
-                    building.ChangeVisibilityClientRpc(true);
+                    continue;
                 }
-                
+
+                Debug.Log($"[Troop] Budova {building.Type} je viditelná");
+                building.ChangeVisibilityClientRpc(true);
             }
         }
 

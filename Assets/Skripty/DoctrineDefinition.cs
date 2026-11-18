@@ -33,6 +33,6 @@ public enum DoctrineType
     Iron,
     Logistics,
     Energy,
-    AI,
+    Defense,
     None
 }
