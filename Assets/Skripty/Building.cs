@@ -73,6 +73,10 @@ public abstract class Building : NetworkBehaviour, IDamageable
         new NetworkVariable<bool>(
             writePerm: NetworkVariableWritePermission.Server);
 
+    // Trvalá značka pro aktuální instanci: po dokončení stavby zůstane true,
+    // i když se později změní nebo resetuje její stav konstrukce.
+    private bool wasEverBuilt;
+
     public bool NeedsConstruction =>
         !IsConstructionComplete.Value;
 
@@ -96,6 +100,7 @@ public abstract class Building : NetworkBehaviour, IDamageable
             {
                 StoredCorium.Value = RequiredCorium;
                 IsConstructionComplete.Value = true;
+                wasEverBuilt = true;
             }
 
             OnBuilt();
@@ -208,7 +213,7 @@ public abstract class Building : NetworkBehaviour, IDamageable
             else
                 Debug.LogWarning($"[Building-DIAG] {name} nenašel BuildingInteractor na vlastním PlayerObjectu.");
         }
-        if(IsServer)
+        if(IsServer && wasEverBuilt)
         {
             SpawnScrap(scrapPrefab, transform.position, transform.rotation, OwnerClientId, scrapDropped);
         }
@@ -307,6 +312,7 @@ public abstract class Building : NetworkBehaviour, IDamageable
         if (!IsConstructionComplete.Value)
         {
             IsOperational = false;
+            OnElectricityAvailabilityChanged(false);
             return;
         }
 
@@ -314,6 +320,7 @@ public abstract class Building : NetworkBehaviour, IDamageable
         {
             // budoucí vylepšení: animace, že budova je odpojená od sítě a nefunguje, dokud se znovu nepřipojí k síti budov.
             IsOperational = false;
+            OnElectricityAvailabilityChanged(false);
             return;
         }
         // ------------------------------------------------------------
@@ -347,12 +354,14 @@ public abstract class Building : NetworkBehaviour, IDamageable
         if (!IsConstructionComplete.Value)
         {
             IsOperational = false;
+            OnElectricityAvailabilityChanged(false);
             return;
         }
 
         if (OwnerResources == null)
         {
             IsOperational = false;
+            OnElectricityAvailabilityChanged(false);
             return;
         }
 
@@ -404,6 +413,7 @@ public abstract class Building : NetworkBehaviour, IDamageable
         // ------------------------------------------------------------
 
         SetEnergyShortage(OwnerResources.Energy.Value < actualEnergyConsumption);
+        OnElectricityAvailabilityChanged(!LacksEnergy);
 
         if (!OwnerResources.TrySpend(
             actualCoriumConsumption,
@@ -450,6 +460,11 @@ public abstract class Building : NetworkBehaviour, IDamageable
 
         LacksEnergy = lacksEnergy;
         EnergyShortageChanged?.Invoke(this, lacksEnergy);
+    }
+
+    /// <summary>Server-side hook for buildings that need to react to available power.</summary>
+    protected virtual void OnElectricityAvailabilityChanged(bool hasEnoughEnergy)
+    {
     }
 
     // Zavolá se, když se úspěšně zaplatí provoz budovy

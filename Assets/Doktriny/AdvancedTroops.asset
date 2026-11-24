@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
-  m_Name: Air
+  m_Name: AdvancedTroops
   m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
-  researchId: 15
-  displayName: "Vzdu\u0161n\xE9 jednotky"
-  description: "Odemkne nov\xE9 leteck\xE9 jednotky a jejich tov\xE1rnu"
-  icon: {fileID: 21300000, guid: 5cca7de0cf629f34abad4e325d3ee570, type: 3}
-  coriumCost: 29
-  researchTime: 2
+  researchId: 4
+  displayName: "Pokro\u010Dil\xE9 Jednotky"
+  description: "Odemkne robota rocket s v\xFDbu\u0161n\xFDmi rakety, a vzdu\u0161nou
+    jednotku medium s v\xFDbu\u0161n\xFDmi projektily"
+  icon: {fileID: 21300000, guid: 4b058ee094bad1d4492b8990d93ff170, type: 3}
+  coriumCost: 100
+  researchTime: 30
   energyPerSecond: 5
   requiredResearches:
-  - {fileID: 11400000, guid: 977df4cc9f625b04b9dfafb5508fe68f, type: 2}
+  - {fileID: 11400000, guid: e5aaa100871d5ec46909d17770b25309, type: 2}
   upgrades: []
-  unlockedTroops: 0600000005000000
-  unlockedBuildings: 0c000000
+  unlockedTroops: 0500000003000000
+  unlockedBuildings: 

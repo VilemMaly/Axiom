@@ -132,7 +132,7 @@ NavMeshAgent:
   m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 1.27
-  m_Speed: 1.74
+  m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -326,17 +326,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::knight
   ShowTopMostFoldoutHeaderGroup: 1
   Type: 2
-  MaxHealth: 50
-  Cost: 31
-  SightRange: 10.36
+  MaxHealth: 75
+  Cost: 300
+  SightRange: 17
   WorkRange: 0
   RepairCoriumPerSecond: 0
   HarvestCoriumPerSecond: 0
   MaxCargo: 0
   DepositCoriumPerSecond: 0
-  Damage: 2
+  Damage: 12
   AttackRange: 15
-  AttackSpeed: 10
+  AttackSpeed: 1
   CanAttackAir: 1
   IsAirUnit: 0
   currentVisibility: {fileID: 365583955660702408}

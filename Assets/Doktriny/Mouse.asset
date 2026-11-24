@@ -9,19 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bee5fc344fd3c1f4493ebfc630d1c04d, type: 3}
+  m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
   m_Name: Mouse
-  m_EditorClassIdentifier: Assembly-CSharp::UpgradeDefinition
-  upgradeId: 45
+  m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
+  researchId: 3
   displayName: Mouse
-  description: "Zrychl\xED mouse robota na rychlost sv\u011Btla pomoc\xED nov\xE9
-    trysky"
-  icon: {fileID: 21300000, guid: 5cca7de0cf629f34abad4e325d3ee570, type: 3}
-  targetType: 0
-  troopType: 1
-  buildingType: 0
-  buildingTierUpgrade: 0
-  buildingUpgradeTier: 1
-  statType: 4
-  value: 10000
-  valueType: 1
+  description: "Odemkne robota se zbran\xED na velikou vzd\xE1lenost"
+  icon: {fileID: 21300000, guid: f728d127869892343aa637ab9cdaf9c7, type: 3}
+  coriumCost: 100
+  researchTime: 30
+  energyPerSecond: 5
+  requiredResearches:
+  - {fileID: 11400000, guid: 3a768327edd2235458af40ba174338e5, type: 2}
+  upgrades: []
+  unlockedTroops: 01000000
+  unlockedBuildings: 

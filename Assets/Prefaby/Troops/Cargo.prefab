@@ -101,7 +101,7 @@ NavMeshAgent:
   m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 1.28
-  m_Speed: 7.68
+  m_Speed: 7.2
   m_Acceleration: 8.24
   avoidancePriority: 65
   m_AngularSpeed: 152.3
@@ -278,9 +278,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cargo
   ShowTopMostFoldoutHeaderGroup: 1
   Type: 0
-  MaxHealth: 51
-  Cost: 50
-  SightRange: 10.86
+  MaxHealth: 70
+  Cost: 120
+  SightRange: 12
   WorkRange: 10.65
   RepairCoriumPerSecond: 42
   HarvestCoriumPerSecond: 15

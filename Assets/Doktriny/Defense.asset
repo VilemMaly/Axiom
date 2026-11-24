@@ -14,12 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoctrineDefinition
   doctrineId: 1
   displayName: Defense
-  description: "Doktr\xEDna zam\u011B\u0159en\xE1 na co nejkvalitn\u011Bj\u0161\xED
+  description: "V\xFDzkum, kter\xFD se zam\u011B\u0159uje na nejvy\u0161\u0161\xED
     obranu"
-  icon: {fileID: -1793273040, guid: 5054274a45f47ae4f8634f4fb74b4fc1, type: 3}
+  icon: {fileID: 21300000, guid: a73aae0f7fa17e1448b09edbb6088b19, type: 3}
   doctrineType: 3
   researches:
   - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
-  - {fileID: 11400000, guid: 977df4cc9f625b04b9dfafb5508fe68f, type: 2}
-  - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
-  - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
+  - {fileID: 11400000, guid: 3a768327edd2235458af40ba174338e5, type: 2}
+  - {fileID: 11400000, guid: 2125aa74da78a45458563abae10e46ea, type: 2}
+  - {fileID: 11400000, guid: e5aaa100871d5ec46909d17770b25309, type: 2}
+  - {fileID: 11400000, guid: 19e7e72e1de81b144b2b3eb8ddf2a77f, type: 2}
+  - {fileID: 11400000, guid: e1864c87a44fab74cb1a8966529b80ce, type: 2}
+  - {fileID: 11400000, guid: 131bdf33aff96224e933459f42e45987, type: 2}
+  - {fileID: 11400000, guid: d1f77c3515baec241bac4d776b12fb3b, type: 2}
+  - {fileID: 11400000, guid: bf8065e87f068a141944516fd947c4c2, type: 2}
+  - {fileID: 11400000, guid: 3868caa017952f34eba48bf3c9708e15, type: 2}
+  - {fileID: 11400000, guid: 365f81d8954180c44af3dd958ba85226, type: 2}
+  - {fileID: 11400000, guid: c9e026a962794994b965aa582bce1989, type: 2}

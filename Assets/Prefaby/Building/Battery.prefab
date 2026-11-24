@@ -116,9 +116,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Battery
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 100
-  RequiredCorium: 30
-  MaxBuildingAmount: 10
+  MaxHealth: 110
+  RequiredCorium: 500
+  MaxBuildingAmount: 5
   CoriumConsumption: 0
   EnergyConsumption: 0
   CoriumProduction: 0

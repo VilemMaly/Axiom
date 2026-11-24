@@ -101,7 +101,7 @@ NavMeshAgent:
   m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 1.54
-  m_Speed: 3.5
+  m_Speed: 3.3
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -127,17 +127,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Photon
   ShowTopMostFoldoutHeaderGroup: 1
   Type: 1
-  MaxHealth: 30
-  Cost: 40
-  SightRange: 60
+  MaxHealth: 55
+  Cost: 600
+  SightRange: 48
   WorkRange: 0
   RepairCoriumPerSecond: 0
   HarvestCoriumPerSecond: 0
   MaxCargo: 0
   DepositCoriumPerSecond: 0
-  Damage: 20
-  AttackRange: 60.5
-  AttackSpeed: 0.2
+  Damage: 15
+  AttackRange: 46
+  AttackSpeed: 0.25
   CanAttackAir: 1
   IsAirUnit: 0
   currentVisibility: {fileID: 365583955660702408}

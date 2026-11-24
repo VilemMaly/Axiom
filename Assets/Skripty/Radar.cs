@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class Radar : Building
 {
@@ -6,6 +7,60 @@ public class Radar : Building
 
     [Header("Radar specific")]
     [SerializeField] private float revealRadius = 25f;
+
+    // Vlastní stav radaru synchronizuje dostupnost energie i s klienty.
+    public NetworkVariable<bool> HasEnoughElectricity = new(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    private float normalSightRange;
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // Base OnNetworkSpawn může aplikovat výzkumné bonusy k dosahu.
+        normalSightRange = SightRange;
+        HasEnoughElectricity.OnValueChanged += OnElectricityValueChanged;
+        ApplySightRange(HasEnoughElectricity.Value);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        HasEnoughElectricity.OnValueChanged -= OnElectricityValueChanged;
+        base.OnNetworkDespawn();
+    }
+
+    protected override void OnElectricityAvailabilityChanged(bool hasEnoughEnergy)
+    {
+        if (!IsServer)
+            return;
+
+        if (HasEnoughElectricity.Value != hasEnoughEnergy)
+            HasEnoughElectricity.Value = hasEnoughEnergy;
+
+        // Server si také nastavuje vlastní lokální dosah.
+        ApplySightRange(hasEnoughEnergy);
+    }
+
+    private void OnElectricityValueChanged(bool previousValue, bool newValue)
+    {
+        // Klienti aktualizují lokální sight range podle síťového stavu radaru.
+        if (!IsServer)
+            ApplySightRange(newValue);
+    }
+
+    private void ApplySightRange(bool hasEnoughEnergy)
+    {
+        SightRange = hasEnoughEnergy ? normalSightRange : 0f;
+
+        if (visibilityMap != null)
+        {
+            float mapScale = SightRange / 2f;
+            visibilityMap.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
+        }
+    }
 
     public override void OnBuilt()
     {

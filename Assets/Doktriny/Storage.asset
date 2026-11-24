@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
   m_Name: Storage
   m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
-  researchId: 6544
+  researchId: 0
   displayName: Storage
-  description: "Tohle odemkne storage, na zv\xFD\u0161en\xED maxim\xE1ln\xED kapacity
-    coria"
-  icon: {fileID: 21300000, guid: 4b8a5dcee185e7a408dda14f44f82e2f, type: 3}
-  coriumCost: 400
-  researchTime: 120
-  energyPerSecond: 10
-  requiredResearches: []
+  description: "Odemkne sklady pro korium, a baterii na ulo\u017Een\xED energie,
+    kter\xE9 zvy\u0161uj\xED maxim\xE1ln\xED kapacitu zdroj\u016F."
+  icon: {fileID: 21300000, guid: a08aa4b470e53c64bb4ae180bd4bfb22, type: 3}
+  coriumCost: 100
+  researchTime: 30
+  energyPerSecond: 5
+  requiredResearches:
+  - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
   upgrades: []
   unlockedTroops: 
-  unlockedBuildings: 09000000
+  unlockedBuildings: 0900000002000000

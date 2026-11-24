@@ -127,7 +127,7 @@ MonoBehaviour:
   completionAnimator: {fileID: 7956487396808456390}
   startAudioSource: {fileID: 144918815034464043}
   startSound: {fileID: 8300000, guid: 7885e4a89deea76499a31ffcf2b05351, type: 3}
-  allowedTroopTypes: 010000000200000003000000
+  allowedTroopTypes: 01000000020000000300000007000000
   spawnPoint: {fileID: 4726850294659891581}
   rallyPoint: {fileID: 729943065520405650}
 --- !u!114 &3711565089451226387
@@ -178,11 +178,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoboFactory
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 100
-  RequiredCorium: 0
+  MaxHealth: 180
+  RequiredCorium: 600
   MaxBuildingAmount: 5
   CoriumConsumption: 0
-  EnergyConsumption: 20
+  EnergyConsumption: 10
   CoriumProduction: 0
   EnergyProduction: 0
   Level: 0
@@ -190,7 +190,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 20
+  SightRange: 22
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1

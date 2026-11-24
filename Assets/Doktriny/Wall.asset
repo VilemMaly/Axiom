@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
-  m_Name: Knight
+  m_Name: Wall
   m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
-  researchId: 187
-  displayName: Knight
-  description: Odemkne jednotku knight a budovu roboFactory
-  icon: {fileID: 21300000, guid: 3a9cda7fd1b23a847bd5568488717408, type: 3}
-  coriumCost: 400
-  researchTime: 120
-  energyPerSecond: 10
+  researchId: 10
+  displayName: "Zdi a br\xE1ny"
+  description: "Odemkne zdi, a br\xE1nu, kter\xE9 mohou ochr\xE1nit z\xE1kladnu"
+  icon: {fileID: 21300000, guid: ed3c22854e62f1049a615267dd9ff35e, type: 3}
+  coriumCost: 100
+  researchTime: 30
+  energyPerSecond: 5
   requiredResearches:
   - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
   upgrades: []
-  unlockedTroops: 02000000
-  unlockedBuildings: 0b000000
+  unlockedTroops: 
+  unlockedBuildings: 0500000008000000

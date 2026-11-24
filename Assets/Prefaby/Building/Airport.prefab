@@ -120,11 +120,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AirPort
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 67
-  RequiredCorium: 20
+  MaxHealth: 100
+  RequiredCorium: 600
   MaxBuildingAmount: 3
   CoriumConsumption: 0
-  EnergyConsumption: 14
+  EnergyConsumption: 10
   CoriumProduction: 0
   EnergyProduction: 0
   Level: 0

@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd3bd315ee3d84640a6033cd83db6dff, type: 3}
-  m_Name: Iron
+  m_Name: Cheat
   m_EditorClassIdentifier: Assembly-CSharp::DoctrineDefinition
-  doctrineId: 3
-  displayName: Iron
-  description: "Doktr\xEDna zam\u011B\u0159en\xE1 na t\u011B\u017Ekou v\xFDzbroj,
-    odolnost a ni\u010Divou palebnou s\xEDlu, kter\xE1 umo\u017E\u0148uje prorazit
-    nep\u0159\xE1telskou obranu a dominovat na boji\u0161ti."
-  icon: {fileID: 611031530, guid: da77715149a20a84293b7e0219cd9945, type: 3}
-  doctrineType: 0
-  researches: []
+  doctrineId: 1
+  displayName: Defense
+  description: "Zkou\u0161en\xED funk\u010Dnosti hry"
+  icon: {fileID: 21300000, guid: d74e827499380b942a459e04499eda26, type: 3}
+  doctrineType: 2
+  researches:
+  - {fileID: 11400000, guid: b16064723f960424a953a306edcbaea6, type: 2}

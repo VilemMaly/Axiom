@@ -101,8 +101,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gate
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 100
-  RequiredCorium: 0
+  MaxHealth: 180
+  RequiredCorium: 25
   MaxBuildingAmount: 50
   CoriumConsumption: 0
   EnergyConsumption: 0
@@ -113,7 +113,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 20
+  SightRange: 16
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 0
@@ -565,3 +565,5 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ad8c3494869abc64b897db5681111538, type: 3}
   m_PrefabInstance: {fileID: 7369050228231079415}
   m_PrefabAsset: {fileID: 0}
+
+

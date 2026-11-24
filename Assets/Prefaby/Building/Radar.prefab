@@ -98,11 +98,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Radar
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 50
-  RequiredCorium: 0
-  MaxBuildingAmount: 2
+  MaxHealth: 90
+  RequiredCorium: 1000
+  MaxBuildingAmount: 1
   CoriumConsumption: 0
-  EnergyConsumption: 0
+  EnergyConsumption: 10
   CoriumProduction: 0
   EnergyProduction: 0
   Level: 0
@@ -110,7 +110,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 20
+  SightRange: 70
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 1
@@ -143,6 +143,11 @@ MonoBehaviour:
   scrapDropped: 0
   scrapPrefab: {fileID: 6350479522769530736, guid: 314f79f2d8b6e034585b1de58ebf6da2, type: 3}
   revealRadius: 25
+  HasEnoughElectricity:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!208 &1252411705593279050
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -347,6 +352,10 @@ PrefabInstance:
     - target: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

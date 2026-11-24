@@ -105,9 +105,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Barracks
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 80
-  RequiredCorium: 60
-  MaxBuildingAmount: 4
+  MaxHealth: 150
+  RequiredCorium: 500
+  MaxBuildingAmount: 2
   CoriumConsumption: 0
   EnergyConsumption: 5
   CoriumProduction: 0
@@ -187,7 +187,7 @@ MonoBehaviour:
   completionAnimator: {fileID: 9032911157290921064}
   startAudioSource: {fileID: 6914616134248722800}
   startSound: {fileID: 8300000, guid: 540fe21cea449d6438caf5c1c73a35e8, type: 3}
-  allowedTroopTypes: 000000000400000007000000
+  allowedTroopTypes: 0000000004000000
   spawnPoint: {fileID: 4726850294659891581}
   rallyPoint: {fileID: 729943065520405650}
 --- !u!114 &3711565089451226387

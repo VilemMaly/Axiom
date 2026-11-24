@@ -134,7 +134,7 @@ NavMeshAgent:
   m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 1.28
-  m_Speed: 3
+  m_Speed: 2.8
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -292,17 +292,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tank
   ShowTopMostFoldoutHeaderGroup: 1
   Type: 4
-  MaxHealth: 101
-  Cost: 50
-  SightRange: 9.72
+  MaxHealth: 130
+  Cost: 600
+  SightRange: 22
   WorkRange: 0
   RepairCoriumPerSecond: 0
   HarvestCoriumPerSecond: 0
   MaxCargo: 0
   DepositCoriumPerSecond: 0
-  Damage: 30
-  AttackRange: 13.03
-  AttackSpeed: 0.3
+  Damage: 27
+  AttackRange: 17
+  AttackSpeed: 0.38
   CanAttackAir: 0
   IsAirUnit: 0
   currentVisibility: {fileID: 365583955660702408}

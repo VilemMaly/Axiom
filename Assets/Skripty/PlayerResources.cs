@@ -11,6 +11,9 @@ public class PlayerResources : NetworkBehaviour
     public NetworkVariable<int> Cores = new NetworkVariable<int>(0);
     public NetworkVariable<int> Atlas = new NetworkVariable<int>(0);
 
+    [SerializeField] private int startingCorium = 100;
+    [SerializeField] private int startingEnergy = 50;
+
     [Header("HUD refs")]
     [SerializeField] private TMP_Text coriumText;
     [SerializeField] private TMP_Text coriumStatusText;
@@ -31,6 +34,14 @@ public class PlayerResources : NetworkBehaviour
         {
             hudRoot.SetActive(false);
             return;
+        }
+
+            if (IsServer)
+        {
+            Corium.Value = startingCorium;
+            Energy.Value = startingEnergy;
+            MaxCorium.Value = startingCorium;
+            MaxEnergy.Value = startingEnergy;
         }
 
         Corium.OnValueChanged += (_, _) => UpdateCoriumText();

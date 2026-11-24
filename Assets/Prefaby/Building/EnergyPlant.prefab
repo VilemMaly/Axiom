@@ -98,10 +98,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnergyPlant
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 50
-  RequiredCorium: 20
-  MaxBuildingAmount: 3
-  CoriumConsumption: 20
+  MaxHealth: 125
+  RequiredCorium: 500
+  MaxBuildingAmount: 5
+  CoriumConsumption: 2
   EnergyConsumption: 0
   CoriumProduction: 0
   EnergyProduction: 20
@@ -110,7 +110,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 15.17
+  SightRange: 17
   CanAttackAir: 0
   IsPowerSource: 1
   IsEnergyConsumer: 1

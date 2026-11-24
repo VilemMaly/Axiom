@@ -113,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Connector
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 5
+  MaxHealth: 15
   RequiredCorium: 0
   MaxBuildingAmount: 10
   CoriumConsumption: 0
@@ -241,3 +241,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b2852e0cdb092884fa18b83958b4f8ac, type: 3}
   m_PrefabInstance: {fileID: 7749083783422291809}
   m_PrefabAsset: {fileID: 0}
+
+
+

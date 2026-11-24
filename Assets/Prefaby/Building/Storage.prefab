@@ -114,9 +114,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Storage
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 100
-  RequiredCorium: 0
-  MaxBuildingAmount: 10
+  MaxHealth: 150
+  RequiredCorium: 500
+  MaxBuildingAmount: 5
   CoriumConsumption: 0
   EnergyConsumption: 0
   CoriumProduction: 0
@@ -126,7 +126,7 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   AttackCooldown: 0
-  SightRange: 0
+  SightRange: 14
   CanAttackAir: 0
   IsPowerSource: 0
   IsEnergyConsumer: 0
@@ -311,6 +311,10 @@ PrefabInstance:
     - target: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
       propertyPath: m_Name
       value: TroopMap
+      objectReference: {fileID: 0}
+    - target: {fileID: 6217354920360164800, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

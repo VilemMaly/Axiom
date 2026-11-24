@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42f52843fe5131744ac00dc09b89cb36, type: 3}
+  m_Name: LaserTower
+  m_EditorClassIdentifier: Assembly-CSharp::ResearchDefinition
+  researchId: 7
+  displayName: LaserTower
+  description: "Odemkne obranou v\u011B\u017E, kter\xE1 st\u0159\xEDl\xED lasery
+    na bl\xEDzk\xE9 c\xEDle"
+  icon: {fileID: 21300000, guid: d553bc3ce6db84046a855ccf2ac8dc1f, type: 3}
+  coriumCost: 100
+  researchTime: 30
+  energyPerSecond: 5
+  requiredResearches:
+  - {fileID: 11400000, guid: d1f77c3515baec241bac4d776b12fb3b, type: 2}
+  upgrades: []
+  unlockedTroops: 
+  unlockedBuildings: 01000000

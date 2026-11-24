@@ -99,7 +99,7 @@ NavMeshAgent:
   m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 1.48
-  m_Speed: 3
+  m_Speed: 3.2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -257,9 +257,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RadarTroop
   ShowTopMostFoldoutHeaderGroup: 1
   Type: 7
-  MaxHealth: 45
-  Cost: 43
-  SightRange: 29.21
+  MaxHealth: 65
+  Cost: 160
+  SightRange: 36
   WorkRange: 0
   RepairCoriumPerSecond: 0
   HarvestCoriumPerSecond: 0
@@ -701,3 +701,4 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3097871445772514602, guid: 6233cb6f58ad58441a7f18b4d2e5b548, type: 3}
   m_PrefabInstance: {fileID: 8531762650169755225}
   m_PrefabAsset: {fileID: 0}
+

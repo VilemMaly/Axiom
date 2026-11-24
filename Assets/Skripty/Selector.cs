@@ -406,7 +406,14 @@ private void UpdateInspectorHover()
 
     if (building == hoveredBuilding && troop == hoveredTroop)
         return;
-
+    if(building == null || troop == null)
+        {
+            return;
+        }
+    if (!building.isVisible.Value || !troop.isVisible.Value)
+        {
+            return;
+        }
     hoveredBuilding = building;
     hoveredTroop = troop;
     if (inspector == null)

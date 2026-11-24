@@ -221,6 +221,11 @@ public class Cargo : Troop
     [ClientRpc]
     private void PlayTransferEffectClientRpc(Vector3 origin, Vector3 destination)
     {
+        if(!IsOwner && !isVisible.Value)
+        {
+            return;
+        }
+
         if (transferParticle != null)
         {
             transferParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);

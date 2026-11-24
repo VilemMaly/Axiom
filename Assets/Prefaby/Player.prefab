@@ -20907,6 +20907,8 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  startingCorium: 1000
+  startingEnergy: 500
   coriumText: {fileID: 1144617787207869410}
   coriumStatusText: {fileID: 2504720771850270178}
   energyText: {fileID: 2236245012902400215}
@@ -21235,12 +21237,9 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   doctrines:
   - {fileID: 11400000, guid: d1bb1fbcb300cfe45a41cefbfc84cb43, type: 2}
-  - {fileID: 11400000, guid: 8b36b9a0bcad80f48a72321f478d4f23, type: 2}
-  - {fileID: 11400000, guid: c7bbb75f9832ae24d8ba393b7659aff1, type: 2}
-  - {fileID: 11400000, guid: 3adfb4b3ec4fb6e4db6b4222cf140ca4, type: 2}
+  - {fileID: 11400000, guid: 7d61f01f33e5fa44fb3ec001df610a60, type: 2}
   starttechnology:
   - {fileID: 11400000, guid: e87aea2c0392a7949a49455a25672eb1, type: 2}
-  - {fileID: 11400000, guid: ecaa4c8ca1d05b8488354ee8ca519588, type: 2}
 --- !u!114 &6098216747275359234
 MonoBehaviour:
   m_ObjectHideFlags: 0
